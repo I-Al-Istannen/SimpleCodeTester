@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
-import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.objectweb.asm.ClassVisitor;
@@ -39,22 +38,14 @@ public abstract class ImportCheck implements Check {
 
   @Override
   public CheckResult check(CompiledFile file) {
-    try {
-      visitClassfile(file, new ClassVisitor(Opcodes.ASM7) {
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String descriptor,
-            String signature,
-            String[] exceptions) {
-          return new FilteringMethodVisitor();
-        }
-      });
-    } catch (CheckFailedException e) {
-      return ImmutableCheckResult.builder()
-          .message(e.getMessage())
-          .check(this)
-          .successful(false)
-          .build();
-    }
+    visitClassfile(file, new ClassVisitor(Opcodes.ASM7) {
+      @Override
+      public MethodVisitor visitMethod(int access, String name, String descriptor,
+          String signature,
+          String[] exceptions) {
+        return new FilteringMethodVisitor();
+      }
+    });
     return CheckResult.emptySuccess(this);
   }
 

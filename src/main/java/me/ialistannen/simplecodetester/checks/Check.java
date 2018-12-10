@@ -3,6 +3,7 @@ package me.ialistannen.simplecodetester.checks;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -15,6 +16,8 @@ public interface Check {
    *
    * @param file the file to check
    * @return the result of checking the file
+   * @throws CheckFailedException if the check failed and it makes more sense for the check to not
+   * directly return a result
    */
   CheckResult check(CompiledFile file);
 

@@ -4,10 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +18,19 @@ import java.util.regex.Pattern;
 
 public class SubmissionClassLoader extends URLClassLoader {
 
-  private List<Pattern> redefinedClassWhitelist;
+  private List<Pattern> classesToRedefine;
 
   private Map<String, Class<?>> myLoadedClasses;
 
-  public SubmissionClassLoader(Path folder, Pattern... redefinedClassWhitelist)
+  /**
+   * Creates a new SubmissionClassLoader loading from the given folder and redefining the classes
+   * matching the passed patterns.
+   *
+   * @param folder the folder to load from
+   * @param classesToRedefine a list of patterns that specify which classes should be redefined
+   * @throws MalformedURLException see {@link Path#toUri()} and {@link URI#toURL()}
+   */
+  public SubmissionClassLoader(Path folder, Pattern... classesToRedefine)
       throws MalformedURLException {
     super(
         new URL[]{folder.toAbsolutePath().toUri().toURL()},
@@ -27,7 +38,13 @@ public class SubmissionClassLoader extends URLClassLoader {
     );
 
     this.myLoadedClasses = new HashMap<>();
-    this.redefinedClassWhitelist = Arrays.asList(redefinedClassWhitelist);
+    this.classesToRedefine = new ArrayList<>(Arrays.asList(classesToRedefine));
+
+    Collections.addAll(
+        this.classesToRedefine,
+        Pattern.compile("edu.kit.informatik.Terminal"),
+        Pattern.compile("me.ialistannen.simplecodetester.checks.default.*")
+    );
   }
 
   @Override
@@ -51,7 +68,7 @@ public class SubmissionClassLoader extends URLClassLoader {
       return myLoadedClasses.get(name);
     }
 
-    if (redefinedClassWhitelist.stream().anyMatch(pattern -> pattern.matcher(name).matches())) {
+    if (classesToRedefine.stream().anyMatch(pattern -> pattern.matcher(name).matches())) {
       byte[] bytes = classAsBytes(name);
       Class<?> definedClass = defineClass(name, bytes, 0, bytes.length);
 

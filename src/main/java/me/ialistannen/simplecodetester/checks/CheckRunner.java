@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.ArrayList;
 import java.util.List;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
+import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 
@@ -41,11 +42,23 @@ public class CheckRunner {
 
     for (CompiledFile file : compiledSubmission.files()) {
       List<CheckResult> checkResults = checks.stream()
-          .map(check -> check.check(file))
+          .map(check -> tryCheck(check, file))
           .collect(toList());
       builder.putFileResults(file, checkResults);
     }
 
     return builder.build();
+  }
+
+  private CheckResult tryCheck(Check check, CompiledFile file) {
+    try {
+      return check.check(file);
+    } catch (CheckFailedException e) {
+      return ImmutableCheckResult.builder()
+          .message(e.getMessage())
+          .check(check)
+          .successful(false)
+          .build();
+    }
   }
 }
