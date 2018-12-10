@@ -29,18 +29,18 @@ public abstract class MainClassRunnerCheck implements Check {
   @Override
   public CheckResult check(CompiledFile file) {
     if (!mainClassPredicate.test(file)) {
-      return CheckResult.emptySuccess();
+      return CheckResult.emptySuccess(this);
     }
 
     Terminal.setInput(input);
 
-    Class<?> clazz = file.asClass(getClass().getClassLoader());
+    Class<?> clazz = file.asClass();
 
     Reflect.on(clazz)
         .call("main", (Object) new String[0]);
 
     if (outputPredicate.test(Terminal.getOutput())) {
-      return CheckResult.emptySuccess();
+      return CheckResult.emptySuccess(this);
     }
 
     return CheckResult.failure(getErrorMessage(file));
@@ -63,6 +63,6 @@ public abstract class MainClassRunnerCheck implements Check {
    * @return true if the class has a main method
    */
   public static Predicate<CompiledFile> hasMainMethod(ClassLoader classLoader) {
-    return file -> ReflectionHelper.hasMainMethod(file.asClass(classLoader));
+    return file -> ReflectionHelper.hasMainMethod(file.asClass());
   }
 }

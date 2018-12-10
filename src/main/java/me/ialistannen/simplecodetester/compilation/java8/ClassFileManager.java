@@ -12,15 +12,18 @@ import javax.tools.StandardJavaFileManager;
 
 class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
-  private Map<String, InMemoryOutputObject> compiledClasses;
+  private final Path folder;
+  private Map<String, PathOutputObject> compiledClasses;
 
   /**
    * Creates a new instance of ForwardingJavaFileManager.
    *
    * @param fileManager delegate to this file manager
+   * @param folder the folder to store classes in
    */
-  protected ClassFileManager(StandardJavaFileManager fileManager) {
+  protected ClassFileManager(StandardJavaFileManager fileManager, Path folder) {
     super(fileManager);
+    this.folder = folder;
 
     this.compiledClasses = new HashMap<>();
   }
@@ -28,14 +31,16 @@ class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager
   @Override
   public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind,
       FileObject sibling) throws IOException {
-    InMemoryOutputObject outputObject = new InMemoryOutputObject(Path.of(className));
+    PathOutputObject outputObject = new PathOutputObject(
+        folder.resolve(className.replace(".", "/") + ".class")
+    );
 
     compiledClasses.put(className, outputObject);
 
     return outputObject;
   }
 
-  public Map<String, InMemoryOutputObject> getCompiledClasses() {
+  public Map<String, PathOutputObject> getCompiledClasses() {
     return compiledClasses;
   }
 }

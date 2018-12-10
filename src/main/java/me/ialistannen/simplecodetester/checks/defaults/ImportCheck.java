@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.objectweb.asm.ClassVisitor;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A simple {@link Check} verifying all used classes can be used.
  */
-public class ImportCheck implements Check {
+public abstract class ImportCheck implements Check {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportCheck.class);
 
@@ -38,14 +39,23 @@ public class ImportCheck implements Check {
 
   @Override
   public CheckResult check(CompiledFile file) {
-    visitClassfile(file, new ClassVisitor(Opcodes.ASM7) {
-      @Override
-      public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
-          String[] exceptions) {
-        return new FilteringMethodVisitor();
-      }
-    });
-    return null;
+    try {
+      visitClassfile(file, new ClassVisitor(Opcodes.ASM7) {
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor,
+            String signature,
+            String[] exceptions) {
+          return new FilteringMethodVisitor();
+        }
+      });
+    } catch (CheckFailedException e) {
+      return ImmutableCheckResult.builder()
+          .message(e.getMessage())
+          .check(this)
+          .successful(false)
+          .build();
+    }
+    return CheckResult.emptySuccess(this);
   }
 
   private boolean isWhitelisted(String input) {

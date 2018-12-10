@@ -1,16 +1,17 @@
 package me.ialistannen.simplecodetester.compilation;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import me.ialistannen.simplecodetester.submission.CompiledSubmission;
+import me.ialistannen.simplecodetester.submission.Submission;
 
 public interface Compiler {
 
 
   /**
-   * Compiles the whole folder.
+   * Compiles the given {@link Submission}.
    *
-   * @param folder the folder to compile
-   * @return the compiler output
+   * @param submission the {@link Submission} to compile
+   * @return the compiled submission
    */
-  CompilationOutput compileFolder(Path folder) throws IOException;
+  CompiledSubmission compileSubmission(Submission submission) throws IOException;
 }

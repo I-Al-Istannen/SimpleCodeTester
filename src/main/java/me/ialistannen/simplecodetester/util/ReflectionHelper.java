@@ -19,7 +19,7 @@ public class ReflectionHelper {
       return false;
     }
 
-    return mainMethod.getReturnType() == Void.class
+    return mainMethod.getReturnType() == void.class
         && Modifier.isStatic(mainMethod.getModifiers())
         && Modifier.isPublic(mainMethod.getModifiers());
   }

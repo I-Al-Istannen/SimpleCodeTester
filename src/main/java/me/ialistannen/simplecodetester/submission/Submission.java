@@ -1,15 +1,23 @@
 package me.ialistannen.simplecodetester.submission;
 
-import java.util.List;
+import java.nio.file.Path;
+import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 import org.immutables.value.Value;
 
 @Value.Immutable
 public abstract class Submission {
 
   /**
-   * Returns all compiled files in this submission.
+   * Returns the base path where files for this submission are stored.
    *
-   * @return all compiled files in this submission
+   * @return base path where files for this submission are stored
    */
-  public abstract List<CompiledFile> files();
+  public abstract Path basePath();
+
+  /**
+   * Returns the {@link SubmissionClassLoader} to use.
+   *
+   * @return the submission class loader to use
+   */
+  public abstract SubmissionClassLoader classLoader();
 }
