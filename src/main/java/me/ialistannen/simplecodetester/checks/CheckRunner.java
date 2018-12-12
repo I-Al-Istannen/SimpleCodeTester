@@ -10,6 +10,10 @@ import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 
+/**
+ * A class that runs a given suit of tests against a {@link CompiledSubmission}, reporting the
+ * output.
+ */
 public class CheckRunner {
 
   private List<Check> checks;

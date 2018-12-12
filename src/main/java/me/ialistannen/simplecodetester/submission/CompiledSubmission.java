@@ -4,6 +4,9 @@ import java.util.List;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import org.immutables.value.Value;
 
+/**
+ * Returns a compiled version of a Submission.
+ */
 @Value.Immutable
 public abstract class CompiledSubmission extends Submission {
 

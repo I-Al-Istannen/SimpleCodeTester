@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A simple {@link Check} verifying all used classes can be used.
+ * A simple {@link Check} verifying all used classes/methods are whitelisted.
  */
 public abstract class ImportCheck implements Check {
 

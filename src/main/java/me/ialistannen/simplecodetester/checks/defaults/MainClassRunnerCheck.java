@@ -10,6 +10,12 @@ import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ReflectionHelper;
 import org.joor.Reflect;
 
+/**
+ * A Check that finds and executes a class with a main method with some given input and validates
+ * the output.
+ *
+ * The validation and input are produced by the subclasses.
+ */
 public abstract class MainClassRunnerCheck implements Check {
 
   private Predicate<CompiledFile> mainClassPredicate;

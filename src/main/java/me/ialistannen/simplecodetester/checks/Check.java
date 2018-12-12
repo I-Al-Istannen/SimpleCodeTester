@@ -8,6 +8,10 @@ import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 
+/**
+ * A single check that can validate some class properties. It accepts a single {@link CompiledFile}
+ * and can use its source or bytecode to make a decision.
+ */
 @FunctionalInterface
 public interface Check {
 

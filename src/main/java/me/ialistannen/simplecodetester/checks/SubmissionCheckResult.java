@@ -4,8 +4,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
+import me.ialistannen.simplecodetester.submission.Submission;
 import org.immutables.value.Value;
 
+/**
+ * The result of checking a whole {@link Submission}.
+ */
 @Value.Immutable
 public abstract class SubmissionCheckResult {
 

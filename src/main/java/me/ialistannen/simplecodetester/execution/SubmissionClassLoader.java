@@ -15,7 +15,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import me.ialistannen.simplecodetester.submission.Submission;
 
+/**
+ * A ClassLoader for {@link Submission Submissions} that reads from a folder and caches a list of
+ * passed classes.
+ *
+ * Those cached classes will be unique to this classloader, so each classloader has its own
+ * instance.
+ */
 public class SubmissionClassLoader extends URLClassLoader {
 
   private List<Pattern> classesToRedefine;
@@ -27,7 +35,8 @@ public class SubmissionClassLoader extends URLClassLoader {
    * matching the passed patterns.
    *
    * @param folder the folder to load from
-   * @param classesToRedefine a list of patterns that specify which classes should be redefined
+   * @param classesToRedefine a list of patterns that specify which classes should be redefined and
+   * therefore unique to this classloader
    * @throws MalformedURLException see {@link Path#toUri()} and {@link URI#toURL()}
    */
   public SubmissionClassLoader(Path folder, Pattern... classesToRedefine)
@@ -45,21 +54,6 @@ public class SubmissionClassLoader extends URLClassLoader {
         Pattern.compile("edu.kit.informatik.Terminal"),
         Pattern.compile("me.ialistannen.simplecodetester.checks.default.*")
     );
-  }
-
-  @Override
-  protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-    return super.loadClass(name, resolve);
-  }
-
-  @Override
-  protected Class<?> findClass(String moduleName, String name) {
-    return super.findClass(moduleName, name);
-  }
-
-  @Override
-  protected Class<?> findClass(String name) throws ClassNotFoundException {
-    return super.findClass(name);
   }
 
   @Override
@@ -90,6 +84,9 @@ public class SubmissionClassLoader extends URLClassLoader {
     try (InputStream inputStream = getResourceAsStream(classPath)) {
 
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      // We check that getResource exists and if the classloader is not garbage, this call will
+      // have succeed too
+      assert inputStream != null;
       inputStream.transferTo(outputStream);
 
       return outputStream.toByteArray();

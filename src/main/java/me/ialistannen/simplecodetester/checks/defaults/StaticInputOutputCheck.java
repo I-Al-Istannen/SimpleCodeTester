@@ -5,6 +5,12 @@ import java.util.List;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 
+/**
+ * A MainClassRunnerCheck that executes all classes with a main method by default and verifies that
+ * their output for a given input is correct.
+ *
+ * The output and input are static, not changing and supplied in the constructor.
+ */
 public class StaticInputOutputCheck extends MainClassRunnerCheck {
 
   private List<String> input;

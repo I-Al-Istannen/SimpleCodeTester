@@ -6,6 +6,9 @@ import java.util.Map;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.immutables.value.Value;
 
+/**
+ * The compiler output for a whole collection of files.
+ */
 @Value.Immutable
 public abstract class CompilationOutput {
 

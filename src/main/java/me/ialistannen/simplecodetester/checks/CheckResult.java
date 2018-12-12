@@ -2,6 +2,9 @@ package me.ialistannen.simplecodetester.checks;
 
 import org.immutables.value.Value;
 
+/**
+ * The result of executing a single {@link Check}.
+ */
 @Value.Immutable
 public abstract class CheckResult {
 

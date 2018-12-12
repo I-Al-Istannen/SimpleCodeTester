@@ -3,7 +3,15 @@ package me.ialistannen.simplecodetester.util;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class ReflectionHelper {
+/**
+ * A small helper class for dealing with reflection.
+ */
+public final class ReflectionHelper {
+
+  private ReflectionHelper() {
+    throw new UnsupportedOperationException("No instantiation");
+  }
+
 
   /**
    * Checks if the given class has a JVM main method.
