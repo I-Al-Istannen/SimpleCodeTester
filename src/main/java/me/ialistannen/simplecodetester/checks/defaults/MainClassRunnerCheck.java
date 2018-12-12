@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ReflectionHelper;
 import org.joor.Reflect;
@@ -12,18 +13,23 @@ import org.joor.Reflect;
 public abstract class MainClassRunnerCheck implements Check {
 
   private Predicate<CompiledFile> mainClassPredicate;
-  private List<String> input;
-  private Predicate<String> outputPredicate;
 
-  public MainClassRunnerCheck(Predicate<CompiledFile> mainClassPredicate, List<String> input,
-      Predicate<String> outputPredicate) {
-    this.mainClassPredicate = mainClassPredicate;
-    this.input = input;
-    this.outputPredicate = outputPredicate;
+  /**
+   * Creates a new MainClassRunnerCheck running every file that has a main method.
+   *
+   * @see ReflectionHelper#hasMainMethod(Class)
+   */
+  public MainClassRunnerCheck() {
+    this(file -> ReflectionHelper.hasMainMethod(file.asClass()));
   }
 
-  public MainClassRunnerCheck(List<String> input, Predicate<String> outputPredicate) {
-    this(hasMainMethod(MainClassRunnerCheck.class.getClassLoader()), input, outputPredicate);
+  /**
+   * Creates a new MainClassRunnerCheck running the psvm of files that match the given predicate.
+   *
+   * @param mainClassPredicate the predicate main classes have to pass
+   */
+  public MainClassRunnerCheck(Predicate<CompiledFile> mainClassPredicate) {
+    this.mainClassPredicate = mainClassPredicate;
   }
 
   @Override
@@ -32,37 +38,31 @@ public abstract class MainClassRunnerCheck implements Check {
       return CheckResult.emptySuccess(this);
     }
 
-    Terminal.setInput(input);
+    Terminal.setInput(getInput(file), file.classLoader());
 
     Class<?> clazz = file.asClass();
 
     Reflect.on(clazz)
         .call("main", (Object) new String[0]);
 
-    if (outputPredicate.test(Terminal.getOutput())) {
-      return CheckResult.emptySuccess(this);
-    }
+    assertOutputValid(file);
 
-    return CheckResult.failure(getErrorMessage(file));
+    return CheckResult.emptySuccess(this);
   }
 
   /**
-   * Returns an appropriate error message for why it failed.
+   * Returns the input to use for the given file.
    *
-   * <p>You can access {@link Terminal#getOutput()} in this method.</p>
-   *
-   * @param file the file that failed
-   * @return the error message
+   * @param file the file being checked
+   * @return the input to use
    */
-  protected abstract String getErrorMessage(CompiledFile file);
+  protected abstract List<String> getInput(CompiledFile file);
 
   /**
-   * A predicate checking whether the class has a main method.
+   * Asserts that the output is valid. If not throws an appropriate {@link CheckFailedException}.
    *
-   * @param classLoader the class loader to use for the class lookup
-   * @return true if the class has a main method
+   * @param file the file being checked
+   * @throws CheckFailedException if the check failed
    */
-  public static Predicate<CompiledFile> hasMainMethod(ClassLoader classLoader) {
-    return file -> ReflectionHelper.hasMainMethod(file.asClass());
-  }
+  protected abstract void assertOutputValid(CompiledFile file);
 }
