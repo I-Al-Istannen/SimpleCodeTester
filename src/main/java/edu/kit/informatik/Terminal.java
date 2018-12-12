@@ -40,15 +40,30 @@ public final class Terminal {
     printLine("Error, " + message);
   }
 
+  /**
+   * Prints a single line.
+   *
+   * @param object the object to turn to a string and print. Handles nulls gracefully
+   */
   public static void printLine(final Object object) {
     output.append(object)
         .append(System.lineSeparator());
   }
 
+  /**
+   * Prints a single string, consisting of the given char array.
+   *
+   * @param charArray the character array to print as a String
+   */
   public static void printLine(final char[] charArray) {
     printLine(String.valueOf(charArray));
   }
 
+  /**
+   * Reads a single line of input, skipping the newline separator.
+   *
+   * @return the read line
+   */
   public static String readLine() {
     if (inputIndex >= input.size()) {
       throw new NoSuchElementException("No more input!");
@@ -56,6 +71,12 @@ public final class Terminal {
     return input.get(inputIndex++);
   }
 
+  /**
+   * Reads a given file.
+   *
+   * @param path the name of the file to read
+   * @return the contents of the file, with each line being an entry in the array
+   */
   public static String[] readFile(final String path) {
     URL resource = Terminal.class.getResource("/" + path);
     try {
@@ -65,20 +86,32 @@ public final class Terminal {
     }
   }
 
+  /**
+   * Sets the input the terminal class for the given class loader should use.
+   *
+   * @param input the input with each element representing one line of input
+   * @param classLoader the {@link ClassLoader} to find the terminal class for
+   */
   public static void setInput(List<String> input, ClassLoader classLoader) {
     Reflect.on("edu.kit.informatik.Terminal", classLoader)
         .set("input", new ArrayList<>(input))
         .set("inputIndex", 0);
   }
 
-  public static String getOutput(ClassLoader loader) {
-    return Reflect.on("edu.kit.informatik.Terminal", loader)
+  /**
+   * Returns the output that was written in the terminal class loaded by the given classloder.
+   *
+   * @param classLoader the {@link ClassLoader} to find the terminal class for
+   * @return the written input
+   */
+  public static String getOutput(ClassLoader classLoader) {
+    return Reflect.on("edu.kit.informatik.Terminal", classLoader)
         .get("output")
         .toString();
   }
 
   /**
-   * Resets the terminal state.
+   * Resets the terminal's state (read input and written output is cleared).
    */
   public static void reset() {
     inputIndex = 0;
