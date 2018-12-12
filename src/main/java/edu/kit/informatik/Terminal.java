@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.joor.Reflect;
 
 /**
  * A shim of the "Terminal" class from the Praktomat.
@@ -64,13 +65,16 @@ public final class Terminal {
     }
   }
 
-  public static void setInput(List<String> input) {
-    Terminal.input = new ArrayList<>(input);
-    inputIndex = 0;
+  public static void setInput(List<String> input, ClassLoader classLoader) {
+    Reflect.on("edu.kit.informatik.Terminal", classLoader)
+        .set("input", new ArrayList<>(input))
+        .set("inputIndex", 0);
   }
 
-  public static String getOutput() {
-    return output.toString();
+  public static String getOutput(ClassLoader loader) {
+    return Reflect.on("edu.kit.informatik.Terminal", loader)
+        .get("output")
+        .toString();
   }
 
   /**
