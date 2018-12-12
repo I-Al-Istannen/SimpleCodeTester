@@ -2,6 +2,7 @@ package me.ialistannen.simplecodetester.checks;
 
 import static java.util.stream.Collectors.toList;
 
+import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
 import java.util.List;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
@@ -52,6 +53,7 @@ public class CheckRunner {
 
   private CheckResult tryCheck(Check check, CompiledFile file) {
     try {
+      Terminal.reset();
       return check.check(file);
     } catch (CheckFailedException e) {
       return ImmutableCheckResult.builder()
