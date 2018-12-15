@@ -49,8 +49,10 @@ public class CheckRunner {
       List<CheckResult> checkResults = checks.stream()
           .map(check -> tryCheck(check, file))
           .collect(toList());
-      builder.putFileResults(file, checkResults);
+      builder.putFileResults(file.qualifiedName(), checkResults);
     }
+
+    builder.files(compiledSubmission.files());
 
     return builder.build();
   }
@@ -62,7 +64,7 @@ public class CheckRunner {
     } catch (CheckFailedException e) {
       return ImmutableCheckResult.builder()
           .message(e.getMessage())
-          .check(check)
+          .check(check.name())
           .successful(false)
           .build();
     }

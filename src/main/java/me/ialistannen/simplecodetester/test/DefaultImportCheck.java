@@ -10,8 +10,12 @@ public class DefaultImportCheck extends ImportCheck {
 
   public DefaultImportCheck() {
     super(
-        Arrays.asList(Pattern.compile("java.lang.*"), Pattern.compile("edu.kit.informatik.*")),
-        Arrays.asList(Pattern.compile("java.lang.StringBuildesr"))
+        Arrays.asList(
+            Pattern.compile("java.lang.*"),
+            Pattern.compile("edu.kit.informatik.*"),
+            Pattern.compile("java.io.PrintStream")
+        ),
+        Arrays.asList(Pattern.compile("java.lang.StringBuilders"))
     );
   }
 

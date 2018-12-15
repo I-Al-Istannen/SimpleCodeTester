@@ -26,6 +26,16 @@ public interface Check {
   CheckResult check(CompiledFile file);
 
   /**
+   * Returns the name of this check.
+   *
+   * @return the check's name
+   * @implNote The default implementation just uses the class's simple name.
+   */
+  default String name() {
+    return getClass().getSimpleName();
+  }
+
+  /**
    * Visits the given class file using the passed {@link ClassVisitor}.
    *
    * @param file the {@link CompiledFile} to visit
@@ -36,7 +46,7 @@ public interface Check {
       ClassReader classReader = new ClassReader(inputStream);
       classReader.accept(visitor, ClassReader.SKIP_DEBUG);
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new CheckFailedException("Error visiting class file", e);
     }
   }
 }

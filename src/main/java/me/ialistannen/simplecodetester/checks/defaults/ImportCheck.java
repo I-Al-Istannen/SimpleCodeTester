@@ -43,7 +43,7 @@ public abstract class ImportCheck implements Check {
       public MethodVisitor visitMethod(int access, String name, String descriptor,
           String signature,
           String[] exceptions) {
-        return new FilteringMethodVisitor();
+        return new FilteringMethodVisitor(file.qualifiedName());
       }
     });
     return CheckResult.emptySuccess(this);
@@ -61,8 +61,11 @@ public abstract class ImportCheck implements Check {
 
   private class FilteringMethodVisitor extends MethodVisitor {
 
-    private FilteringMethodVisitor() {
+    private final String fileFqn;
+
+    private FilteringMethodVisitor(String fileFqn) {
       super(Opcodes.ASM6);
+      this.fileFqn = fileFqn;
     }
 
     @Override
@@ -77,6 +80,10 @@ public abstract class ImportCheck implements Check {
     }
 
     private void checkAccess(String owner, String name) {
+      // in own class
+      if (owner.equals(fileFqn)) {
+        return;
+      }
       if (!isWhitelisted(sanitizeClassName(owner)) || isBlacklisted(owner)) {
         throw new CheckFailedException("Illegal access to " + owner + "#" + name);
       }

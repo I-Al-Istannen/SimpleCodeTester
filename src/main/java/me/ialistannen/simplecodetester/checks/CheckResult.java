@@ -1,19 +1,21 @@
 package me.ialistannen.simplecodetester.checks;
 
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 /**
  * The result of executing a single {@link Check}.
  */
 @Value.Immutable
+@Gson.TypeAdapters
 public abstract class CheckResult {
 
   /**
-   * The {@link Check} that was used to check the file.
+   * The name of the check that was used to check the file.
    *
-   * @return the used check
+   * @return the name of the used check
    */
-  public abstract Check check();
+  public abstract String check();
 
   /**
    * Checks whether the check was successful.
@@ -38,7 +40,7 @@ public abstract class CheckResult {
   public static CheckResult emptySuccess(Check check) {
     return ImmutableCheckResult.builder()
         .successful(true)
-        .check(check)
+        .check(check.name())
         .message("")
         .build();
   }

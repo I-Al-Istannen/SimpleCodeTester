@@ -28,7 +28,7 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
 
   @Override
   protected void assertOutputValid(CompiledFile file) {
-    String actualOutput = Terminal.getOutput(file.classLoader());
+    String actualOutput = Terminal.getOutput(file.classLoader().orElseThrow());
 
     if (!expectedOutput.equals(actualOutput)) {
       throw new CheckFailedException(

@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 /**
  * The compiler output for a whole collection of files.
  */
+@Gson.TypeAdapters
 @Value.Immutable
 public abstract class CompilationOutput {
 
