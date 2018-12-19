@@ -18,6 +18,7 @@ import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
@@ -59,6 +60,8 @@ public class UntrustedJvmMain {
 
   private void execute() throws IOException {
     new Thread(client).start();
+
+    client.queueMessage(new SlaveStarted(uid));
 
     CompiledSubmission compiledSubmission = compile();
 

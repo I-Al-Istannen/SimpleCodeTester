@@ -30,4 +30,12 @@ public abstract class ProtocolMessage {
   public String getUid() {
     return uid;
   }
+
+  @Override
+  public String toString() {
+    return "ProtocolMessage{" +
+        "className='" + className + '\'' +
+        ", uid='" + uid + '\'' +
+        '}';
+  }
 }
