@@ -18,6 +18,7 @@ import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
@@ -63,15 +64,21 @@ public class UntrustedJvmMain {
 
     client.queueMessage(new SlaveStarted(uid));
 
-    CompiledSubmission compiledSubmission = compile();
+    try {
+      CompiledSubmission compiledSubmission = compile();
 
-    if (!compiledSubmission.compilationOutput().successful()) {
+      if (!compiledSubmission.compilationOutput().successful()) {
+        shutdown();
+        return;
+      }
+
+      runChecks(compiledSubmission);
       shutdown();
-      return;
+    } catch (Throwable e) {
+      e.printStackTrace();
+      client.queueMessage(new SlaveDiedWithUnknownError(uid, e.getMessage()));
+      throw e;
     }
-
-    runChecks(compiledSubmission);
-    shutdown();
   }
 
   private CompiledSubmission compile() throws IOException {
