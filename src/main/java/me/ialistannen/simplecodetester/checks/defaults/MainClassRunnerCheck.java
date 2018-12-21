@@ -44,7 +44,7 @@ public abstract class MainClassRunnerCheck implements Check {
       return CheckResult.emptySuccess(this);
     }
 
-    Terminal.setInput(getInput(file), file.classLoader().orElseThrow());
+    Terminal.setInput(getInput(file));
 
     Class<?> clazz = file.asClass();
 

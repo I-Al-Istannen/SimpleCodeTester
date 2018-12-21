@@ -1,0 +1,7 @@
+/* AUTOMATICALLY GENERATED ON Wed Dec 19 14:51:43 CET 2018*/
+/* DO NOT EDIT */
+
+grant {
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+};
+

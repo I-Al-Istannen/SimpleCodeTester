@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.joor.Reflect;
 
 /**
  * A shim of the "Terminal" class from the Praktomat.
@@ -87,27 +86,21 @@ public final class Terminal {
   }
 
   /**
-   * Sets the input the terminal class for the given class loader should use.
+   * Sets the input the terminal class should use.
    *
    * @param input the input with each element representing one line of input
-   * @param classLoader the {@link ClassLoader} to find the terminal class for
    */
-  public static void setInput(List<String> input, ClassLoader classLoader) {
-    Reflect.on("edu.kit.informatik.Terminal", classLoader)
-        .set("input", new ArrayList<>(input))
-        .set("inputIndex", 0);
+  public static void setInput(List<String> input) {
+    Terminal.input = new ArrayList<>(input);
   }
 
   /**
-   * Returns the output that was written in the terminal class loaded by the given classloder.
+   * Returns the output that was written in the terminal class.
    *
-   * @param classLoader the {@link ClassLoader} to find the terminal class for
    * @return the written input
    */
-  public static String getOutput(ClassLoader classLoader) {
-    return Reflect.on("edu.kit.informatik.Terminal", classLoader)
-        .get("output")
-        .toString();
+  public static String getOutput() {
+    return output.toString();
   }
 
   /**
