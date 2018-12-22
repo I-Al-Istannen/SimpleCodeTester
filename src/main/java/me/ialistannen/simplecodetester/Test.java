@@ -24,7 +24,9 @@ public class Test {
               System.out.println("\tFile: " + entry.getKey());
               for (CheckResult checkResult : entry.getValue()) {
                 if (!checkResult.successful()) {
-                  System.out.println("\t\tFailed: " + checkResult.message());
+                  System.out.println(
+                      "\t\tFailed: " + checkResult.errorOutput() + "  " + checkResult.message()
+                  );
                 } else {
                   System.out.println("\t\tSuccessful");
                 }

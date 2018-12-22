@@ -32,6 +32,13 @@ public abstract class CheckResult {
   public abstract String message();
 
   /**
+   * The {@link System#err} output.
+   *
+   * @return the {@link System#err} output
+   */
+  public abstract String errorOutput();
+
+  /**
    * Returns a successful CheckResult with no message.
    *
    * @param check the check that returned this
@@ -42,6 +49,7 @@ public abstract class CheckResult {
         .successful(true)
         .check(check.name())
         .message("")
+        .errorOutput("")
         .build();
   }
 
@@ -55,6 +63,7 @@ public abstract class CheckResult {
     return ImmutableCheckResult.builder()
         .successful(false)
         .message(message)
+        .errorOutput("")
         .build();
   }
 }
