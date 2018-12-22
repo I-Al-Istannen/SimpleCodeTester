@@ -1,8 +1,6 @@
 package me.ialistannen.simplecodetester.execution.slave;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -24,10 +22,8 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
-import me.ialistannen.simplecodetester.submission.ImmutableCompiledFile;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
-import me.ialistannen.simplecodetester.test.TestOutput;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.joor.Reflect;
 
@@ -122,25 +118,11 @@ public class UntrustedJvmMain {
       throw new IllegalArgumentException(String.format("File '%s' is not a directory.", path));
     }
 
-    PrintStream out = new PrintStream(new File("/tmp/test_out.txt"));
-//    System.setOut(out);
-//    System.setErr(out);
-
     SubmissionClassLoader classLoader = new SubmissionClassLoader(path);
     Submission submission = ImmutableSubmission.builder()
         .classLoader(classLoader)
         .basePath(path)
         .build();
-
-    ImmutableCompiledFile test = ImmutableCompiledFile.builder()
-        .classLoader(classLoader)
-        .sourceFile(Paths.get("/"))
-        .classFile(Paths.get("/"))
-        .qualifiedName("Test")
-        .build();
-    new TestOutput().check(
-        test
-    );
 
     System.setSecurityManager(new SubmissionSecurityManager(path));
 

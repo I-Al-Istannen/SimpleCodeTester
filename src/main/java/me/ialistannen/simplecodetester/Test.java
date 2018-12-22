@@ -47,6 +47,6 @@ public class Test {
 
     Thread.sleep(4000);
     System.out.println("Stopping...");
-//    slaveManager.stop();
+    slaveManager.stop();
   }
 }
