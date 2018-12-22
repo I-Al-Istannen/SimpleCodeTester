@@ -31,9 +31,11 @@ public class SlaveManager {
   private Consumer<ProtocolMessage> messageHandler;
   private int port;
   private UntrustedCodeJvmStarter untrustedCodeJvmStarter;
+  private String[] classpath;
 
-  public SlaveManager(Consumer<ProtocolMessage> messageHandler) {
+  public SlaveManager(Consumer<ProtocolMessage> messageHandler, String[] classpath) {
     this.messageHandler = messageHandler;
+    this.classpath = classpath;
 
     this.gson = ConfiguredGson.createGson();
     this.executorService = Executors
@@ -70,7 +72,7 @@ public class SlaveManager {
    */
   public void runSubmission(Submission submission, String uid) {
     untrustedCodeJvmStarter.runSubmission(
-        port, submission, uid
+        port, submission, uid, classpath
     );
   }
 

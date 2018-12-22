@@ -14,6 +14,9 @@ import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 public class Test {
 
   public static void main(String[] args) throws Exception {
+    String[] classpath = {
+        "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/target/SimpleCodeTester.jar"
+    };
     SlaveManager slaveManager = new SlaveManager(
         protocolMessage -> {
           if (protocolMessage instanceof SubmissionResult) {
@@ -35,7 +38,8 @@ public class Test {
           } else {
             System.out.println("Got Master " + protocolMessage);
           }
-        }
+        },
+        classpath
     );
     slaveManager.start();
 
