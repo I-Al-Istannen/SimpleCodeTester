@@ -15,7 +15,7 @@ public class Test {
 
   public static void main(String[] args) throws Exception {
     String[] classpath = {
-        "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/target/SimpleCodeTester.jar"
+        "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Lib/target/SimpleCodeTester-Lib.jar"
     };
     SlaveManager slaveManager = new SlaveManager(
         protocolMessage -> {

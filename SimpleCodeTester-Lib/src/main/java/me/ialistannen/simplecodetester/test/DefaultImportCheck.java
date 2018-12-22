@@ -21,7 +21,7 @@ public class DefaultImportCheck extends ImportCheck {
 
   @Override
   public CheckResult check(CompiledFile file) {
-    if (file.qualifiedName().equals("edu.kit.informatik.Terminal")) {
+    if (file.qualifiedName().equals("Terminal")) {
       return CheckResult.emptySuccess(this);
     }
     return super.check(file);
