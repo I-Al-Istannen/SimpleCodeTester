@@ -25,6 +25,8 @@ public class Java8FileCompiler implements Compiler {
 
   @Override
   public CompiledSubmission compileSubmission(Submission submission) throws IOException {
+    cleanUpCompiledFiles(submission);
+
     JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
     StringWriter output = new StringWriter();
 
@@ -97,5 +99,17 @@ public class Java8FileCompiler implements Compiler {
         .compilationOutput(compilationOutput)
         .files(compiledFiles)
         .build();
+  }
+
+  private void cleanUpCompiledFiles(Submission submission) throws IOException {
+    Files.walk(submission.basePath())
+        .filter(path -> path.toString().endsWith(".class"))
+        .forEach(path -> {
+          try {
+            Files.deleteIfExists(path);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
   }
 }

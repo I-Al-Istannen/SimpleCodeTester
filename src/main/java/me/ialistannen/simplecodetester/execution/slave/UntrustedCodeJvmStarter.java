@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.test.DefaultImportCheck;
+import me.ialistannen.simplecodetester.test.TestOutput;
 
 public class UntrustedCodeJvmStarter {
 
@@ -25,13 +26,19 @@ public class UntrustedCodeJvmStarter {
                   .toURI()
           ).toAbsolutePath().toString()
               + ":/home/i_al_istannen/Programming/Uni/SimpleCodeTester/target/SimpleCodeTester.jar",
+          "-Djava.security.policy=="
+              + getClass().getResource("/SlavePolicy.policy").toExternalForm(),
           UntrustedJvmMain.class.getName(),
           Integer.toString(port),
           uid,
           submission.basePath().toAbsolutePath().toString(),
-          DefaultImportCheck.class.getName()
+          DefaultImportCheck.class.getName(),
+          TestOutput.class.getName()
       );
-      processBuilder.start();
+
+      System.out.println(String.join(" ", processBuilder.command()));
+      processBuilder.directory(submission.basePath().toFile())
+          .start();
     } catch (IOException | URISyntaxException e) {
       throw new RuntimeException(e);
     }

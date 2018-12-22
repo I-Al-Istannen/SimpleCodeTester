@@ -48,6 +48,7 @@ public class CheckRunner {
       List<CheckResult> checkResults = checks.stream()
           .map(check -> tryCheck(check, file))
           .collect(toList());
+      System.out.println(file + " " + checkResults);
       builder.putFileResults(file.qualifiedName(), checkResults);
     }
 
@@ -61,11 +62,21 @@ public class CheckRunner {
       Terminal.reset();
       return check.check(file);
     } catch (Throwable e) { // user checks should not crash everything
+      System.out.println("Returned exception one: " + findRootCause(e).getMessage());
+      e.printStackTrace();
+      System.out.println(findRootCause(e));
       return ImmutableCheckResult.builder()
-          .message(e.getMessage())
+          .message(findRootCause(e).getMessage())
           .check(check.name())
           .successful(false)
           .build();
     }
+  }
+
+  private Throwable findRootCause(Throwable throwable) {
+    if (throwable.getCause() != null) {
+      return findRootCause(throwable.getCause());
+    }
+    return throwable;
   }
 }
