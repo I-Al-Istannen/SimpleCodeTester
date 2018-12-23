@@ -33,7 +33,7 @@ public class LoginEndpoint {
   @PostMapping("/login")
   public ResponseEntity<String> login(@RequestParam @NotEmpty String username,
       @RequestParam @NotEmpty String password) {
-    User user = userRepository.findByStudentId(username).orElse(null);
+    User user = userRepository.findById(username).orElse(null);
 
     if (user == null) {
       return ResponseEntity.notFound().build();

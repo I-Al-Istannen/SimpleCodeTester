@@ -29,13 +29,17 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public CommandLineRunner doStuff(UserRepository userRepository) {
     return args -> {
-      userRepository.save(new User(
-          "123",
-          "John",
-          new BCryptPasswordEncoder().encode("hey"),
-          true,
-          Collections.emptyList()
-      ));
+      try {
+        userRepository.save(new User(
+            "123",
+            "John",
+            new BCryptPasswordEncoder().encode("hey"),
+            true,
+            Collections.emptyList()
+        ));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     };
   }
 

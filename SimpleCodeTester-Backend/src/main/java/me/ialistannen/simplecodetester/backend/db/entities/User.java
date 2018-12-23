@@ -7,8 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,11 +19,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public class User {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  public Long id;
-
-  @Column(name = "student_id", unique = true)
-  private String studentId;
+  @Column(name = "id", unique = true)
+  private String id;
   private String name;
   private String passwordHash;
   @Column(name = "enabled")
@@ -37,9 +32,9 @@ public class User {
   protected User() {
   }
 
-  public User(String studentId, String name, String passwordHash, Boolean enabled,
+  public User(String id, String name, String passwordHash, Boolean enabled,
       List<String> authorities) {
-    this.studentId = studentId;
+    this.id = id;
     this.name = name;
     this.passwordHash = passwordHash;
     this.enabled = enabled;
@@ -53,7 +48,7 @@ public class User {
    */
   public org.springframework.security.core.userdetails.User toSpringUser() {
     return new org.springframework.security.core.userdetails.User(
-        studentId,
+        id,
         passwordHash,
         enabled,
         true,

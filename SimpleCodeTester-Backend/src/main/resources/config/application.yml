@@ -1,7 +1,7 @@
 jwt.secret.key: "dsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsds"
 spring:
   datasource:
-    url: "jdbc:sqlite:test.db"
+    url: "jdbc:h2:file:./testdb"
     initialization-mode: always
   jpa:
     hibernate:
