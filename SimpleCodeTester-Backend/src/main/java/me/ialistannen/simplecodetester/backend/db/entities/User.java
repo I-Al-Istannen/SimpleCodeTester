@@ -24,6 +24,7 @@ public class User {
   @GeneratedValue(strategy = GenerationType.AUTO)
   public Long id;
 
+  @Column(name = "student_id", unique = true)
   private String studentId;
   private String name;
   private String passwordHash;

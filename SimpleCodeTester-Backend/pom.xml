@@ -48,11 +48,23 @@
       <version>0.6.4</version>
     </dependency>
 
+    <!--<dependency>-->
+    <!--<groupId>com.h2database</groupId>-->
+    <!--<artifactId>h2</artifactId>-->
+    <!--<version>1.4.197</version>-->
+    <!--</dependency>-->
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.4.197</version>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.25.2</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.gwenn</groupId>
+      <artifactId>sqlite-dialect</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+
   </dependencies>
 
 </project>
