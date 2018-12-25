@@ -70,7 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
       log.info("Authorized user '{}', setting security context", authenticatedUser.getUsername());
       SecurityContextHolder.getContext().setAuthentication(authentication);
     } catch (InvalidJwtException | MalformedClaimException e) {
-      e.printStackTrace();
+      log.info("JWT is no longer valid for '{}'", token);
     }
 
     chain.doFilter(request, response);
