@@ -2,6 +2,7 @@ package me.ialistannen.simplecodetester.backend.services.user;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import javax.transaction.Transactional;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.db.repos.UserRepository;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class UserService {
    * Adds a new user.
    *
    * @param user the user to add
+   * @throws IllegalArgumentException if the user alreadx existed
    */
   public void addUser(User user) {
     if (containsUser(user.getId())) {
@@ -33,8 +35,15 @@ public class UserService {
    * @param userId the id of the user to delete
    * @return true if the user was deleted, false if it did not exist
    */
-  public boolean deleteUser(String userId) {
+  public boolean removeUser(String userId) {
     return userRepository.deleteUserById(userId) != 0;
+  }
+
+  /**
+   * Deletes all users.
+   */
+  public void removeAll() {
+    userRepository.deleteAll();
   }
 
   /**
@@ -64,6 +73,7 @@ public class UserService {
    * @param update the update method
    * @return true if the user existed
    */
+  @Transactional
   public boolean updateUser(String userId, Consumer<User> update) {
     if (!userRepository.existsUserById(userId)) {
       return false;

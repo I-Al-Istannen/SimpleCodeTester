@@ -45,7 +45,7 @@ public class UserManageEndpoint {
    */
   @DeleteMapping("/admin/delete-user/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable("id") @NotEmpty String userId) {
-    if (!userService.deleteUser(userId)) {
+    if (!userService.removeUser(userId)) {
       return ResponseEntity.notFound().build();
     }
     return ResponseEntity.ok().build();

@@ -1,0 +1,8 @@
+jwt.secret.key: "dsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsds"
+spring:
+  datasource:
+    url: "jdbc:h2:mem:testDb"
+    initialization-mode: always
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

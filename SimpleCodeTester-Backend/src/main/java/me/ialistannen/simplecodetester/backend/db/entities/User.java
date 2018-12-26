@@ -2,21 +2,26 @@ package me.ialistannen.simplecodetester.backend.db.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Getter
 @ToString
+@Getter
+@Setter
 public class User {
 
   @Id
   @Column(name = "id", unique = true)
+  @Setter(AccessLevel.NONE)
   private String id;
   private String name;
   private String passwordHash;
@@ -38,35 +43,20 @@ public class User {
     this.authorities = new ArrayList<>(authorities);
   }
 
-  public String getName() {
-    return name;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    User user = (User) o;
+    return Objects.equals(id, user.id);
   }
 
-  public String getPasswordHash() {
-    return passwordHash;
-  }
-
-  public Boolean getEnabled() {
-    return enabled;
-  }
-
-  public List<String> getAuthorities() {
-    return authorities;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setPasswordHash(String passwordHash) {
-    this.passwordHash = passwordHash;
-  }
-
-  public void setEnabled(Boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  public void setAuthorities(List<String> authorities) {
-    this.authorities = authorities;
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }
