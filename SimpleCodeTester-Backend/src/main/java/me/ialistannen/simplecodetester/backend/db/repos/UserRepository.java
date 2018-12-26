@@ -1,16 +1,25 @@
 package me.ialistannen.simplecodetester.backend.db.repos;
 
-import java.util.Optional;
+import javax.transaction.Transactional;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
 
   /**
-   * Finds a student by their student id.
+   * Deletes a user by its id.
    *
-   * @param studentId the student id
-   * @return the found student
+   * @param id the id of the user
+   * @return the affected row count
    */
-  Optional<User> findById(String studentId);
+  @Transactional
+  int deleteUserById(String id);
+
+  /**
+   * Checks if a given user exists.
+   *
+   * @param id the id of the user
+   * @return true if the user exists
+   */
+  boolean existsUserById(String id);
 }

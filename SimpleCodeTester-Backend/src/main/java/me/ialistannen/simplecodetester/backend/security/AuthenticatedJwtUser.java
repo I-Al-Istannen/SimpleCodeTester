@@ -19,6 +19,7 @@ public class AuthenticatedJwtUser implements UserDetails {
   private JwtClaims claims;
   private String principal;
   private List<GrantedAuthority> authorities;
+  private boolean enabled;
 
   /**
    * Creates a new AuthenticatedJwtUser from the given {@link JwtClaims}.
@@ -32,6 +33,7 @@ public class AuthenticatedJwtUser implements UserDetails {
     this.authorities = claims.getStringListClaimValue("roles").stream()
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
+    this.enabled = (boolean) claims.getClaimValue("enabled");
   }
 
   @Override
@@ -69,7 +71,6 @@ public class AuthenticatedJwtUser implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    // JWT was valid and the auth is stateless
-    return true;
+    return enabled;
   }
 }

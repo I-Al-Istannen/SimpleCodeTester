@@ -47,6 +47,7 @@ public class LoginEndpoint {
     claims.setIssuer("SimpleCodeTester");
     claims.setSubject(user.getName());
     claims.setStringListClaim("roles", user.getAuthorities());
+    claims.setClaim("enabled", user.getEnabled());
     claims.setExpirationTimeMinutesInTheFuture(30);
     claims.setNotBeforeMinutesInThePast(1);
     claims.setGeneratedJwtId();
