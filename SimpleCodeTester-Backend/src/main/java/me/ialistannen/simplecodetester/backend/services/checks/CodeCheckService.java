@@ -39,6 +39,16 @@ public class CodeCheckService {
     return checkRepository.findById(id);
   }
 
+  /**
+   * Checks if a check exists.
+   *
+   * @param id the id of the check
+   * @return true if the check was found
+   */
+  public boolean containsCheck(long id) {
+    return checkRepository.existsById(id);
+  }
+
 
   /**
    * Finds all checks created by a given creator.

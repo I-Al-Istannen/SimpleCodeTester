@@ -24,4 +24,12 @@ public interface CheckRepository extends CrudRepository<CodeCheck, Long> {
    */
   @Transactional
   int deleteCodeCheckById(long id);
+
+  /**
+   * Checks if a given check exists.
+   *
+   * @param id the id of the check
+   * @return true if the check existed
+   */
+  boolean existsById(long id);
 }
