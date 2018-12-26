@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.backend.security;
 
 import java.util.Collections;
+import java.util.List;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.db.repos.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -27,6 +28,13 @@ public class TestInitDbStuff implements CommandLineRunner {
           passwordEncoder.encode("hey"),
           true,
           Collections.emptyList()
+      ));
+      userRepository.save(new User(
+          "1234",
+          "Johnny",
+          passwordEncoder.encode("hey"),
+          true,
+          List.of("ROLE_ADMIN")
       ));
     } catch (Exception e) {
       e.printStackTrace();

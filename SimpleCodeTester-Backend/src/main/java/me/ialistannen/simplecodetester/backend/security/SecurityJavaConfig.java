@@ -60,6 +60,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/login").permitAll()
+        .antMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated();
   }
 }
