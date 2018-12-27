@@ -90,15 +90,13 @@ public class CodeCheckService {
    * @throws InvalidCheckException if the check is not valid
    */
   private void validateCheck(CodeCheck codeCheck) {
-    String body = removePackageDeclaration(codeCheck.getText());
-    String packageName = codeCheck.getId() == null ? "checks" : codeCheck.getId().toString();
+    String body = removePackageDeclaration(codeCheck.getText()).trim();
     String className = getClassName(body);
-    String fullBody = prependPackage(packageName, body);
 
-    codeCheck.setText(fullBody);
+    codeCheck.setText(body);
 
     CompilationOutput compilationOutput = localCompilationService
-        .compile(packageName + "/" + className + ".java", fullBody);
+        .compile(className + ".java", body);
 
     if (!compilationOutput.output().isEmpty()) {
       throw new InvalidCheckException(compilationOutput.output());
@@ -176,9 +174,5 @@ public class CodeCheckService {
       throw new InvalidCheckException("Input contains no class declaration!");
     }
     return matcher.group(1);
-  }
-
-  private String prependPackage(String packageName, String code) {
-    return String.format("package %s;%n%s", packageName, code);
   }
 }
