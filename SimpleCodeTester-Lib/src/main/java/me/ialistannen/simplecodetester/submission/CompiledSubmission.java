@@ -8,14 +8,14 @@ import org.immutables.value.Value;
  * Returns a compiled version of a Submission.
  */
 @Value.Immutable
-public abstract class CompiledSubmission extends Submission {
+public abstract class CompiledSubmission {
 
   /**
    * Returns all compiled files in this submission.
    *
    * @return all compiled files in this submission
    */
-  public abstract List<CompiledFile> files();
+  public abstract List<CompiledFile> compiledFiles();
 
   /**
    * Returns the compilation output.

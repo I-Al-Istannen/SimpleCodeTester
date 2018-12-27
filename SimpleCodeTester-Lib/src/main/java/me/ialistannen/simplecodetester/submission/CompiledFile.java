@@ -1,7 +1,7 @@
 package me.ialistannen.simplecodetester.submission;
 
-import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 import me.ialistannen.simplecodetester.exceptions.CompiledClassNotLoadableException;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -14,18 +14,18 @@ import org.immutables.value.Value;
 public abstract class CompiledFile {
 
   /**
-   * Returns the path this file's ".class" file.
+   * Returns the bytes of this file's ".class" file.
    *
-   * @return the path this file's ".class" file
+   * @return the bytes of this file's ".class" file
    */
-  public abstract Path classFile();
+  public abstract byte[] classFile();
 
   /**
-   * Returns the path this file's ".java" file.
+   * Returns the file source content.
    *
-   * @return the path this file's ".java" file
+   * @return the file source content
    */
-  public abstract Path sourceFile();
+  public abstract String content();
 
   /**
    * Returns the fully qualified name of this class.
@@ -35,13 +35,13 @@ public abstract class CompiledFile {
   public abstract String qualifiedName();
 
   /**
-   * The classloader that should be used to load this class, if any.
+   * Supplies the classloader that should be used to load this class, if any.
    *
    * @return classloader that should be used to load this class, if any
    * @see #asClass()
    */
   @Gson.Ignore
-  public abstract Optional<ClassLoader> classLoader();
+  public abstract Optional<Supplier<ClassLoader>> classLoaderSupplier();
 
   /**
    * Returns this CompiledFile as a java class.
@@ -51,9 +51,7 @@ public abstract class CompiledFile {
    */
   public Class<?> asClass() {
     try {
-      ClassLoader classLoader = classLoader().orElseThrow(() ->
-          new CompiledClassNotLoadableException(qualifiedName(), "Classloader not set")
-      );
+      ClassLoader classLoader = classLoaderSupplier().orElseThrow().get();
 
       return Class.forName(qualifiedName(), true, classLoader);
     } catch (ClassNotFoundException e) {

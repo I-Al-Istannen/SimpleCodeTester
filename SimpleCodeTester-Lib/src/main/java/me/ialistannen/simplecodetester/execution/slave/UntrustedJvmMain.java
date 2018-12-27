@@ -1,30 +1,32 @@
 package me.ialistannen.simplecodetester.execution.slave;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckRunner;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.compilation.Compiler;
-import me.ialistannen.simplecodetester.compilation.java8.Java8FileCompiler;
+import me.ialistannen.simplecodetester.compilation.java8.memory.Java8InMemoryCompiler;
 import me.ialistannen.simplecodetester.execution.MessageClient;
-import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.CompileAndCheckSubmission;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
-import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
+import me.ialistannen.simplecodetester.util.Stacktrace;
 import org.joor.Reflect;
 
 /**
@@ -34,17 +36,13 @@ public class UntrustedJvmMain {
 
   private int port;
   private String uid;
-  private List<Check> checks;
 
   private MessageClient client;
-  private Submission submission;
+  private TimerTask idleKiller;
 
-  private UntrustedJvmMain(int port, String uid, List<Check> checks, Submission submission)
-      throws IOException {
+  private UntrustedJvmMain(int port, String uid) throws IOException {
     this.port = port;
     this.uid = uid;
-    this.checks = checks;
-    this.submission = submission;
 
     this.client = createMessageClient();
   }
@@ -53,36 +51,55 @@ public class UntrustedJvmMain {
     return new MessageClient(
         new Socket(InetAddress.getLocalHost(), port),
         ConfiguredGson.createGson(),
-        protocolMessage -> {
-          // nothing relevant currently
+        (client, message) -> {
+          if (message instanceof CompileAndCheckSubmission) {
+            idleKiller.cancel();
+
+            CompileAndCheckSubmission checkSubmissionMessage = (CompileAndCheckSubmission) message;
+            Submission submission = checkSubmissionMessage.getSubmission();
+            receivedSubmission(submission, checkSubmissionMessage.getChecks());
+          }
         }
     );
   }
 
-  private void execute() throws IOException {
+  private void execute() {
     new Thread(client).start();
 
     client.queueMessage(new SlaveStarted(uid));
 
+    // Kill yourself if you get no task in a reasonable timeframe
+    idleKiller = new TimerTask() {
+      @Override
+      public void run() {
+        client.queueMessage(new SlaveTimedOut(uid));
+        shutdown();
+      }
+    };
+
+    new Timer(true)
+        .schedule(idleKiller, TimeUnit.SECONDS.toMillis(30));
+  }
+
+  private void receivedSubmission(Submission submission, List<String> checks) {
     try {
-      CompiledSubmission compiledSubmission = compile();
+      CompiledSubmission compiledSubmission = compile(submission);
 
       if (!compiledSubmission.compilationOutput().successful()) {
         shutdown();
         return;
       }
 
-      runChecks(compiledSubmission);
+      runChecks(compiledSubmission, checks);
       shutdown();
     } catch (Throwable e) {
       e.printStackTrace();
-      client.queueMessage(new SlaveDiedWithUnknownError(uid, e.getMessage()));
-      throw e;
+      client.queueMessage(new SlaveDiedWithUnknownError(uid, Stacktrace.getStacktrace(e)));
     }
   }
 
-  private CompiledSubmission compile() throws IOException {
-    Compiler compiler = new Java8FileCompiler();
+  private CompiledSubmission compile(Submission submission) throws IOException {
+    Compiler compiler = new Java8InMemoryCompiler();
     CompiledSubmission compiledSubmission = compiler.compileSubmission(submission);
 
     if (!compiledSubmission.compilationOutput().successful()) {
@@ -97,7 +114,14 @@ public class UntrustedJvmMain {
     client.stop();
   }
 
-  private void runChecks(CompiledSubmission compiledSubmission) {
+  private void runChecks(CompiledSubmission compiledSubmission, List<String> checkNames) {
+    List<Check> checks = checkNames.stream()
+        .map(UntrustedJvmMain::unsafeClassGet)
+        .map(aClass -> (Check) Reflect.on(aClass).create().get())
+        .collect(Collectors.toList());
+
+    System.out.println(checks);
+
     CheckRunner checkRunner = new CheckRunner(checks);
     SubmissionCheckResult checkResult = checkRunner.checkSubmission(compiledSubmission);
 
@@ -112,29 +136,14 @@ public class UntrustedJvmMain {
     }
     int port = Integer.parseInt(args[0]);
     String uid = args[1];
-    Path path = Paths.get(args[2]);
 
-    if (!Files.isDirectory(path)) {
-      throw new IllegalArgumentException(String.format("File '%s' is not a directory.", path));
-    }
+    PrintStream out = new PrintStream(new FileOutputStream("/tmp/test_out.txt"));
+    System.setOut(out);
+    System.setErr(out);
 
-    SubmissionClassLoader classLoader = new SubmissionClassLoader(path);
-    Submission submission = ImmutableSubmission.builder()
-        .classLoader(classLoader)
-        .basePath(path)
-        .build();
+    System.setSecurityManager(new SubmissionSecurityManager());
 
-    System.setSecurityManager(new SubmissionSecurityManager(path));
-
-    new UntrustedJvmMain(port, uid, parseChecks(args), submission).execute();
-  }
-
-  private static List<Check> parseChecks(String[] args) {
-    return Arrays.stream(args)
-        .skip(3)
-        .map(UntrustedJvmMain::unsafeClassGet)
-        .map(aClass -> (Check) Reflect.on(aClass).create().get())
-        .collect(Collectors.toList());
+    new UntrustedJvmMain(port, uid).execute();
   }
 
   private static Class<?> unsafeClassGet(String name) {

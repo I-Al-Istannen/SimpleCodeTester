@@ -1,26 +1,20 @@
 package me.ialistannen.simplecodetester.submission;
 
-import java.nio.file.Path;
-import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
+import java.util.Map;
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 /**
  * A collection of files that were submitted for checking.
  */
 @Value.Immutable
+@Gson.TypeAdapters
 public abstract class Submission {
 
   /**
-   * Returns the base path where files for this submission are stored.
+   * All files in this submission. A mapping from FQN -> Content
    *
-   * @return base path where files for this submission are stored
+   * @return a map of fqn to content for all files
    */
-  public abstract Path basePath();
-
-  /**
-   * Returns the {@link SubmissionClassLoader} to use for this submission.
-   *
-   * @return the submission class loader to use
-   */
-  public abstract SubmissionClassLoader classLoader();
+  public abstract Map<String, String> files();
 }

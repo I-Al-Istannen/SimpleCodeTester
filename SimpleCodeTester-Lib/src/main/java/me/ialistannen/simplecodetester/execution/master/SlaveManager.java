@@ -5,12 +5,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.slave.UntrustedCodeJvmStarter;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.CompileAndCheckSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import me.ialistannen.simplecodetester.util.ThreadHelper;
@@ -28,12 +34,15 @@ public class SlaveManager {
 
   private Gson gson;
   private Thread thread;
-  private Consumer<ProtocolMessage> messageHandler;
+  private BiConsumer<MessageClient, ProtocolMessage> messageHandler;
   private int port;
   private UntrustedCodeJvmStarter untrustedCodeJvmStarter;
   private String[] classpath;
 
-  public SlaveManager(Consumer<ProtocolMessage> messageHandler, String[] classpath) {
+  private Map<String, SubmissionCheckEntry> pendingSubmissions;
+
+  public SlaveManager(BiConsumer<MessageClient, ProtocolMessage> messageHandler,
+      String[] classpath) {
     this.messageHandler = messageHandler;
     this.classpath = classpath;
 
@@ -41,6 +50,7 @@ public class SlaveManager {
     this.executorService = Executors
         .newCachedThreadPool(ThreadHelper.deamonThreadFactory(Thread::new));
     this.untrustedCodeJvmStarter = new UntrustedCodeJvmStarter();
+    this.pendingSubmissions = new ConcurrentHashMap<>();
   }
 
   /**
@@ -68,12 +78,12 @@ public class SlaveManager {
    * Runs a {@link Submission} on a new slave.
    *
    * @param submission the submission to run
+   * @param checkNames the fully qualified names of all {@link Check}s to run
    * @param uid the UID of the submission
    */
-  public void runSubmission(Submission submission, String uid) {
-    untrustedCodeJvmStarter.runSubmission(
-        port, submission, uid, classpath
-    );
+  public void runSubmission(Submission submission, List<String> checkNames, String uid) {
+    pendingSubmissions.put(uid, new SubmissionCheckEntry(submission, checkNames));
+    untrustedCodeJvmStarter.startSlave(port, uid, classpath);
   }
 
   private void runServer() {
@@ -94,10 +104,26 @@ public class SlaveManager {
   private void tryAcceptConnection(ServerSocket serverSocket) throws IOException {
     try {
       Socket acceptedSocket = serverSocket.accept();
-      MessageClient client = new MessageClient(acceptedSocket, gson, messageHandler);
+      MessageClient client = new MessageClient(acceptedSocket, gson, wrappedMessageHandler());
 
       executorService.submit(client);
     } catch (SocketTimeoutException ignored) {
     }
+  }
+
+  private BiConsumer<MessageClient, ProtocolMessage> wrappedMessageHandler() {
+    return (client, message) -> {
+      if (message instanceof SlaveStarted) {
+        String uid = message.getUid();
+        SubmissionCheckEntry checkEntry = pendingSubmissions.get(uid);
+        client.queueMessage(
+            new CompileAndCheckSubmission(
+                uid, checkEntry.getSubmission(), checkEntry.getCheckNames()
+            )
+        );
+      }
+
+      messageHandler.accept(client, message);
+    };
   }
 }

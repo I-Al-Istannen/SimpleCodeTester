@@ -1,8 +1,5 @@
 package me.ialistannen.simplecodetester.checks;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.objectweb.asm.ClassReader;
@@ -42,11 +39,7 @@ public interface Check {
    * @param visitor the visitor to use
    */
   default void visitClassfile(CompiledFile file, ClassVisitor visitor) {
-    try (InputStream inputStream = Files.newInputStream(file.classFile())) {
-      ClassReader classReader = new ClassReader(inputStream);
-      classReader.accept(visitor, ClassReader.SKIP_DEBUG);
-    } catch (IOException e) {
-      throw new CheckFailedException("Error visiting class file", e);
-    }
+    ClassReader classReader = new ClassReader(file.classFile());
+    classReader.accept(visitor, ClassReader.SKIP_DEBUG);
   }
 }

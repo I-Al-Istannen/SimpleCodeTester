@@ -1,24 +1,9 @@
 package me.ialistannen.simplecodetester.execution.slave;
 
-import java.io.FilePermission;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Permission;
 import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
-import me.ialistannen.simplecodetester.submission.Submission;
 
 public class SubmissionSecurityManager extends SecurityManager {
-
-  private Path submissionPath;
-
-  /**
-   * Creates a new {@link SecurityManager} for a given submission path.
-   *
-   * @param submissionPath the base path of the {@link Submission}
-   */
-  public SubmissionSecurityManager(Path submissionPath) {
-    this.submissionPath = submissionPath;
-  }
 
   @Override
   public void checkPermission(Permission perm) {
@@ -32,7 +17,7 @@ public class SubmissionSecurityManager extends SecurityManager {
 
     for (Class<?> aClass : getClassContext()) {
       if (aClass.getClassLoader() instanceof SubmissionClassLoader) {
-        processSubmissionPermissionRequest(perm);
+        super.checkPermission(perm);
         return;
       }
     }
@@ -47,18 +32,6 @@ public class SubmissionSecurityManager extends SecurityManager {
     return false;
   }
 
-  private void processSubmissionPermissionRequest(Permission perm) {
-    if (perm instanceof FilePermission) {
-      String fileName = perm.getName();
-      Path path = Paths.get(fileName).toAbsolutePath();
-      if (pathAllowed(path)) {
-        return;
-      }
-    }
-
-    super.checkPermission(perm);
-  }
-
   private boolean containsClass(String name) {
     for (Class<?> aClass : getClassContext()) {
       if (aClass.getName().equals(name)) {
@@ -66,9 +39,5 @@ public class SubmissionSecurityManager extends SecurityManager {
       }
     }
     return false;
-  }
-
-  private boolean pathAllowed(Path path) {
-    return path.startsWith(submissionPath);
   }
 }

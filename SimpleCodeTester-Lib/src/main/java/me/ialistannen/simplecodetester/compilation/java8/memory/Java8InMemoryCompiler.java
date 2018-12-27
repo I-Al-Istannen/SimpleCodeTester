@@ -1,44 +1,40 @@
-package me.ialistannen.simplecodetester.compilation.java8;
+package me.ialistannen.simplecodetester.compilation.java8.memory;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
+import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.ImmutableCompiledFile;
 import me.ialistannen.simplecodetester.submission.ImmutableCompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 
-public class Java8FileCompiler implements Compiler {
+public class Java8InMemoryCompiler implements Compiler {
 
   @Override
-  public CompiledSubmission compileSubmission(Submission submission) throws IOException {
-    cleanUpCompiledFiles(submission);
-
+  public CompiledSubmission compileSubmission(Submission submission) {
     JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
     StringWriter output = new StringWriter();
 
-    List<FileInputObject> compilationUnits = Files.walk(submission.basePath())
-        .filter(Files::isRegularFile)
-        .filter(path -> path.toString().endsWith(".java"))
-        .map(FileInputObject::new)
+    List<InMemoryFileInputObject> compilationUnits = submission.files().entrySet().stream()
+        .filter(entry -> entry.getKey().endsWith(".java"))
+        .map(entry -> new InMemoryFileInputObject(entry.getKey(), entry.getValue()))
         .collect(Collectors.toList());
 
     ClassFileManager manager = new ClassFileManager(
-        javaCompiler.getStandardFileManager(null, null, StandardCharsets.UTF_8),
-        submission.basePath()
+        javaCompiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)
     );
 
     Map<String, List<String>> diagnostics = new HashMap<>();
@@ -67,19 +63,20 @@ public class Java8FileCompiler implements Compiler {
 
     List<CompiledFile> compiledFiles;
 
+    // ugly, but we have a circular reference here
+    AtomicReference<ClassLoader> classLoaderReference = new AtomicReference<>();
+
     if (!successful) {
       compiledFiles = Collections.emptyList();
     } else {
       compiledFiles = compilationUnits.stream()
-          .map(FileInputObject::getPath)
-          .map(path -> ImmutableCompiledFile.builder()
-              .classLoader(submission.classLoader())
-              .classFile(
-                  path.resolveSibling(path.getFileName().toString().replace(".java", ".class"))
-              )
-              .sourceFile(path)
+          .map(file -> ImmutableCompiledFile.builder()
+              .classLoaderSupplier(classLoaderReference::get)
+              .classFile(manager.getForClassPath(file.getName()).getContent())
+              .content(file.getContent())
               .qualifiedName(
-                  submission.basePath().relativize(path).toString().replace("/", ".")
+                  file.getName()
+                      .replace("/", ".")
                       .replace(".java", "")
               )
               .build()
@@ -94,22 +91,13 @@ public class Java8FileCompiler implements Compiler {
         .files(compiledFiles)
         .build();
 
-    return ImmutableCompiledSubmission.builder()
-        .from(submission)
+    ImmutableCompiledSubmission compiledSubmission = ImmutableCompiledSubmission.builder()
         .compilationOutput(compilationOutput)
-        .files(compiledFiles)
+        .compiledFiles(compiledFiles)
         .build();
-  }
 
-  private void cleanUpCompiledFiles(Submission submission) throws IOException {
-    Files.walk(submission.basePath())
-        .filter(path -> path.toString().endsWith(".class"))
-        .forEach(path -> {
-          try {
-            Files.deleteIfExists(path);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
+    classLoaderReference.set(new SubmissionClassLoader(compiledSubmission));
+
+    return compiledSubmission;
   }
 }

@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
 import org.slf4j.Logger;
@@ -27,12 +27,13 @@ public class MessageClient implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageClient.class);
 
   private final Socket socket;
-  private Consumer<ProtocolMessage> messageHandler;
+  private BiConsumer<MessageClient, ProtocolMessage> messageHandler;
   private Gson gson;
   private ConcurrentLinkedQueue<ProtocolMessage> outgoing;
   private volatile boolean stop;
 
-  public MessageClient(Socket socket, Gson gson, Consumer<ProtocolMessage> messageHandler) {
+  public MessageClient(Socket socket, Gson gson,
+      BiConsumer<MessageClient, ProtocolMessage> messageHandler) {
     this.socket = socket;
     this.messageHandler = messageHandler;
 
@@ -111,6 +112,6 @@ public class MessageClient implements Runnable {
       Thread.currentThread().interrupt();
     }
 
-    messageHandler.accept(message);
+    messageHandler.accept(this, message);
   }
 }

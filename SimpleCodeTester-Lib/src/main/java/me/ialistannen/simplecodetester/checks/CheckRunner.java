@@ -45,14 +45,14 @@ public class CheckRunner {
   public SubmissionCheckResult checkSubmission(CompiledSubmission compiledSubmission) {
     Builder builder = ImmutableSubmissionCheckResult.builder();
 
-    for (CompiledFile file : compiledSubmission.files()) {
+    for (CompiledFile file : compiledSubmission.compiledFiles()) {
       List<CheckResult> checkResults = checks.stream()
           .map(check -> tryCheck(check, file))
           .collect(toList());
       builder.putFileResults(file.qualifiedName(), checkResults);
     }
 
-    builder.files(compiledSubmission.files());
+    builder.files(compiledSubmission.compiledFiles());
 
     return builder.build();
   }
