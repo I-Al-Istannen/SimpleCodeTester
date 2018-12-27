@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.compilation.java8.memory;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -8,10 +10,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
 import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
@@ -84,16 +88,25 @@ public class Java8InMemoryCompiler implements Compiler {
           .collect(Collectors.toList());
     }
 
-    ImmutableCompilationOutput compilationOutput = ImmutableCompilationOutput.builder()
+    CompilationOutput compilationOutput = ImmutableCompilationOutput.builder()
         .successful(successful)
         .output(output.toString())
         .diagnostics(diagnostics)
         .files(compiledFiles)
         .build();
 
-    ImmutableCompiledSubmission compiledSubmission = ImmutableCompiledSubmission.builder()
+    HashMap<String, InMemoryOutputObject> auxiliaryClasses = new HashMap<>(manager.getAll());
+    for (InMemoryFileInputObject unit : compilationUnits) {
+      auxiliaryClasses.remove(manager.sanitizeToClassName(unit.getName()));
+    }
+
+    CompiledSubmission compiledSubmission = ImmutableCompiledSubmission.builder()
         .compilationOutput(compilationOutput)
         .compiledFiles(compiledFiles)
+        .generatedAuxiliaryClasses(
+            auxiliaryClasses.entrySet().stream()
+                .collect(toMap(Entry::getKey, entry -> entry.getValue().getContent()))
+        )
         .build();
 
     classLoaderReference.set(new SubmissionClassLoader(compiledSubmission));

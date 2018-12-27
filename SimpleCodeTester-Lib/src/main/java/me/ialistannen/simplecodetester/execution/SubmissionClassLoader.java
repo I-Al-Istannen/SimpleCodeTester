@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import java.util.Map;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
@@ -31,7 +32,10 @@ public class SubmissionClassLoader extends URLClassLoader {
     super(new URL[0], SubmissionClassLoader.class.getClassLoader());
 
     this.compiledClasses = submission.compiledFiles().stream()
-        .collect(toMap(CompiledFile::qualifiedName, CompiledFile::classFile));
+        .collect(toMap(
+            CompiledFile::qualifiedName, CompiledFile::classFile, (a, b) -> a, HashMap::new
+        ));
+    this.compiledClasses.putAll(submission.generatedAuxiliaryClasses());
   }
 
   @Override

@@ -37,9 +37,21 @@ class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager
   }
 
   InMemoryOutputObject getForClassPath(String path) {
-    return compiledClasses.get(
-        path.replace("/", ".")
-            .replace(".java", "")
-    );
+    return compiledClasses.get(sanitizeToClassName(path));
+  }
+
+  String sanitizeToClassName(String path) {
+    return path
+        .replace("/", ".")
+        .replace(".java", "");
+  }
+
+  /**
+   * Returns all written output objects.
+   *
+   * @return all written output objects
+   */
+  Map<String, InMemoryOutputObject> getAll() {
+    return compiledClasses;
   }
 }
