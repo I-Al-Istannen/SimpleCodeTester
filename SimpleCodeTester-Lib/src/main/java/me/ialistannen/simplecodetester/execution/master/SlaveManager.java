@@ -40,6 +40,7 @@ public class SlaveManager {
   private String[] classpath;
 
   private Map<String, SubmissionCheckEntry> pendingSubmissions;
+  private volatile boolean started;
 
   public SlaveManager(BiConsumer<MessageClient, ProtocolMessage> messageHandler,
       String[] classpath) {
@@ -62,6 +63,10 @@ public class SlaveManager {
     }
     thread = new Thread(this::runServer);
     thread.start();
+
+    while (!started) {
+      Thread.onSpinWait();
+    }
   }
 
   /**
@@ -90,6 +95,8 @@ public class SlaveManager {
     try (ServerSocket serverSocket = new ServerSocket()) {
       serverSocket.bind(null);
 
+      started = true;
+
       port = serverSocket.getLocalPort();
       serverSocket.setSoTimeout(2000);
 
@@ -98,6 +105,8 @@ public class SlaveManager {
       }
     } catch (IOException e) {
       LOGGER.warn("Error running master server.", e);
+    } finally {
+      started = true;
     }
   }
 
