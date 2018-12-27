@@ -1,10 +1,12 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.validation.constraints.NotEmpty;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
+import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
@@ -45,7 +47,7 @@ public class CheckManageEndpoint {
    * @return true if the check was added
    */
   @PostMapping("/checks/add")
-  public ResponseEntity<CodeCheck> addNew(@RequestBody @NotEmpty String text) {
+  public ResponseEntity<Object> addNew(@RequestBody @NotEmpty String text) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -58,7 +60,11 @@ public class CheckManageEndpoint {
 
     CodeCheck codeCheck = new CodeCheck(text, userOptional.get());
 
-    return ResponseEntity.ok(checkService.addCheck(codeCheck));
+    try {
+      return ResponseEntity.ok(checkService.addCheck(codeCheck));
+    } catch (InvalidCheckException e) {
+      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
   }
 
   /**

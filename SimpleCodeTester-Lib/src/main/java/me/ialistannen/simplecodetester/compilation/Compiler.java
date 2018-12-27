@@ -9,7 +9,6 @@ import me.ialistannen.simplecodetester.submission.Submission;
  */
 public interface Compiler {
 
-
   /**
    * Compiles the given {@link Submission}.
    *

@@ -3,20 +3,30 @@ package me.ialistannen.simplecodetester.backend.services.checks;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.repos.CheckRepository;
+import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
+import me.ialistannen.simplecodetester.backend.services.compilation.LocalCompilationService;
+import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.compilation.CompilationOutput;
+import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CodeCheckService {
 
   private CheckRepository checkRepository;
+  private LocalCompilationService localCompilationService;
 
-  public CodeCheckService(CheckRepository checkRepository) {
+  public CodeCheckService(CheckRepository checkRepository,
+      LocalCompilationService localCompilationService) {
     this.checkRepository = checkRepository;
+    this.localCompilationService = localCompilationService;
   }
 
   /**
@@ -65,9 +75,52 @@ public class CodeCheckService {
    *
    * @param codeCheck the check to save
    * @return the added check, with its id field populated
+   * @throws InvalidCheckException if the check does not compile
    */
   public CodeCheck addCheck(CodeCheck codeCheck) {
+    validateCheck(codeCheck);
+
     return checkRepository.save(codeCheck);
+  }
+
+  /**
+   * Validates a {@link CodeCheck}.
+   *
+   * @param codeCheck the code check to validate
+   * @throws InvalidCheckException if the check is not valid
+   */
+  private void validateCheck(CodeCheck codeCheck) {
+    String body = removePackageDeclaration(codeCheck.getText());
+    String packageName = codeCheck.getId() == null ? "checks" : codeCheck.getId().toString();
+    String className = getClassName(body);
+    String fullBody = prependPackage(packageName, body);
+
+    codeCheck.setText(fullBody);
+
+    CompilationOutput compilationOutput = localCompilationService
+        .compile(packageName + "/" + className + ".java", fullBody);
+
+    if (!compilationOutput.output().isEmpty()) {
+      throw new InvalidCheckException(compilationOutput.output());
+    }
+
+    if (!compilationOutput.diagnostics().isEmpty()) {
+      throw new InvalidCheckException(compilationOutput.diagnostics().toString());
+    }
+
+    if (!compilationOutput.successful()) {
+      throw new InvalidCheckException("Unknown, not successful");
+    }
+
+    if (compilationOutput.files().size() != 1) {
+      throw new InvalidCheckException("Not exactly one output file!");
+    }
+
+    CompiledFile file = compilationOutput.files().iterator().next();
+
+    if (!Check.class.isAssignableFrom(file.asClass())) {
+      throw new InvalidCheckException("Class " + file.asClass() + " does not extend Check!");
+    }
   }
 
   /**
@@ -94,6 +147,7 @@ public class CodeCheckService {
    * @param id the id of the check to update
    * @param updateAction the update action
    * @return true if the check existed
+   * @throws InvalidCheckException if the {@link CodeCheck} is invalid after the change
    */
   @Transactional
   public boolean updateCheck(long id, Consumer<CodeCheck> updateAction) {
@@ -104,8 +158,27 @@ public class CodeCheckService {
     }
 
     updateAction.accept(codeCheck.get());
+
+    validateCheck(codeCheck.get());
+
     checkRepository.save(codeCheck.get());
 
     return true;
+  }
+
+  private String removePackageDeclaration(String input) {
+    return input.replaceAll("package.+;", "");
+  }
+
+  private String getClassName(String input) {
+    Matcher matcher = Pattern.compile("class (\\w+) ?").matcher(input);
+    if (!matcher.find()) {
+      throw new InvalidCheckException("Input contains no class declaration!");
+    }
+    return matcher.group(1);
+  }
+
+  private String prependPackage(String packageName, String code) {
+    return String.format("package %s;%n%s", packageName, code);
   }
 }
