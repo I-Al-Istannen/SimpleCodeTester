@@ -3,8 +3,6 @@ package me.ialistannen.simplecodetester.backend.services.checks;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
@@ -15,6 +13,7 @@ import me.ialistannen.simplecodetester.backend.services.compilation.LocalCompila
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
+import me.ialistannen.simplecodetester.util.ClassParsingUtil;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -91,7 +90,8 @@ public class CodeCheckService {
    */
   private void validateCheck(CodeCheck codeCheck) {
     String body = removePackageDeclaration(codeCheck.getText()).trim();
-    String className = getClassName(body);
+    String className = ClassParsingUtil.getClassName(body)
+        .orElseThrow(() -> new InvalidCheckException("No class declaration found."));
 
     codeCheck.setText(body);
 
@@ -158,13 +158,5 @@ public class CodeCheckService {
 
   private String removePackageDeclaration(String input) {
     return input.replaceAll("package.+;", "");
-  }
-
-  private String getClassName(String input) {
-    Matcher matcher = Pattern.compile("class (\\w+) ?").matcher(input);
-    if (!matcher.find()) {
-      throw new InvalidCheckException("Input contains no class declaration!");
-    }
-    return matcher.group(1);
   }
 }
