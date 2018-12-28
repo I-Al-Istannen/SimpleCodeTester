@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
@@ -29,6 +30,7 @@ public class CodeCheck {
   @Setter(AccessLevel.NONE)
   private Long id;
 
+  @Lob
   @NotEmpty
   private String text;
 

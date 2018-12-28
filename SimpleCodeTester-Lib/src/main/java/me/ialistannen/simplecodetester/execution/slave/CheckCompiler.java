@@ -5,9 +5,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicInteger;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.exceptions.CompilationException;
@@ -15,9 +13,12 @@ import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
+import me.ialistannen.simplecodetester.util.ClassParsingUtil;
 import org.joor.Reflect;
 
 class CheckCompiler {
+
+  private AtomicInteger checkCounter = new AtomicInteger();
 
   /**
    * Compiles and instantiates checks from source code.
@@ -28,7 +29,8 @@ class CheckCompiler {
    */
   List<Check> compileAndInstantiateChecks(List<String> checks, Compiler compiler) {
     Map<String, String> checkMap = checks.stream()
-        .collect(toMap(this::getClassPath, Function.identity()));
+        .map(this::prependPackage)
+        .collect(toMap(this::getClassPath, x -> x));
 
     Submission submission = ImmutableSubmission.builder()
         .putAllFiles(checkMap)
@@ -46,11 +48,15 @@ class CheckCompiler {
         .collect(toList());
   }
 
+  private String prependPackage(String input) {
+    return String.format("package check_%d;%n%s", checkCounter.getAndIncrement(), input);
+  }
+
   private String getClassPath(String input) {
-    Matcher matcher = Pattern.compile("class (\\w+) ?").matcher(input);
-    if (!matcher.find()) {
-      throw new RuntimeException("Input contains no class declaration: " + input);
-    }
-    return matcher.group(1) + ".java";
+    String qualifiedName =
+        ClassParsingUtil.getPackage(input).orElse("")
+            + "."
+            + ClassParsingUtil.getClassName(input).orElseThrow();
+    return qualifiedName.replace(".", "/") + ".java";
   }
 }

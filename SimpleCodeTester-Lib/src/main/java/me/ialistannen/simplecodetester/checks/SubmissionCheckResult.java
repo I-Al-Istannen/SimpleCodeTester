@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.checks;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.immutables.value.Value;
  * The result of checking a whole {@link Submission}.
  */
 @Gson.TypeAdapters
+@JsonSerialize
 @Value.Immutable
 public abstract class SubmissionCheckResult {
 
