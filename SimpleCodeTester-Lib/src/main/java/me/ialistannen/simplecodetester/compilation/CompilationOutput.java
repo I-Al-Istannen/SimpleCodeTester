@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.compilation;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.immutables.value.Value;
  * The compiler output for a whole collection of files.
  */
 @Gson.TypeAdapters
+@JsonSerialize
 @Value.Immutable
 public abstract class CompilationOutput {
 
