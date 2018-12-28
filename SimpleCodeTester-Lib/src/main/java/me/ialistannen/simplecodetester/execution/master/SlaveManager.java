@@ -83,11 +83,11 @@ public class SlaveManager {
    * Runs a {@link Submission} on a new slave.
    *
    * @param submission the submission to run
-   * @param checkNames the fully qualified names of all {@link Check}s to run
+   * @param checks the source code of all {@link Check}s to run
    * @param uid the UID of the submission
    */
-  public void runSubmission(Submission submission, List<String> checkNames, String uid) {
-    pendingSubmissions.put(uid, new SubmissionCheckEntry(submission, checkNames));
+  public void runSubmission(Submission submission, List<String> checks, String uid) {
+    pendingSubmissions.put(uid, new SubmissionCheckEntry(submission, checks));
     untrustedCodeJvmStarter.startSlave(port, uid, classpath);
   }
 
@@ -127,7 +127,7 @@ public class SlaveManager {
         SubmissionCheckEntry checkEntry = pendingSubmissions.get(uid);
         client.queueMessage(
             new CompileAndCheckSubmission(
-                uid, checkEntry.getSubmission(), checkEntry.getCheckNames()
+                uid, checkEntry.getSubmission(), checkEntry.getCheckSource()
             )
         );
       }

@@ -14,7 +14,7 @@ public class CompileAndCheckSubmission extends ProtocolMessage {
    *
    * @param uid the uid of the client
    * @param submission the submission to compile and check
-   * @param checks a list with the fully qualified name of all checks to run
+   * @param checks a list with the surce code of all checks to run
    */
   public CompileAndCheckSubmission(String uid, Submission submission, List<String> checks) {
     super(uid);
@@ -32,9 +32,9 @@ public class CompileAndCheckSubmission extends ProtocolMessage {
   }
 
   /**
-   * Returns a list with the fully qualified name of all checks to run.
+   * Returns a list with the source code of all checks to run.
    *
-   * @return a list with the fully qualified name of all checks to run
+   * @return a list with the source code of all checks to run
    */
   public List<String> getChecks() {
     return checks;
@@ -45,7 +45,7 @@ public class CompileAndCheckSubmission extends ProtocolMessage {
     return "CompileAndCheckSubmission{" +
         "uid=" + getUid() +
         ", submission=" + submission +
-        "m checks=" + checks +
+        ", checks=" + checks +
         '}';
   }
 }

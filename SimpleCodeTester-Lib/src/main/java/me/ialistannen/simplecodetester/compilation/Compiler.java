@@ -1,6 +1,5 @@
 package me.ialistannen.simplecodetester.compilation;
 
-import java.io.IOException;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 
@@ -15,5 +14,5 @@ public interface Compiler {
    * @param submission the {@link Submission} to compile
    * @return the compiled submission
    */
-  CompiledSubmission compileSubmission(Submission submission) throws IOException;
+  CompiledSubmission compileSubmission(Submission submission);
 }

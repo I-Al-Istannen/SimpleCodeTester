@@ -1,21 +1,18 @@
 package me.ialistannen.simplecodetester.compilation.java8.memory;
 
-import edu.kit.informatik.Terminal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
-import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;
 import me.ialistannen.simplecodetester.execution.master.SlaveManager;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
-import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import org.junit.jupiter.api.Disabled;
@@ -33,21 +30,22 @@ class SlaveCompilationTest {
     return new String[]{testClassPath, normalClassesPath};
   }
 
-  // This test only works if the dependency jar is present
+  // This test only works if the built jar is present, as it is more of an Integration test
   @Disabled
   @Test
   void compileSimpleProgram() throws Throwable {
     Submission submission = fileToSubmission(
         "Test.java",
-        "import java.util.function.*;"
-            + "public class Test {"
-            + "  public static String getHelloWorld() {"
-            + "    Supplier<String> run = new SampleSupplier();"
-            + "    return run.get();"
-            + "  }"
-            + "  private static class SampleSupplier implements Supplier<String> {"
-            + "    public String get() { return \"Hello world!\"; }"
-            + "  }"
+        "import java.util.function.*;\n"
+            + "import edu.kit.informatik.Terminal;\n"
+            + "public class Test {\n"
+            + "  public static void main(String[] args) {\n"
+            + "    Supplier<String> run = new SampleSupplier();\n"
+            + "    Terminal.printLine(run.get());\n"
+            + "  }\n"
+            + "  private static class SampleSupplier implements Supplier<String> {\n"
+            + "    public String get() { return \"Hello world!\"; }\n"
+            + "  }\n"
             + "}"
     );
 
@@ -65,12 +63,10 @@ class SlaveCompilationTest {
             exception.set(
                 new AssertionError(((SlaveDiedWithUnknownError) protocolMessage).getMessage())
             );
-            semaphore.release();
           } else if (protocolMessage instanceof SlaveTimedOut) {
             exception.set(
                 new RuntimeException("Slave timed out!")
             );
-            semaphore.release();
           } else if (protocolMessage instanceof SubmissionResult) {
             SubmissionCheckResult result = ((SubmissionResult) protocolMessage).getResult();
 
@@ -85,7 +81,9 @@ class SlaveCompilationTest {
             } else {
               exception.set(null);
             }
+          }
 
+          if (protocolMessage instanceof DyingMessage) {
             semaphore.release();
           }
         },
@@ -94,7 +92,7 @@ class SlaveCompilationTest {
     slaveManager.start();
     slaveManager.runSubmission(
         submission,
-        List.of(ExpectHelloWorldCheck.class.getName()),
+        List.of(getCheckSource()),
         "test"
     );
 
@@ -115,18 +113,23 @@ class SlaveCompilationTest {
         .build();
   }
 
-  public static class ExpectHelloWorldCheck extends MainClassRunnerCheck {
-
-    @Override
-    protected List<String> getInput(CompiledFile file) {
-      return Collections.emptyList();
-    }
-
-    @Override
-    protected void assertOutputValid(CompiledFile file) {
-      if (Terminal.getOutput().equals("Hello world!")) {
-        throw new AssertionError("Expected: 'Hello world!', got '" + Terminal.getOutput() + "'!");
-      }
-    }
+  private String getCheckSource() {
+    return "import edu.kit.informatik.Terminal;\n"
+        + "import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;\n"
+        + "import me.ialistannen.simplecodetester.submission.CompiledFile;\n"
+        + "import java.util.*;\n"
+        + ""
+        + "public class ExpectHelloWorldCheck extends MainClassRunnerCheck {\n"
+        + "  @Override\n"
+        + "  protected List<String> getInput(CompiledFile file) {\n"
+        + "    return Collections.emptyList();\n"
+        + "  }\n"
+        + "  @Override\n"
+        + "  protected void assertOutputValid(CompiledFile file) {\n"
+        + "    if (!Terminal.getOutput().equals(\"Hello world!\\n\")) {\n"
+        + "      throw new AssertionError(\"Expected: 'Hello world!', got '\" + Terminal.getOutput() + \"'!\");\n"
+        + "    }\n"
+        + "  }\n"
+        + "}";
   }
 }

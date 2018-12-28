@@ -1,8 +1,17 @@
 package me.ialistannen.simplecodetester.exceptions;
 
+import me.ialistannen.simplecodetester.compilation.CompilationOutput;
+
 public class CompilationException extends RuntimeException {
 
-  public CompilationException(String message, Throwable cause) {
-    super(message, cause);
+  private final CompilationOutput output;
+
+  public CompilationException(CompilationOutput output) {
+    super("Compilation failed!");
+    this.output = output;
+  }
+
+  public CompilationOutput getOutput() {
+    return output;
   }
 }

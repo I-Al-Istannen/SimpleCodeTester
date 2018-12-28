@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckRunner;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.compilation.java8.memory.Java8InMemoryCompiler;
+import me.ialistannen.simplecodetester.exceptions.CompilationException;
 import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
@@ -27,7 +27,6 @@ import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import me.ialistannen.simplecodetester.util.Stacktrace;
-import org.joor.Reflect;
 
 /**
  * The main class of the untrusted slave vm.
@@ -39,12 +38,14 @@ public class UntrustedJvmMain {
 
   private MessageClient client;
   private TimerTask idleKiller;
+  private CheckCompiler checkCompiler;
 
   private UntrustedJvmMain(int port, String uid) throws IOException {
     this.port = port;
     this.uid = uid;
 
     this.client = createMessageClient();
+    this.checkCompiler = new CheckCompiler();
   }
 
   private MessageClient createMessageClient() throws IOException {
@@ -91,19 +92,23 @@ public class UntrustedJvmMain {
       }
 
       runChecks(compiledSubmission, checks);
-      shutdown();
+    } catch (CompilationException e) {
+      e.printStackTrace();
+      client.queueMessage(new CompilationFailed(e.getOutput(), uid));
     } catch (Throwable e) {
       e.printStackTrace();
       client.queueMessage(new SlaveDiedWithUnknownError(uid, Stacktrace.getStacktrace(e)));
+    } finally {
+      shutdown();
     }
   }
 
-  private CompiledSubmission compile(Submission submission) throws IOException {
+  private CompiledSubmission compile(Submission submission) {
     Compiler compiler = new Java8InMemoryCompiler();
     CompiledSubmission compiledSubmission = compiler.compileSubmission(submission);
 
     if (!compiledSubmission.compilationOutput().successful()) {
-      client.queueMessage(new CompilationFailed(compiledSubmission.compilationOutput(), uid));
+      throw new CompilationException(compiledSubmission.compilationOutput());
     }
 
     return compiledSubmission;
@@ -114,13 +119,9 @@ public class UntrustedJvmMain {
     client.stop();
   }
 
-  private void runChecks(CompiledSubmission compiledSubmission, List<String> checkNames) {
-    List<Check> checks = checkNames.stream()
-        .map(UntrustedJvmMain::unsafeClassGet)
-        .map(aClass -> (Check) Reflect.on(aClass).create().get())
-        .collect(Collectors.toList());
-
-    System.out.println(checks);
+  private void runChecks(CompiledSubmission compiledSubmission, List<String> checkSource) {
+    List<Check> checks = checkCompiler
+        .compileAndInstantiateChecks(checkSource, new Java8InMemoryCompiler());
 
     CheckRunner checkRunner = new CheckRunner(checks);
     SubmissionCheckResult checkResult = checkRunner.checkSubmission(compiledSubmission);
@@ -131,7 +132,7 @@ public class UntrustedJvmMain {
   public static void main(String[] args) throws IOException {
     if (args.length < 2) {
       throw new IllegalArgumentException(
-          "Usage: java <program> <master port> <slave uid> <path to submission> <check classes...>"
+          "Usage: java <program> <master port> <slave uid>"
       );
     }
     int port = Integer.parseInt(args[0]);
@@ -144,13 +145,5 @@ public class UntrustedJvmMain {
     System.setSecurityManager(new SubmissionSecurityManager());
 
     new UntrustedJvmMain(port, uid).execute();
-  }
-
-  private static Class<?> unsafeClassGet(String name) {
-    try {
-      return Class.forName(name);
-    } catch (ClassNotFoundException e) {
-      throw new IllegalArgumentException(e);
-    }
   }
 }

@@ -6,18 +6,18 @@ import me.ialistannen.simplecodetester.submission.Submission;
 class SubmissionCheckEntry {
 
   private Submission submission;
-  private List<String> checkNames;
+  private List<String> checks;
 
-  SubmissionCheckEntry(Submission submission, List<String> checkNames) {
+  SubmissionCheckEntry(Submission submission, List<String> checks) {
     this.submission = submission;
-    this.checkNames = checkNames;
+    this.checks = checks;
   }
 
   Submission getSubmission() {
     return submission;
   }
 
-  List<String> getCheckNames() {
-    return checkNames;
+  List<String> getCheckSource() {
+    return checks;
   }
 }
