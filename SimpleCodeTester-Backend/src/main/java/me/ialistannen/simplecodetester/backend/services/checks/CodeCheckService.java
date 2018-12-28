@@ -98,16 +98,8 @@ public class CodeCheckService {
     CompilationOutput compilationOutput = localCompilationService
         .compile(className + ".java", body);
 
-    if (!compilationOutput.output().isEmpty()) {
-      throw new InvalidCheckException(compilationOutput.output());
-    }
-
-    if (!compilationOutput.diagnostics().isEmpty()) {
-      throw new InvalidCheckException(compilationOutput.diagnostics().toString());
-    }
-
     if (!compilationOutput.successful()) {
-      throw new InvalidCheckException("Unknown, not successful");
+      throw new InvalidCheckException(compilationOutput);
     }
 
     if (compilationOutput.files().size() != 1) {

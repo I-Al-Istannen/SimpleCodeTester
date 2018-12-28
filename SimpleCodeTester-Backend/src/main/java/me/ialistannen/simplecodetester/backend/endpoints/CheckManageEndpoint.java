@@ -63,7 +63,9 @@ public class CheckManageEndpoint {
     try {
       return ResponseEntity.ok(checkService.addCheck(codeCheck));
     } catch (InvalidCheckException e) {
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+      return ResponseEntity.badRequest().body(
+          Map.of("message", e.getMessage(), "output", e.getOutput())
+      );
     }
   }
 
