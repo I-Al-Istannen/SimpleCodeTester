@@ -18,6 +18,7 @@ import javax.tools.ToolProvider;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
+import me.ialistannen.simplecodetester.exceptions.CompilationException;
 import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
@@ -73,6 +74,13 @@ public class Java8InMemoryCompiler implements Compiler {
     if (!successful) {
       compiledFiles = Collections.emptyList();
     } else {
+      for (InMemoryFileInputObject file : compilationUnits) {
+        if (manager.getForClassPath(file.getName()) == null) {
+          throw new CompilationException(
+              String.format("No class file found for source file '%s'.", file.getName())
+          );
+        }
+      }
       compiledFiles = compilationUnits.stream()
           .map(file -> ImmutableCompiledFile.builder()
               .classLoaderSupplier(classLoaderReference::get)
