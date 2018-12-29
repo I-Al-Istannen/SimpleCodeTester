@@ -20,6 +20,7 @@ import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedExcep
 import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
 import me.ialistannen.simplecodetester.backend.services.checkrunning.CheckRunnerService;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
+import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ClassParsingUtil;
@@ -65,7 +66,7 @@ public class TestRunEndpoint {
     } catch (CompilationFailedException e) {
       return ResponseEntity.badRequest().body(e.getOutput());
     } catch (CheckRunningFailedException | CheckAlreadyRunningException e) {
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
   }
 
@@ -82,7 +83,7 @@ public class TestRunEndpoint {
     Map<String, String> files = new HashMap<>();
 
     if (file == null) {
-      return ResponseEntity.badRequest().body(Map.of("error", "No file given!"));
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No file given!");
     }
 
     try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
@@ -92,9 +93,10 @@ public class TestRunEndpoint {
           continue;
         }
         if (!entry.getName().endsWith(".java")) {
-          return ResponseEntity.badRequest().body(Map.of(
-              "error", String.format("File '%s' does not end with '.java'", entry.getName())
-          ));
+          return ResponseUtil.error(
+              HttpStatus.BAD_REQUEST,
+              String.format("File '%s' does not end with '.java'", entry.getName())
+          );
         }
 
         StringOutputStream stringOutputStream = new StringOutputStream();
@@ -110,8 +112,7 @@ public class TestRunEndpoint {
       return testMultipleFiles(files, user.getName());
     } catch (IOException e) {
       log.info("Error extracting file for user '{}'", user.getName(), e);
-      return ResponseEntity.badRequest()
-          .body(Map.of("error", e.getMessage()));
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
   }
 
@@ -120,14 +121,14 @@ public class TestRunEndpoint {
       HttpServletRequest request) {
 
     if (!(request instanceof MultipartHttpServletRequest)) {
-      return ResponseEntity.badRequest().body(Map.of("error", "no multipart request"));
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No multipart request");
     }
 
     MultiValueMap<String, MultipartFile> fileMap = ((MultipartHttpServletRequest) request)
         .getMultiFileMap();
 
     if (fileMap.isEmpty()) {
-      return ResponseEntity.badRequest().body(Map.of("error", "No file uploaded!"));
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No file uploaded!");
     }
 
     try {
@@ -146,8 +147,7 @@ public class TestRunEndpoint {
       return testMultipleFiles(files, user.getName());
     } catch (IOException e) {
       log.warn("Error fetching files", e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(Map.of("error", "Error fetching files."));
+      return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching files.");
     }
   }
 
@@ -160,7 +160,7 @@ public class TestRunEndpoint {
    */
   private ResponseEntity<Object> testMultipleFiles(Map<String, String> files, String userId) {
     if (files.isEmpty()) {
-      return ResponseEntity.badRequest().body(Map.of("error", "No files given."));
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No files given.");
     }
 
     Submission submission = ImmutableSubmission.builder()
