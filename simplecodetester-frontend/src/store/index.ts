@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex, { StoreOptions } from 'vuex'
-import { RootState } from './types'
+import { RootState, UserInfo, UserState } from './types'
 import { user } from './modules/user'
 import createPersistedState from 'vuex-persistedstate'
 
@@ -11,7 +11,7 @@ Vue.use(Vuex)
 const storeOptions: StoreOptions<RootState> = {
   state: {
     baseUrl: 'http://localhost:8080'
-  },
+  } as RootState,
   modules: {
     user
   },
