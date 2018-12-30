@@ -19,8 +19,31 @@ export const actions: ActionTree<CheckResultState, RootState> = {
       headers: { "Content-Type": "text/plain" }
     }).then(response => {
       commit("checkResult", parseCheckResponse(response.data))
-      
+
       return response
     });
+  },
+  checkMultiple({ commit, state }, payload: Array<File>): AxiosPromise<any> {
+    const formData = new FormData()
+    payload.forEach(file => {
+      formData.append(file.name, file)
+    })
+    return axios.post("/test/multiple", formData)
+      .then(response => {
+        commit("checkResult", parseCheckResponse(response.data))
+
+        return response
+      })
+  },
+  checkZip({ commit, state }, payload: File): AxiosPromise<any> {
+    const formData = new FormData()
+    formData.append("file", payload)
+    return axios.post("/test/zip", formData)
+      .then(response => {
+        commit("checkResult", parseCheckResponse(response.data))
+
+        return response
+      })
   }
+
 };

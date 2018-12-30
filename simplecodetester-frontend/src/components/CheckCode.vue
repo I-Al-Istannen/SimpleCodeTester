@@ -13,12 +13,14 @@
             </v-tab-item>
 
             <v-tab ripple>File upload</v-tab>
-            <v-tab-item>Item 2</v-tab-item>
+            <v-tab-item>
+              <multi-file-select @input="filesSelected"></multi-file-select>
+            </v-tab-item>
           </v-tabs>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" ripple @click="upload">
+          <v-btn :disabled="uploading || !uploadPossible" color="primary" ripple @click="upload">
             Upload {{ selectedTab }}
             <v-icon right dard>cloud_upload</v-icon>
           </v-btn>
@@ -34,21 +36,32 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import HighlightedCode from "./highlighting/HighlightedCode.vue";
-import Axios from "axios";
+import MultiFileSelect from "./upload/MultiFileSelect.vue";
+import Axios, { AxiosPromise } from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import { CheckResultState } from "@/store/types";
 import { Store } from "vuex";
 
 @Component({
   components: {
-    "highlighted-code": HighlightedCode
+    "highlighted-code": HighlightedCode,
+    "multi-file-select": MultiFileSelect
   }
 })
 export default class CheckCode extends Vue {
-  private code: string = "Nothing set";
+  private code: string = "";
+  private files: Array<File> = [];
   private error: string = "";
+  private uploading: boolean = false;
 
   private selectedTab: Number = 0;
+
+  get uploadPossible() {
+    return (
+      (this.code.length > 0 && this.selectedTab === 0) ||
+      (this.files.length > 0 && this.selectedTab === 1)
+    );
+  }
 
   upload() {
     if (this.selectedTab == 0) {
@@ -59,15 +72,42 @@ export default class CheckCode extends Vue {
   }
 
   uploadSource() {
-    this.$store
-      .dispatch("checkresult/checkSingle", this.code)
+    this.uploading = true;
+    this.handleUploadResult(
+      this.$store.dispatch("checkresult/checkSingle", this.code)
+    );
+  }
+
+  private handleUploadResult(promise: AxiosPromise<any>) {
+    promise
       .then(response => this.$router.push("/view-check-result"))
       .catch(error => {
         this.error = extractErrorMessage(error);
-      });
+      })
+      .finally(() => (this.uploading = false));
   }
 
-  uploadFile() {}
+  uploadFile() {
+    this.uploading = true;
+
+    const zipFile = this.files.find(elem => {
+      return elem.name.endsWith(".zip");
+    });
+
+    if (zipFile) {
+      this.handleUploadResult(
+        this.$store.dispatch("checkresult/checkZip", zipFile)
+      );
+    } else {
+      this.handleUploadResult(
+        this.$store.dispatch("checkresult/checkMultiple", this.files)
+      );
+    }
+  }
+
+  filesSelected(files: Array<File>) {
+    this.files = files;
+  }
 }
 </script>
 
