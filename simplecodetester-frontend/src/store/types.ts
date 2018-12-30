@@ -16,10 +16,20 @@ export interface CheckResultState {
   checkResult: CheckResult | null;
 }
 
-export class CheckResult {
-  results: Map<string, Array<FileCheckResult>>
+export class Pair<K, V>{
+  key: K;
+  value: V;
 
-  constructor(results: Map<string, Array<FileCheckResult>>) {
+  constructor(key: K, value: V) {
+    this.key = key;
+    this.value = value;
+  }
+}
+
+export class CheckResult {
+  results: Array<Pair<string, Array<FileCheckResult>>>
+
+  constructor(results: Array<Pair<string, Array<FileCheckResult>>>) {
     this.results = results
   }
 }

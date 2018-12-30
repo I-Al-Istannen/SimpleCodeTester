@@ -1,16 +1,16 @@
 import { ActionTree } from 'vuex';
 import axios, { AxiosPromise } from 'axios';
-import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo } from '../../types';
+import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair } from '../../types';
 import { RootState } from '../../types';
 
 function parseCheckResponse(json: any) {
-  const map = new Map<string, Array<FileCheckResult>>()
+  const entries = new Array<Pair<string, Array<FileCheckResult>>>()
   Object.keys(json.fileResults).forEach(fileName => {
     const checkResults = json.fileResults[fileName] as Array<FileCheckResult>;
-    map.set(fileName, checkResults)
+    entries.push(new Pair(fileName, checkResults));
   })
 
-  return new CheckResult(map)
+  return new CheckResult(entries)
 }
 
 export const actions: ActionTree<CheckResultState, RootState> = {
