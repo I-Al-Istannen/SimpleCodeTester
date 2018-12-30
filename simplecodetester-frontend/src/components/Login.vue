@@ -44,36 +44,56 @@ import Vue from "vue";
 import { UserLoginInfo } from "@/store/types";
 import { extractErrorMessage } from "../util/requests";
 import { AxiosError } from "axios";
+import Component from "vue-class-component";
 
-export default Vue.extend({
-  data: function() {
-    return {
-      formValid: true,
-      username: "",
-      password: "",
-      error: ""
-    };
-  },
-  methods: {
-    login() {
-      if (!this.formValid) {
-        return;
-      }
+@Component({})
+export default class Login extends Vue {
+  private formValid = true;
+  private username = "";
+  private password = "";
+  private error = "";
 
-      this.$store
-        .dispatch("user/login", new UserLoginInfo(this.username, this.password))
-        .catch((error: AxiosError) => {
-          this.error = extractErrorMessage(error);
-        })
-        .then((value) => {
-          this.$router.push("/profile")         
-        });
-    },
-    notEmpty(input: string): string | boolean {
-      return input.length == 0 ? "This field can not be empty." : true;
+  /**
+   * Tries to log the user in and redirects/sets errors.
+   */
+  login() {
+    if (!this.formValid) {
+      return;
     }
+
+    this.$store
+      .dispatch("user/login", new UserLoginInfo(this.username, this.password))
+      .catch((error: AxiosError) => {
+        this.error = extractErrorMessage(error);
+      })
+      .then(value => {
+        this.$router.push("/profile");
+      });
   }
-});
+
+  /**
+   * Enforces that the input is not empty and returns an appropriate error message.
+   *
+   * @param input the input to check
+   */
+  notEmpty(input: string): string | boolean {
+    return input.length == 0 ? "This field can not be empty." : true;
+  }
+
+  /**
+   * Lifecycle method, hide nav buttons for this view
+   */
+  created() {
+    this.$emit("hide-nav-bar-actions", true);
+  }
+
+  /**
+   * Lifecycle method, show nav buttons for other views
+   */
+  destroyed() {
+    this.$emit("hide-nav-bar-actions", false);
+  }
+}
 </script>
 
 <style scoped>

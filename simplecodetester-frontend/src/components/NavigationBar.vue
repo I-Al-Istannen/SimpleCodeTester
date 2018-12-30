@@ -7,7 +7,7 @@
     >
       <v-toolbar-title>{{title}}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items>
+      <v-toolbar-items v-if="!actionsHidden">
         <v-btn
           flat
           @click="logout"
@@ -62,6 +62,9 @@ export default Vue.extend({
       this.$store.commit("logout");
       this.$router.push("/login");
     }
+  },
+  props: {
+    actionsHidden: Boolean
   }
 });
 </script>
