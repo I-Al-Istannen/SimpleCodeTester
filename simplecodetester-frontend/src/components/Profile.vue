@@ -20,6 +20,17 @@
             </v-data-table>
           </template>
         </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" class="mr-4" @click="checkCode">Check code
+            <v-icon right dark>star_half</v-icon>
+          </v-btn>
+
+          <v-btn color="primary" class="ml-4" @click="submitCheck">Submit check
+            <v-icon right dark>add_circle_outline</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
       </v-card>
     </v-flex>
   </v-layout>
@@ -59,6 +70,14 @@ export default Vue.extend({
     },
     displayName: function() {
       return this.store.state.user.displayName;
+    }
+  },
+  methods: {
+    submitCheck() {
+      this.$router.push("/submit-check");
+    },
+    checkCode() {
+      this.$router.push("/check-code");
     }
   }
 });
