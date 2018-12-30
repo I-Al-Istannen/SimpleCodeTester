@@ -25,13 +25,13 @@ export class CheckResult {
 }
 
 export class FileCheckResult {
-  checkName: string;
+  check: string;
   successful: boolean;
   message: string;
   errorOutput: string;
 
-  constructor(checkName: string, successful: boolean, message: string, errorOutput: string) {
-    this.checkName = checkName;
+  constructor(check: string, successful: boolean, message: string, errorOutput: string) {
+    this.check = check;
     this.successful = successful;
     this.message = message;
     this.errorOutput = errorOutput;

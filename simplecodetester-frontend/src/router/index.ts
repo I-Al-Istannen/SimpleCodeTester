@@ -3,6 +3,7 @@ import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import Profile from '@/components/Profile.vue'
 import CheckCode from '@/components/CheckCode.vue'
+import ViewCheckResult from '@/components/ViewCheckResult.vue'
 
 let router = new Router({
   routes: [
@@ -37,6 +38,16 @@ let router = new Router({
       meta: {
         title: function () {
           return 'CheckCode'
+        }
+      }
+    },
+    {
+      path: '/view-check-result',
+      name: 'View check result',
+      component: ViewCheckResult,
+      meta: {
+        title: function () {
+          return 'View check result'
         }
       }
     }
