@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex, { StoreOptions } from 'vuex'
 import { RootState, UserInfo, UserState } from './types'
 import { user } from './modules/user'
+import { checkresult } from './modules/checkresult'
 import createPersistedState from 'vuex-persistedstate'
 
 const debug = process.env.NODE_ENV !== 'production'
@@ -13,7 +14,8 @@ const storeOptions: StoreOptions<RootState> = {
     baseUrl: 'http://localhost:8080'
   } as RootState,
   modules: {
-    user
+    user,
+    checkresult
   },
   strict: debug,
   plugins: [createPersistedState()]

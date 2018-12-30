@@ -12,7 +12,6 @@
     "axios": "^0.18.0",
     "highlight.js": "^9.13.1",
     "material-design-icons-iconfont": "^4.0.3",
-    "medium.js": "^1.0.1",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^7.0.0",

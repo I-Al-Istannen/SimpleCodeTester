@@ -2,6 +2,7 @@ export interface RootState {
   baseUrl: string;
 
   user: UserState;
+  checkresult: CheckResultState;
 }
 
 export interface UserState {
@@ -9,6 +10,32 @@ export interface UserState {
   displayName: string;
   roles: Array<string>;
   token: string | null;
+}
+
+export interface CheckResultState {
+  checkResult: CheckResult | null;
+}
+
+export class CheckResult {
+  results: Map<string, Array<FileCheckResult>>
+
+  constructor(results: Map<string, Array<FileCheckResult>>) {
+    this.results = results
+  }
+}
+
+export class FileCheckResult {
+  checkName: string;
+  successful: boolean;
+  message: string;
+  errorOutput: string;
+
+  constructor(checkName: string, successful: boolean, message: string, errorOutput: string) {
+    this.checkName = checkName;
+    this.successful = successful;
+    this.message = message;
+    this.errorOutput = errorOutput;
+  }
 }
 
 export class UserInfo {
