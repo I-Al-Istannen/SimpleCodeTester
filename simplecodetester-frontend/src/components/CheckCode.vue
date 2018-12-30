@@ -8,7 +8,8 @@
         <v-card-text>
           <v-tabs slider-color="accent">
             <v-tab ripple>Paste source</v-tab>
-            <v-tab-item>
+            <v-tab-item class="flex">
+              <highlighted-code v-model="code"></highlighted-code>
             </v-tab-item>
 
             <v-tab ripple>File upload</v-tab>
@@ -21,12 +22,13 @@
 </template>
 
 <script lang="ts">
-/// <reference path="../vue-prism-editor.d.ts" />
 import Vue from "vue";
 import Component from "vue-class-component";
+import HighlightedCode from "./highlighting/HighlightedCode.vue";
 
 @Component({
   components: {
+    "highlighted-code": HighlightedCode
   }
 })
 export default class CheckCode extends Vue {
