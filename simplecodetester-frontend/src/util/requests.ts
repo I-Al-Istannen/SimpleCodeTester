@@ -15,3 +15,29 @@ export function extractErrorMessage(axiosObject: AxiosError): string {
     return 'Error creating your request.'
   }
 }
+
+/**
+ * Checks whether a jwt is still valid (i.e. exists and is not expired).
+ * 
+ * @param jwtString the jwt as a string
+ */
+export function isJwtValid(jwtString: string | null | undefined): boolean {
+  if (!jwtString || jwtString.length < 1) {
+    return false
+  }
+
+  return !isJwtExpired(jwtString)
+}
+
+function isJwtExpired(jwt: string): boolean {
+  let parts = jwt.split('.')
+
+  if (parts.length !== 3) {
+    return false
+  }
+
+  const claimsString = atob(parts[1])
+  const claims = JSON.parse(claimsString)
+
+  return claims['exp'] && ((new Date()).getTime() / 1000) > claims['exp']
+}

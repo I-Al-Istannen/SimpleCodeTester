@@ -1,9 +1,10 @@
-import Router from 'vue-router'
+import Router, { Route } from 'vue-router'
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import Profile from '@/components/Profile.vue'
 import CheckCode from '@/components/CheckCode.vue'
 import ViewCheckResult from '@/components/ViewCheckResult.vue'
+import store from '@/store';
 
 let router = new Router({
   routes: [
@@ -52,6 +53,25 @@ let router = new Router({
       }
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  // Do not require auth for login
+  if (to.path.startsWith('login') || to.path.startsWith('/login')) {
+    next()
+    return
+  }
+
+  if (!store.state.user.isTokenValid()) {
+    next({
+      name: 'Login',
+      query: {
+        redirect: to.path
+      }
+    })
+  } else {
+    next();
+  }
 })
 
 router.afterEach((to, from) => {

@@ -10,6 +10,11 @@ export interface UserState {
   displayName: string;
   roles: Array<string>;
   token: string | null;
+
+  /**
+   * Returns whether the current token is valid.
+   */
+  isTokenValid(): boolean;
 }
 
 export interface CheckResultState {

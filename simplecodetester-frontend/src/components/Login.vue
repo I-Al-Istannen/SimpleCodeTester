@@ -64,7 +64,12 @@ export default class Login extends Vue {
     this.$store
       .dispatch("user/login", new UserLoginInfo(this.username, this.password))
       .then(value => {
-        this.$router.push("/profile");
+        const redirectLocation = this.$route.query["redirect"]
+        if(redirectLocation) {
+          this.$router.push(redirectLocation.toString())
+        } else {
+          this.$router.push("/profile")
+        }
       })
       .catch((error: AxiosError) => {
         this.error = extractErrorMessage(error);
@@ -83,7 +88,7 @@ export default class Login extends Vue {
   /**
    * Lifecycle method, hide nav buttons for this view
    */
-  created() {
+  mounted() {
     this.$emit("hide-nav-bar-actions", true);
   }
 
