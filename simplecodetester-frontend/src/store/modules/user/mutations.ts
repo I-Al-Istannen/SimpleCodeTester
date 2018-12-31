@@ -7,5 +7,11 @@ export const mutations: MutationTree<UserState> = {
     state.userName = payload.username;
     state.displayName = payload.displayName;
     state.roles = payload.roles;
+  },
+  logout(state: UserState) {
+    state.userName = "";
+    state.roles = []
+    state.token = ""
+    state.displayName = "Bobby Tables"
   }
 };

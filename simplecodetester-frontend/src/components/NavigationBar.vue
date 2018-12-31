@@ -49,6 +49,8 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Store } from 'vuex';
+import { RootState } from '@/store/types';
 export default Vue.extend({
   name: "NavigationBar",
   data: function() {
@@ -59,7 +61,7 @@ export default Vue.extend({
   },
   methods: {
     logout: function() {
-      this.$store.commit("logout");
+      this.$store.dispatch("logout");
       this.$router.push("/login");
     }
   },

@@ -17,8 +17,14 @@ const storeOptions: StoreOptions<RootState> = {
     user,
     checkresult
   },
+  actions: {
+    logout({commit}) {
+      commit("user/logout");
+      commit("checkresult/clear");
+    }
+  },
   strict: debug,
   plugins: [createPersistedState()]
 }
 
-export default new Vuex.Store(storeOptions)
+export default new Vuex.Store(storeOptions);
