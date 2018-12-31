@@ -84,6 +84,8 @@ export default class Test extends Vue {
       .slice()
       .map(it => !it.successful);
   }
+  // We just ignore it, as we  don't need it
+  set failureBooleanArray(array: Array<boolean>) {}
 
   mounted() {
     const checkResult = (this.$store as Store<RootState>).state.checkresult
