@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,9 +64,15 @@ public class CheckManageEndpoint {
     try {
       return ResponseEntity.ok(checkService.addCheck(codeCheck));
     } catch (InvalidCheckException e) {
-      return ResponseEntity.badRequest().body(
-          Map.of("message", e.getMessage(), "output", e.getOutput())
-      );
+      Map<String, Object> data = new HashMap<>();
+
+      data.put("error", e.getMessage());
+
+      if (e.getOutput() != null) {
+        data.put("output", e.getOutput());
+      }
+
+      return ResponseEntity.badRequest().body(data);
     }
   }
 
