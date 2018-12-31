@@ -63,11 +63,11 @@ export default class Login extends Vue {
 
     this.$store
       .dispatch("user/login", new UserLoginInfo(this.username, this.password))
-      .catch((error: AxiosError) => {
-        this.error = extractErrorMessage(error);
-      })
       .then(value => {
         this.$router.push("/profile");
+      })
+      .catch((error: AxiosError) => {
+        this.error = extractErrorMessage(error);
       });
   }
 
