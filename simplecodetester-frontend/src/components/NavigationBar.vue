@@ -3,8 +3,29 @@
     <v-toolbar dark color="primary darken-1">
       <v-toolbar-side-icon v-if="!actionsHidden" @click="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>{{title}}</v-toolbar-title>
+
+      <v-spacer></v-spacer>
+      <!-- PROFILE -->
+      <v-btn flat v-if="currentRoute.name !== 'Profile'" @click="$router.push('/profile')">Profile
+        <v-icon right dark>person</v-icon>
+      </v-btn>
+
+      <!-- CHECK CODE -->
+      <v-btn
+        flat
+        v-if="currentRoute.name !== 'Check Code'"
+        @click="$router.push('/check-code')"
+      >Check code
+        <v-icon right dark>star_half</v-icon>
+      </v-btn>
+
+      <!-- LOGOUT -->
+      <v-btn flat @click="logout">Logout
+        <v-icon right dark>exit_to_app</v-icon>
+      </v-btn>
     </v-toolbar>
 
+    <!-- DRAWER -->
     <v-navigation-drawer v-model="drawer" app temporary v-if="!actionsHidden">
       <v-toolbar dark color="primary darken-1">
         <v-list>
@@ -21,7 +42,7 @@
           v-for="item in navigationItems"
           :key="item.title"
           @click="navigate(item)"
-          :class="{selected: item.predicatePath === currentRoute.name}"
+          :class="{selected: item.predicatePath === currentRoute.name, headline: true}"
         >
           <v-list-tile-action>
             <v-icon>{{ item.icon }}</v-icon>
@@ -63,16 +84,16 @@ export default class NavigationBar extends Vue {
       predicatePath: "checkCode"
     },
     {
-      icon: "star_half",
-      title: "All checks",
-      route: "/view-checks",
-      predicatePath: "viewChecks"
-    },
-    {
       icon: "add_circle_outline",
       title: "Submit check",
       route: "/submit-check",
       predicatePath: "submitCheck"
+    },
+    {
+      icon: "list",
+      title: "All checks",
+      route: "/view-checks",
+      predicatePath: "viewChecks"
     },
     {
       icon: "exit_to_app",
@@ -114,6 +135,12 @@ export default class NavigationBar extends Vue {
 }
 
 .selected {
-  background-color: #E8E8E8;
+  background-color: #e8e8e8;
+}
+</style>
+
+<style>
+.v-list__tile {
+  font-size: 15px !important;
 }
 </style>
