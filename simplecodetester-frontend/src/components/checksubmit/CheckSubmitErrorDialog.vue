@@ -1,7 +1,7 @@
 <template>
   <v-dialog :value="displayed" width="700" persistent>
     <v-card>
-      <v-toolbar dark color="primary">
+      <v-toolbar dark color="#ff6347">
         <v-toolbar-title>Errors with your check:</v-toolbar-title>
       </v-toolbar>
       <v-card-text>

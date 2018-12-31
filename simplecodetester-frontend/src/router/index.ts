@@ -5,6 +5,7 @@ import Profile from '@/components/Profile.vue'
 import CheckCode from '@/components/CheckCode.vue'
 import ViewCheckResult from '@/components/ViewCheckResult.vue'
 import UploadCheck from '@/components/checksubmit/UploadCheck.vue'
+import CheckList from '@/components/CheckList.vue'
 import store from '@/store';
 
 let router = new Router({
@@ -15,7 +16,7 @@ let router = new Router({
     },
     {
       path: '/login',
-      name: 'Login',
+      name: 'login',
       component: Login,
       meta: {
         title: function () {
@@ -25,7 +26,7 @@ let router = new Router({
     },
     {
       path: '/profile',
-      name: 'Profile',
+      name: 'profile',
       component: Profile,
       meta: {
         title: function () {
@@ -35,7 +36,7 @@ let router = new Router({
     },
     {
       path: '/check-code',
-      name: 'Check Code',
+      name: 'checkCode',
       component: CheckCode,
       meta: {
         title: function () {
@@ -62,6 +63,16 @@ let router = new Router({
           return 'Submit a new check'
         }
       }
+    },
+    {
+      path: '/view-checks',
+      name: 'viewChecks',
+      component: CheckList,
+      meta: {
+        title: function () {
+          return 'View all checks'
+        }
+      }
     }
   ]
 })
@@ -75,7 +86,7 @@ router.beforeEach((to, from, next) => {
 
   if (!store.state.user.isTokenValid()) {
     next({
-      name: 'Login',
+      name: 'login',
       query: {
         redirect: to.path
       }

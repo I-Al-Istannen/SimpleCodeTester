@@ -1,67 +1,38 @@
 <template>
-  <nav v-if="!hidden">
-    <v-toolbar dark color="primary darken-1" class="hidden-sm-and-down">
+  <nav>
+    <v-toolbar dark color="primary darken-1">
+      <v-toolbar-side-icon v-if="!actionsHidden" @click="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>{{title}}</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items v-if="!actionsHidden">
-        <!-- PROFILE -->
-        <v-btn flat v-if="currentRoute.name !== 'Profile'" @click="$router.push('/profile')">Profile
-          <v-icon right dark>person</v-icon>
-        </v-btn>
-
-        <!-- CHECK CODE -->
-        <v-btn
-          flat
-          v-if="currentRoute.name !== 'Check Code'"
-          @click="$router.push('/check-code')"
-        >Check code
-          <v-icon right dark>star_half</v-icon>
-        </v-btn>
-
-        <!-- LOGOUT -->
-        <v-btn flat @click="logout">Logout
-          <v-icon right dark>exit_to_app</v-icon>
-        </v-btn>
-      </v-toolbar-items>
     </v-toolbar>
 
-    <!-- MOBILE -->
-    <v-list dark id="nav-list" class="hidden-md-and-up elevation-6">
-      <v-list-group>
-        <v-list-tile slot="activator">
-          <v-list-tile-content>
-            <v-list-tile-title id="main-title">{{title}}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+    <v-navigation-drawer v-model="drawer" app temporary v-if="!actionsHidden">
+      <v-toolbar dark color="primary darken-1">
+        <v-list>
+          <v-list-tile>
+            <v-list-tile-title class="title">Navigation</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+      </v-toolbar>
 
-        <!-- PROFILE -->
-        <v-list-tile v-if="currentRoute.name !== 'Profile'" @click="$router.push('/profile')">
-          <v-list-tile-content>
-            <v-list-tile-title>
-              <v-icon class="mx-3">person</v-icon>Profile
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+      <v-divider></v-divider>
 
-        <!-- CHECK-CODE -->
-        <v-list-tile v-if="currentRoute.name !== 'Check Code'" @click="$router.push('/check-code')">
-          <v-list-tile-content>
-            <v-list-tile-title>
-              <v-icon class="mx-3">star_half</v-icon>Check code
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+      <v-list dense class="pt-0">
+        <v-list-tile
+          v-for="item in navigationItems"
+          :key="item.title"
+          @click="navigate(item)"
+          :class="{selected: item.predicatePath === currentRoute.name}"
+        >
+          <v-list-tile-action>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-tile-action>
 
-        <!-- LOGOUT -->
-        <v-list-tile @click="logout">
           <v-list-tile-content>
-            <v-list-tile-title>
-              <v-icon class="mx-3">exit_to_app</v-icon>Logout
-            </v-list-tile-title>
+            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-      </v-list-group>
-    </v-list>
+      </v-list>
+    </v-navigation-drawer>
   </nav>
 </template>
 
@@ -76,7 +47,40 @@ import { Prop } from "vue-property-decorator";
 @Component({})
 export default class NavigationBar extends Vue {
   title = "Simple Code Tester";
-  hidden = false;
+  drawer = false;
+
+  navigationItems = [
+    {
+      icon: "person",
+      title: "Profile",
+      route: "/profile",
+      predicatePath: "profile"
+    },
+    {
+      icon: "star_half",
+      title: "Check Code",
+      route: "/check-code",
+      predicatePath: "checkCode"
+    },
+    {
+      icon: "star_half",
+      title: "All checks",
+      route: "/view-checks",
+      predicatePath: "viewChecks"
+    },
+    {
+      icon: "add_circle_outline",
+      title: "Submit check",
+      route: "/submit-check",
+      predicatePath: "submitCheck"
+    },
+    {
+      icon: "exit_to_app",
+      title: "Logout",
+      route: "/login",
+      predicatePath: "login"
+    }
+  ];
 
   @Prop()
   actionsHidden!: Boolean;
@@ -87,6 +91,14 @@ export default class NavigationBar extends Vue {
   logout() {
     this.$store.dispatch("logout");
     this.$router.push("/login");
+  }
+
+  navigate(item: any) {
+    if (item.title === "Logout") {
+      this.logout();
+    } else {
+      this.$router.push(item.route);
+    }
   }
 }
 </script>
@@ -99,5 +111,9 @@ export default class NavigationBar extends Vue {
 #main-title {
   font-size: 20px;
   font-weight: 500;
+}
+
+.selected {
+  background-color: #E8E8E8;
 }
 </style>
