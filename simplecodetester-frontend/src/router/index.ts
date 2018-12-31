@@ -38,7 +38,7 @@ let router = new Router({
       component: CheckCode,
       meta: {
         title: function () {
-          return 'CheckCode'
+          return 'Check code'
         }
       }
     },

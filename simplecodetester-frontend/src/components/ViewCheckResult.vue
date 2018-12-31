@@ -106,5 +106,6 @@ export default class Test extends Vue {
 <style scoped>
 .monospaced {
   font-family: monospace;
+  overflow-x: auto;
 }
 </style>

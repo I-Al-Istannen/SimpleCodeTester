@@ -1,6 +1,6 @@
 <template>
   <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md4>
+    <v-flex xs12 sm8 md6>
       <v-card class="elevation-10">
         <v-toolbar dark color="primary">
           <v-toolbar-title>Submit code to check</v-toolbar-title>
