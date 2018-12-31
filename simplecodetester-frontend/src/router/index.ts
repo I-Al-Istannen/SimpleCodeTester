@@ -23,7 +23,7 @@ let router = new Router({
     },
     {
       path: '/profile',
-      name: 'Profil',
+      name: 'Profile',
       component: Profile,
       meta: {
         title: function () {
