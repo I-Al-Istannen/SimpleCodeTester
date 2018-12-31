@@ -3,7 +3,18 @@ import axios, { AxiosPromise } from 'axios';
 import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair } from '../../types';
 import { RootState } from '../../types';
 
-function parseCheckResponse(json: any) {
+/**
+ * Parses a response the server sent for a check.
+ * 
+ * @param json the json to parse
+ * @return the parsed CheckResult
+ */
+function parseCheckResponse(json: any): CheckResult {
+
+  if (json.diagnostics) {
+    return parseCompilationOutput(json)
+  }
+
   const entries = new Array<Pair<string, Array<FileCheckResult>>>()
   Object.keys(json.fileResults).forEach(fileName => {
     const checkResults = json.fileResults[fileName] as Array<FileCheckResult>;
@@ -11,6 +22,26 @@ function parseCheckResponse(json: any) {
   })
 
   return new CheckResult(entries)
+}
+
+/**
+ * Parses a compilation output response from the given json.
+ * 
+ * @param json the json to parse
+ * @return the parsed CheckResult
+ */
+function parseCompilationOutput(json: any): CheckResult {
+  const entries = new Array<Pair<string, Array<FileCheckResult>>>()
+
+  Object.keys(json.diagnostics).forEach(fileName => {
+    const diagnostics = json.diagnostics[fileName] as Array<string>
+    const convertedToCheckResults = diagnostics
+      .map(diagString => new FileCheckResult("Compilation", false, diagString, ""))
+
+    entries.push(new Pair(fileName, convertedToCheckResults));
+  })
+
+  return new CheckResult(entries);
 }
 
 export const actions: ActionTree<CheckResultState, RootState> = {

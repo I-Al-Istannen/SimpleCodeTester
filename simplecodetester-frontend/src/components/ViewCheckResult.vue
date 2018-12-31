@@ -1,29 +1,40 @@
 <template>
   <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md4>
+    <v-flex xs12 sm8 md6>
       <v-card class="elevation-12">
-        <v-toolbar dark :color="allPassed ? primary : '#ff6347'">
-          <v-toolbar-title>Check results
-            <span v-if="!allPassed"> ({{ failCount }} failed)</span>
-             </v-toolbar-title>
+        <v-toolbar dark :color="allPassed ? 'primary' : '#ff6347'">
+          <v-toolbar-title>
+            Check results
+            <span v-if="!allPassed">({{ failCount }} classes failed)</span>
+          </v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <v-expansion-panel>
+          <v-expansion-panel expand v-model="failureBooleanArray">
             <v-expansion-panel-content v-for="(item, i) in items" :key="i">
-              <div slot="header" class="check-expansion">
+              <div slot="header" class="monospaced">
                 <v-icon v-if="item.successful" color="green">check_circle_outline</v-icon>
                 <v-icon v-else color="#ff6347">highlight_off</v-icon>
                 Class '{{ item.fileName }}'
               </div>
               <v-card>
                 <v-card-text class="grey lighten-3">
-                  <v-data-table :headers="headers" :items="item.results">
-                    <template slot="items" slot-scope="props">
-                      <td class="text-xs-right">{{ props.item.name }}</td>
-                      <td class="text-xs-right">{{ props.item.message }}</td>
-                      <td class="text-xs-right">{{ props.item.errorOutput }}</td>
-                    </template>
-                  </v-data-table>
+                  <!-- Inner panel -->
+                  <v-expansion-panel expand class="elevation-4">
+                    <v-expansion-panel-content v-for="(result, i) in item.results" :key="i">
+                      <div slot="header" class="monospaced">
+                        <v-icon v-if="result.successful" color="green">check_circle_outline</v-icon>
+                        <v-icon v-else color="#ff6347">highlight_off</v-icon>
+                        Check '{{ result.check }}'
+                      </div>
+                      <v-card>
+                        <v-card-text class="grey lighten-3">
+                          <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
+                          <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
+                        </v-card-text>
+                      </v-card>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                  <!-- End of inner panel -->
                 </v-card-text>
               </v-card>
             </v-expansion-panel-content>
@@ -59,13 +70,6 @@ class SingleFileResult {
 @Component({})
 export default class Test extends Vue {
   private items: Array<SingleFileResult> = [];
-  private tree: Array<SingleFileResult> = [];
-
-  private headers = [
-    { text: "Check", value: "check", align: "center" },
-    { text: "Message", value: "message", align: "center" },
-    { text: "Error output", value: "errorOutput", align: "center" }
-  ];
 
   get allPassed() {
     return this.items.every(elem => elem.successful);
@@ -73,6 +77,12 @@ export default class Test extends Vue {
 
   get failCount() {
     return this.items.filter(elem => !elem.successful).length;
+  }
+
+  get failureBooleanArray() {
+    return Array.from(this.items)
+      .slice()
+      .map(it => !it.successful);
   }
 
   mounted() {
@@ -94,7 +104,7 @@ export default class Test extends Vue {
 
 
 <style scoped>
-.check-expansion {
+.monospaced {
   font-family: monospace;
 }
 </style>
