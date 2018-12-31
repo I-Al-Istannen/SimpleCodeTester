@@ -4,6 +4,7 @@ import Login from '@/components/Login.vue'
 import Profile from '@/components/Profile.vue'
 import CheckCode from '@/components/CheckCode.vue'
 import ViewCheckResult from '@/components/ViewCheckResult.vue'
+import UploadCheck from '@/components/checksubmit/UploadCheck.vue'
 import store from '@/store';
 
 let router = new Router({
@@ -44,11 +45,21 @@ let router = new Router({
     },
     {
       path: '/view-check-result',
-      name: 'View check result',
+      name: 'viewCheckResult',
       component: ViewCheckResult,
       meta: {
         title: function () {
           return 'View check result'
+        }
+      }
+    },
+    {
+      path: '/submit-check',
+      name: 'submitCheck',
+      component: UploadCheck,
+      meta: {
+        title: function () {
+          return 'Submit a new check'
         }
       }
     }
