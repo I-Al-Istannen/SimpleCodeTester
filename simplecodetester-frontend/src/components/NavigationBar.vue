@@ -6,14 +6,14 @@
 
       <v-spacer></v-spacer>
       <!-- PROFILE -->
-      <v-btn flat v-if="currentRoute.name !== 'Profile'" @click="$router.push('/profile')">Profile
+      <v-btn flat v-if="currentRoute.name !== 'profile'" @click="$router.push('/profile')">Profile
         <v-icon right dark>person</v-icon>
       </v-btn>
 
       <!-- CHECK CODE -->
       <v-btn
         flat
-        v-if="currentRoute.name !== 'Check Code'"
+        v-if="currentRoute.name !== 'checkCode'"
         @click="$router.push('/check-code')"
       >Check code
         <v-icon right dark>star_half</v-icon>
