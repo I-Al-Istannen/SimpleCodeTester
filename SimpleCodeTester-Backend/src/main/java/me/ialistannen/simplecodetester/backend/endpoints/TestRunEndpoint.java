@@ -51,6 +51,10 @@ public class TestRunEndpoint {
       Principal user) {
     String id = user.getName();
 
+    if (ClassParsingUtil.getClassName(source).isEmpty()) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No class declaration found!");
+    }
+
     return test(id, fileToSubmission(source));
   }
 
@@ -64,7 +68,7 @@ public class TestRunEndpoint {
           checkRunnerService.check(id, submission, checks)
       );
     } catch (CompilationFailedException e) {
-      return ResponseEntity.badRequest().body(e.getOutput());
+      return ResponseEntity.ok().body(e.getOutput());
     } catch (CheckRunningFailedException | CheckAlreadyRunningException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
@@ -171,8 +175,7 @@ public class TestRunEndpoint {
   }
 
   private Submission fileToSubmission(String source) {
-    String className = ClassParsingUtil.getClassName(source)
-        .orElseThrow(() -> new RuntimeException("No class declaration found"));
+    String className = ClassParsingUtil.getClassName(source).orElseThrow();
 
     return ImmutableSubmission.builder()
         .putFiles(className + ".java", source)
