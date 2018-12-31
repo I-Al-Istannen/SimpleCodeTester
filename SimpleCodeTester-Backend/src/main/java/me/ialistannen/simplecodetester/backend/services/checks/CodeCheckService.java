@@ -14,6 +14,7 @@ import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ClassParsingUtil;
+import org.joor.Reflect;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -77,7 +78,7 @@ public class CodeCheckService {
    * @throws InvalidCheckException if the check does not compile
    */
   public CodeCheck addCheck(CodeCheck codeCheck) {
-    validateCheck(codeCheck);
+    validateCheckAndSetName(codeCheck);
 
     return checkRepository.save(codeCheck);
   }
@@ -88,7 +89,7 @@ public class CodeCheckService {
    * @param codeCheck the code check to validate
    * @throws InvalidCheckException if the check is not valid
    */
-  private void validateCheck(CodeCheck codeCheck) {
+  private void validateCheckAndSetName(CodeCheck codeCheck) {
     String body = removePackageDeclaration(codeCheck.getText()).trim();
     String className = ClassParsingUtil.getClassName(body)
         .orElseThrow(() -> new InvalidCheckException("No class declaration found."));
@@ -113,6 +114,11 @@ public class CodeCheckService {
           "Class '" + file.qualifiedName() + "' does not extend Check!"
       );
     }
+
+    String name = Reflect.on(
+        (Object) Reflect.on(file.asClass()).create().get()
+    ).call("name").get();
+    codeCheck.setName(name);
   }
 
   /**
@@ -129,7 +135,7 @@ public class CodeCheckService {
   /**
    * Deletes all checks.
    */
-  public void removeAll() {
+  void removeAll() {
     checkRepository.deleteAll();
   }
 
@@ -151,7 +157,7 @@ public class CodeCheckService {
 
     updateAction.accept(codeCheck.get());
 
-    validateCheck(codeCheck.get());
+    validateCheckAndSetName(codeCheck.get());
 
     checkRepository.save(codeCheck.get());
 

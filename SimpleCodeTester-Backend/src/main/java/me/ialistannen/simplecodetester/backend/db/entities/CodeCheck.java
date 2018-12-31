@@ -1,6 +1,10 @@
 package me.ialistannen.simplecodetester.backend.db.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.IOException;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,15 +38,27 @@ public class CodeCheck {
   @NotEmpty
   private String text;
 
-  @JsonIgnore
+  @JsonSerialize(using = UserSerializer.class)
   @ManyToOne
   @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(referencedColumnName = "id")
   private User creator;
 
+  @NotEmpty
+  private String name;
+
   protected CodeCheck() {
   }
 
+  /**
+   * Creates a new CodeCheck.
+   *
+   * <p><br><strong>Remember to call {@link #setName(String)} before saving this
+   * entity.</strong></p>
+   *
+   * @param text the text
+   * @param creator the creator
+   */
   public CodeCheck(@NotEmpty String text, User creator) {
     this.text = text;
     this.creator = creator;
@@ -64,5 +80,14 @@ public class CodeCheck {
   @Override
   public int hashCode() {
     return Objects.hash(id);
+  }
+
+  private static class UserSerializer extends JsonSerializer<User> {
+
+    @Override
+    public void serialize(User value, JsonGenerator gen, SerializerProvider serializers)
+        throws IOException {
+      gen.writeString(value.getName());
+    }
   }
 }
