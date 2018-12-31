@@ -109,7 +109,9 @@ public class CodeCheckService {
     CompiledFile file = compilationOutput.files().iterator().next();
 
     if (!Check.class.isAssignableFrom(file.asClass())) {
-      throw new InvalidCheckException("Class " + file.asClass() + " does not extend Check!");
+      throw new InvalidCheckException(
+          "Class '" + file.qualifiedName() + "' does not extend Check!"
+      );
     }
   }
 
