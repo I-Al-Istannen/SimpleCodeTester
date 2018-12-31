@@ -1,4 +1,9 @@
 jwt.secret.key: "dsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsds"
+
+runner:
+  classpath: "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Lib/target/SimpleCodeTester-Lib.jar"
+
+
 spring:
   datasource:
     url: "jdbc:h2:mem:testDb"

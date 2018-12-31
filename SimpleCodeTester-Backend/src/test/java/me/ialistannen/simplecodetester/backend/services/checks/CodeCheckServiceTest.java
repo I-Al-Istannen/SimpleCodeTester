@@ -2,12 +2,14 @@ package me.ialistannen.simplecodetester.backend.services.checks;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
+import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,15 +49,15 @@ class CodeCheckServiceTest {
 
   @Test
   void addCheck() {
-    CodeCheck addedCheck = codeCheckService.addCheck(new CodeCheck("Hello", user));
+    CodeCheck addedCheck = codeCheckService.addCheck(getCheck(user));
 
     addAndAssertAdded(addedCheck);
   }
 
   @Test
   void addTwo() {
-    CodeCheck check1 = codeCheckService.addCheck(new CodeCheck("Hello", user));
-    CodeCheck check2 = codeCheckService.addCheck(new CodeCheck("Hello", user));
+    CodeCheck check1 = codeCheckService.addCheck(getCheck(user));
+    CodeCheck check2 = codeCheckService.addCheck(getCheck(user));
 
     addAndAssertAdded(check1);
     addAndAssertAdded(check2);
@@ -67,7 +69,7 @@ class CodeCheckServiceTest {
 
   @Test
   void removeOne() {
-    CodeCheck check = codeCheckService.addCheck(new CodeCheck("Hello", user));
+    CodeCheck check = codeCheckService.addCheck(getCheck(user));
 
     addAndAssertAdded(check);
     assertThat(
@@ -97,11 +99,11 @@ class CodeCheckServiceTest {
 
   @Test
   void findByOwner() {
-    CodeCheck check = codeCheckService.addCheck(new CodeCheck("Hello", user));
-    CodeCheck check2 = codeCheckService.addCheck(new CodeCheck("Hello", user));
+    CodeCheck check = codeCheckService.addCheck(getCheck(user));
+    CodeCheck check2 = codeCheckService.addCheck(getCheck(user));
     User user = createUser("12");
     userService.addUser(user);
-    CodeCheck checkOtherUser = codeCheckService.addCheck(new CodeCheck("Hello", user));
+    CodeCheck checkOtherUser = codeCheckService.addCheck(getCheck(user));
 
     codeCheckService.addCheck(check);
     codeCheckService.addCheck(check2);
@@ -120,18 +122,38 @@ class CodeCheckServiceTest {
 
   @Test
   void updateCheck() {
-    CodeCheck check = codeCheckService.addCheck(new CodeCheck("Hello", user));
+    CodeCheck check = codeCheckService.addCheck(getCheck(user));
 
     codeCheckService.addCheck(check);
 
+    String newText = getCodeCheckText().replace("Hello", "MyClass");
     assertThat(
-        codeCheckService.updateCheck(check.getId(), codeCheck -> codeCheck.setText("Hey!")),
+        codeCheckService.updateCheck(check.getId(), codeCheck -> codeCheck.setText(newText)),
         is(true)
     );
 
     assertThat(
         codeCheckService.getCheck(check.getId()).map(CodeCheck::getText),
-        is(Optional.of("Hey!"))
+        is(Optional.of(newText))
+    );
+  }
+
+  @Test
+  void updateCheckPreservesValidity() {
+    CodeCheck check = codeCheckService.addCheck(getCheck(user));
+
+    codeCheckService.addCheck(check);
+
+    String newText = getCodeCheckText() + "this is a compiler error";
+    assertThrows(
+        InvalidCheckException.class,
+        () -> codeCheckService.updateCheck(check.getId(), codeCheck -> codeCheck.setText(newText))
+    );
+
+    // not updated
+    assertThat(
+        codeCheckService.getCheck(check.getId()).map(CodeCheck::getText),
+        is(Optional.of(getCodeCheckText()))
     );
   }
 
@@ -145,4 +167,21 @@ class CodeCheckServiceTest {
         is(Optional.of(check))
     );
   }
+
+  private CodeCheck getCheck(User user) {
+    return new CodeCheck(getCodeCheckText(), user);
+  }
+
+  private String getCodeCheckText() {
+    return "import me.ialistannen.simplecodetester.checks.*;\n"
+        + "import me.ialistannen.simplecodetester.submission.*;\n"
+        + "public class Hello implements Check{\n"
+        + "\n"
+        + "  @Override\n"
+        + "  public CheckResult check(CompiledFile file) {\n"
+        + "    return CheckResult.emptySuccess(this);\n"
+        + "  }\n"
+        + "}";
+  }
+
 }
