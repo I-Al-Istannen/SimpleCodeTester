@@ -26,6 +26,8 @@ public class UntrustedCodeJvmStarter {
 
     return Arrays.asList(
         "/lib/jvm/java-11-openjdk/bin/java",
+        // Limit heap size
+        "-Xmx20m",
         // classpath only added when it is specified
         classpath.length == 0 ? "" : "-cp",
         String.join(":", classpath),

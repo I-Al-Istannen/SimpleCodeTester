@@ -106,6 +106,7 @@ public class SlaveManager {
       started = true;
 
       port = serverSocket.getLocalPort();
+      // so timeout so that it at least stops 2 seconds after an interrupt
       serverSocket.setSoTimeout(2000);
 
       while (!Thread.interrupted()) {
