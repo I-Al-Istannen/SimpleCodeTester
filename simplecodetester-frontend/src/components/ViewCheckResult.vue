@@ -1,14 +1,14 @@
 <template>
   <v-layout align-center justify-center>
     <v-flex xs12 sm8 md6>
-      <v-card class="elevation-12">
+      <v-card class="elevation-12 pb-2">
         <v-toolbar dark :color="allPassed ? 'primary' : '#ff6347'">
           <v-toolbar-title>
             Check results
             <span v-if="!allPassed">({{ failCount }} classes failed)</span>
           </v-toolbar-title>
         </v-toolbar>
-        <v-card-text>
+        <v-card-text class="scrollable-container">
           <v-expansion-panel expand v-model="failureBooleanArray">
             <v-expansion-panel-content v-for="(item, i) in items" :key="i">
               <div slot="header" class="monospaced">
@@ -109,5 +109,11 @@ export default class Test extends Vue {
 .monospaced {
   font-family: monospace;
   overflow-x: auto;
+}
+
+.scrollable-container {
+  height: 70vh;
+  overflow-y: scroll;
+  margin-top: 8px;
 }
 </style>
