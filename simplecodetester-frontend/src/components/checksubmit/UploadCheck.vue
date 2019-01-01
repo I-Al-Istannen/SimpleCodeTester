@@ -13,7 +13,11 @@
             </v-tab-item>
 
             <v-tab ripple>Input-Output check</v-tab>
-            <v-tab-item>Hey</v-tab-item>
+            <v-tab-item>
+              <v-text-field label="Check name" v-model="ioName"></v-text-field>
+              <v-textarea label="Input. Hit enter for a new line." v-model="ioInput"></v-textarea>
+              <v-textarea label="Expected output. Hit enter for a new line." v-model="ioOutput"></v-textarea>
+            </v-tab-item>
           </v-tabs>
 
           <check-submit-error-dialog
@@ -63,8 +67,16 @@ export default class UploadCheck extends Vue {
   private code = "";
   private selectedTab = 0;
 
+  private ioInput = "";
+  private ioOutput = "";
+  private ioName = "";
+
   get uploadPossible() {
-    return this.code.length > 0 && this.selectedTab === 0;
+    return (
+      (this.code.length > 0 && this.selectedTab === 0) ||
+      (this.selectedTab == 1 &&
+        (this.ioInput.length >= 0 && this.ioOutput.length >= 0))
+    );
   }
 
   upload() {
@@ -84,14 +96,21 @@ export default class UploadCheck extends Vue {
     );
   }
 
-  uploadIOCheck() {}
+  uploadIOCheck() {
+    const formData = new FormData();
+    formData.append("input", this.ioInput);
+    formData.append("output", this.ioOutput);
+    formData.append("name", this.ioName);
+    this.handleUploadResult(Axios.post("/checks/add-io", formData));
+  }
 
   handleUploadResult(promise: AxiosPromise<any>) {
     promise
       .then(response => {
         this.feedbackMessage = "Your check has the ID " + response.data.id;
         if (!response.data.approved) {
-          this.feedbackMessage += ". Your check is currently unapproved and will not be run.";
+          this.feedbackMessage +=
+            ". Your check is currently unapproved and will not be run.";
         }
         this.feedbackMessageType = "success";
       })

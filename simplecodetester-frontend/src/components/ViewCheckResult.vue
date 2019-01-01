@@ -113,7 +113,7 @@ export default class Test extends Vue {
 
 .scrollable-container {
   height: 70vh;
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-top: 8px;
 }
 </style>
