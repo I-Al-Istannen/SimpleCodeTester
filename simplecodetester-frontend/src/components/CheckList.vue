@@ -9,7 +9,12 @@
           <v-expansion-panel expand>
             <v-expansion-panel-content v-for="(check, i) in checks" :key="i">
               <div slot="header" class="monospaced subheading d-flex check-header">
-                <span>Check '{{ check.name }}' by '{{ check.creator }}' (ID: {{ check.id }})</span>
+                <span
+                  class="left-side-text"
+                >Check '{{ check.name }}' by '{{ check.creator }}' (ID: {{ check.id }})</span>
+                <span class="pl-2 unapproved" v-if="!check.approved">Unapproved</span>
+                <!-- Dummy element to push buttons to the right side -->
+                <span v-if="check.approved"></span>
                 <v-btn
                   v-if="isMe(check.creator)"
                   class="side-button ma-0"
@@ -17,6 +22,24 @@
                   @click.stop="remove(check)"
                 >
                   <v-icon color="#FF6347">delete</v-icon>
+                </v-btn>
+
+                <!-- APPROVE BUTTONS -->
+                <v-btn
+                  v-if="canApprove(check)"
+                  class="side-button ma-0"
+                  icon
+                  @click.stop="changeApproval(check, true)"
+                >
+                  <v-icon color="primary">check_circle_outline</v-icon>
+                </v-btn>
+                <v-btn
+                  v-if="canRevokeApprove(check)"
+                  class="side-button ma-0"
+                  icon
+                  @click.stop="changeApproval(check, false)"
+                >
+                  <v-icon color="#FF6347">highlight_off</v-icon>
                 </v-btn>
               </div>
               <v-card>
@@ -52,12 +75,20 @@ class Check {
   creator: string;
   text: string;
   name: string;
+  approved: boolean;
 
-  constructor(id: number, creator: string, text: string, name: string) {
+  constructor(
+    id: number,
+    creator: string,
+    text: string,
+    name: string,
+    approved: boolean
+  ) {
     this.id = id;
     this.creator = creator;
     this.text = text;
     this.name = name;
+    this.approved = approved;
   }
 }
 
@@ -70,14 +101,23 @@ export default class CheckList extends Vue {
   private checks: Array<Check> = [];
   private error: string = "";
 
-  isMe(creator: string): boolean {
-    const userState = (this.$store as Store<RootState>).state.user;
+  get userState() {
+    return (this.$store as Store<RootState>).state.user;
+  }
 
-    // admin can delete all
-    if (userState.roles.indexOf("ROLE_ADMIN") >= 0) {
+  isMe(creator: string): boolean {
+    if (this.userState.isAdmin()) {
       return true;
     }
-    return userState.displayName == creator;
+    return this.userState.displayName == creator;
+  }
+
+  canApprove(check: Check) {
+    return this.userState.isAdmin() && !check.approved;
+  }
+
+  canRevokeApprove(check: Check) {
+    return this.userState.isAdmin() && check.approved;
   }
 
   remove(check: Check) {
@@ -96,6 +136,20 @@ export default class CheckList extends Vue {
       .catch(error => (this.error = extractErrorMessage(error)));
   }
 
+  changeApproval(check: Check, approved: boolean) {
+    const formData = new FormData();
+    formData.append("id", check.id.toString());
+    formData.append("approved", approved ? "true" : "false");
+    Axios.post("/checks/approve", formData)
+      .then(response => {
+        check.approved = approved;
+        this.error = "";
+      })
+      .catch(error => {
+        this.error = extractErrorMessage(error);
+      });
+  }
+
   mounted() {
     Axios.get("/checks/get-all")
       .then(response => {
@@ -112,7 +166,8 @@ export default class CheckList extends Vue {
   justify-content: space-between;
   align-items: center;
 }
-.check-header > .side-button {
+.check-header > .side-button,
+.check-header > .left-side-text {
   flex: none !important;
 }
 .code {
@@ -124,5 +179,8 @@ export default class CheckList extends Vue {
 }
 .code > code::before {
   content: "";
+}
+.unapproved {
+  color: tomato;
 }
 </style>

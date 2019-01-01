@@ -11,6 +11,9 @@ export const state: UserState = {
   token: null,
   isTokenValid: function () {
     return isJwtValid(this.token)
+  },
+  isAdmin: function () {
+    return this.roles.indexOf("ROLE_ADMIN") >= 0;
   }
 };
 

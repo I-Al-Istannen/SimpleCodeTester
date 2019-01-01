@@ -15,6 +15,11 @@ export interface UserState {
    * Returns whether the current token is valid.
    */
   isTokenValid(): boolean;
+
+  /**
+   * Whether the current user is an admin.
+   */
+  isAdmin(): boolean;
 }
 
 export interface CheckResultState {

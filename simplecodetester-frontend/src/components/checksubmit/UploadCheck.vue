@@ -90,6 +90,9 @@ export default class UploadCheck extends Vue {
     promise
       .then(response => {
         this.feedbackMessage = "Your check has the ID " + response.data.id;
+        if (!response.data.approved) {
+          this.feedbackMessage += ". Your check is currently unapproved and will not be run.";
+        }
         this.feedbackMessageType = "success";
       })
       .catch((error: AxiosError) => {
