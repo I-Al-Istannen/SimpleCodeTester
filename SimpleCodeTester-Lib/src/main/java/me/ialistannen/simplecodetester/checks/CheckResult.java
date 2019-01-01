@@ -54,18 +54,4 @@ public abstract class CheckResult {
         .errorOutput("")
         .build();
   }
-
-  /**
-   * Returns a CheckResult for a failure using the given message.
-   *
-   * @param message the message to use
-   * @return the resulting CheckResult
-   */
-  public static CheckResult failure(String message) {
-    return ImmutableCheckResult.builder()
-        .successful(false)
-        .message(message)
-        .errorOutput("")
-        .build();
-  }
 }
