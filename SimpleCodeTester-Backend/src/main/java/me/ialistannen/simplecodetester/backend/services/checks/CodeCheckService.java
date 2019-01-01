@@ -123,7 +123,9 @@ public class CodeCheckService {
         StringEscapeUtils.escapeJava(name)
     );
 
-    return addCheck(new CodeCheck(checkText, creator));
+    CodeCheck codeCheck = new CodeCheck(checkText, creator);
+    codeCheck.setApproved(true);
+    return addCheck(codeCheck);
   }
 
   /**
