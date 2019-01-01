@@ -14,9 +14,7 @@
 
             <v-tab ripple>Input-Output check</v-tab>
             <v-tab-item>
-              <v-text-field label="Check name" v-model="ioName"></v-text-field>
-              <v-textarea label="Input. Hit enter for a new line." v-model="ioInput"></v-textarea>
-              <v-textarea label="Expected output. Hit enter for a new line." v-model="ioOutput"></v-textarea>
+              <io-check v-model="ioCheck"></io-check>
             </v-tab-item>
           </v-tabs>
 
@@ -51,11 +49,13 @@ import Axios, { AxiosPromise, AxiosError } from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import HighlightedCode from "@/components/highlighting/HighlightedCode.vue";
 import CheckSubmitErrorDialogVue from "@/components/checksubmit/CheckSubmitErrorDialog.vue";
+import IOCheckComponent,{ IOCheck } from "@/components/checksubmit/IOCheckComponent.vue";
 
 @Component({
   components: {
     "highlighted-code": HighlightedCode,
-    "check-submit-error-dialog": CheckSubmitErrorDialogVue
+    "check-submit-error-dialog": CheckSubmitErrorDialogVue,
+    "io-check": IOCheckComponent
   }
 })
 export default class UploadCheck extends Vue {
@@ -67,15 +67,12 @@ export default class UploadCheck extends Vue {
   private code = "";
   private selectedTab = 0;
 
-  private ioInput = "";
-  private ioOutput = "";
-  private ioName = "";
+  private ioCheck: IOCheck | null = null;
 
   get uploadPossible() {
     return (
       (this.code.length > 0 && this.selectedTab === 0) ||
-      (this.selectedTab == 1 &&
-        (this.ioInput.length >= 0 && this.ioOutput.length >= 0))
+      (this.selectedTab == 1 && this.ioCheck && this.ioCheck.name.length > 0)
     );
   }
 
@@ -98,9 +95,9 @@ export default class UploadCheck extends Vue {
 
   uploadIOCheck() {
     const formData = new FormData();
-    formData.append("input", this.ioInput);
-    formData.append("output", this.ioOutput);
-    formData.append("name", this.ioName);
+    formData.append("input", this.ioCheck!.input);
+    formData.append("output", this.ioCheck!.output);
+    formData.append("name", this.ioCheck!.name);
     this.handleUploadResult(Axios.post("/checks/add-io", formData));
   }
 
