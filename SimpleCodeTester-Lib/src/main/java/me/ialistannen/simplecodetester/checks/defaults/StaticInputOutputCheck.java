@@ -32,7 +32,7 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
 
     if (!expectedOutput.equals(actualOutput)) {
       throw new CheckFailedException(
-          String.format("The output of %s was\n'%s'\n, expected\n'%s'.", file.qualifiedName(),
+          String.format("The output of %s was\n'%s'\nExpected\n'%s'.", file.qualifiedName(),
               actualOutput, this.expectedOutput
           )
       );

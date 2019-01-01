@@ -46,7 +46,7 @@ public final class Terminal {
    */
   public static void printLine(final Object object) {
     output.append(object)
-        .append(System.lineSeparator());
+        .append("\n");
   }
 
   /**
