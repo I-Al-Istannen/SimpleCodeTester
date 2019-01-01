@@ -213,6 +213,7 @@ public class CodeCheckService {
     updateAction.accept(codeCheck.get());
 
     validateCheckAndSetName(codeCheck.get());
+    codeCheck.get().setApproved(false);
 
     checkRepository.save(codeCheck.get());
 
