@@ -3,6 +3,11 @@ jwt.secret.key: "dsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd
 runner:
   classpath: "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Lib/target/SimpleCodeTester-Lib.jar"
 
+cors:
+  allowedOrigins:
+    - "http://localhost:8080"
+    - "https://localhost:8080"
+
 spring:
   datasource:
     url: "jdbc:h2:file:./testdb"
