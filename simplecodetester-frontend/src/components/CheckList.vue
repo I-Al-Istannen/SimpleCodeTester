@@ -14,7 +14,7 @@
                   v-if="isMe(check.creator)"
                   class="side-button ma-0"
                   icon
-                  @click="remove(check)"
+                  @click.stop="remove(check)"
                 >
                   <v-icon color="#FF6347">delete</v-icon>
                 </v-btn>
@@ -81,10 +81,13 @@ export default class CheckList extends Vue {
   }
 
   remove(check: Check) {
+    if (!confirm("Delete check: " + check.name + " (" + check.id + ")")) {
+      return;
+    }
     Axios.delete("/checks/remove/" + check.id)
       .then(response => {
         this.error = "";
-        
+
         const index = this.checks.indexOf(check);
         if (index >= 0) {
           this.checks.splice(index, 1);
