@@ -65,7 +65,7 @@ public final class Terminal {
    */
   public static String readLine() {
     if (inputIndex >= input.size()) {
-      throw new NoSuchElementException("No more input!");
+      throw new NoSuchElementException("No more input present, but you tried to read!");
     }
     return input.get(inputIndex++);
   }
