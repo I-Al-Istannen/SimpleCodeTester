@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.backend.services.checks;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -7,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
+import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.db.repos.CheckRepository;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.services.compilation.LocalCompilationService;
@@ -14,6 +17,7 @@ import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ClassParsingUtil;
+import org.apache.commons.text.StringEscapeUtils;
 import org.joor.Reflect;
 import org.springframework.stereotype.Service;
 
@@ -81,6 +85,45 @@ public class CodeCheckService {
     validateCheckAndSetName(codeCheck);
 
     return checkRepository.save(codeCheck);
+  }
+
+  /**
+   * Saves a {@link CodeCheck} in the repository that wants a given input and output.
+   *
+   * @param input the input to give
+   * @param output the output to expect
+   * @param name the name of the check
+   * @param creator the {@link User} that created it
+   * @return the added check, with its id field populated
+   */
+  public CodeCheck addIOCheck(List<String> input, String output, String name, User creator) {
+    String template =
+        "import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;\n"
+            + "public class GeneratedIOCheck extends StaticInputOutputCheck {\n"
+            + "\n"
+            + "  public GeneratedIOCheck() {\n"
+            + "    super(%s, \"%s\");\n"
+            + "  }\n"
+            + "\n"
+            + "  @Override\n"
+            + "  public String name() {\n"
+            + "   return \"%s\";\n"
+            + "  }\n"
+            + "}";
+
+    String inputString = input.stream()
+        .map(StringEscapeUtils::escapeJava)
+        .map(s -> '"' + s + '"')
+        .collect(joining(", ", "java.util.Arrays.asList(", ")"));
+
+    String checkText = String.format(
+        template,
+        inputString,
+        StringEscapeUtils.escapeJava(output),
+        StringEscapeUtils.escapeJava(name)
+    );
+
+    return addCheck(new CodeCheck(checkText, creator));
   }
 
   /**

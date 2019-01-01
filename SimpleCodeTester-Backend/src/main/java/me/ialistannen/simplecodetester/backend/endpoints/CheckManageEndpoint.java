@@ -5,12 +5,15 @@ import static java.util.stream.Collectors.toList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.security.Principal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
@@ -103,6 +106,28 @@ public class CheckManageEndpoint {
     }
   }
 
+  @PostMapping("/checks/add-io")
+  public ResponseEntity<Object> addInputOutputCheck(@RequestParam @NotNull String input,
+      @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
+      Principal principal) {
+
+    String slightlySanerInput = input.replace("\r\n", "\n").trim();
+    String slightlySanerOutput = output.replace("\r\n", "\n").trim() + "\n";
+
+    Optional<User> userOptional = userService.getUser(principal.getName());
+
+    if (userOptional.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    return ResponseEntity.ok(checkService.addIOCheck(
+        Arrays.asList(slightlySanerInput.split("\n")),
+        slightlySanerOutput,
+        name,
+        userOptional.get()
+    ));
+  }
+
   /**
    * Adds a new check.
    *
@@ -162,8 +187,6 @@ public class CheckManageEndpoint {
   public ResponseEntity<Object> approve(long id, boolean approved) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    System.out.println("Inside!");
-    System.out.println(authentication.getAuthorities());
     if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
       return ResponseUtil.error(HttpStatus.FORBIDDEN, "You are not allowed to do this.");
     }
