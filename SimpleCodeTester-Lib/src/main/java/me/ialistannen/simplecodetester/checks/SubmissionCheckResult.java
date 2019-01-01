@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.Submission;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -23,13 +22,6 @@ public abstract class SubmissionCheckResult {
    * @return the check results for each file
    */
   public abstract Map<String, List<CheckResult>> fileResults();
-
-  /**
-   * The compiled files.
-   *
-   * @return the compiled files
-   */
-  public abstract Collection<CompiledFile> files();
 
   /**
    * Checks whether all tests succeeded.

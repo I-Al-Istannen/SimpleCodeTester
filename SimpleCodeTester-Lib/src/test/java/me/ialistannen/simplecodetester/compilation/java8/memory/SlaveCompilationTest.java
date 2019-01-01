@@ -70,9 +70,7 @@ class SlaveCompilationTest {
           } else if (protocolMessage instanceof SubmissionResult) {
             SubmissionCheckResult result = ((SubmissionResult) protocolMessage).getResult();
 
-            if (result.files().isEmpty()) {
-              exception.set(new RuntimeException("Files are empty!"));
-            } else if (result.fileResults().get("Test").isEmpty()) {
+            if (result.fileResults().get("Test").isEmpty()) {
               exception.set(new RuntimeException("Test has no checks"));
             } else if (!result.overallSuccessful()) {
               exception.set(

@@ -52,8 +52,6 @@ public class CheckRunner {
       builder.putFileResults(file.qualifiedName(), checkResults);
     }
 
-    builder.files(compiledSubmission.compiledFiles());
-
     return builder.build();
   }
 
