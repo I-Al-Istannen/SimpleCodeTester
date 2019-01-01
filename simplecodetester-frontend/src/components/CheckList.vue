@@ -10,7 +10,12 @@
             <v-expansion-panel-content v-for="(check, i) in checks" :key="i">
               <div slot="header" class="monospaced subheading d-flex check-header">
                 <span>Check '{{ check.name }}' by '{{ check.creator }}' (ID: {{ check.id }})</span>
-                <v-btn v-if="isMe(check.creator)" class="side-button ma-0" icon>
+                <v-btn
+                  v-if="isMe(check.creator)"
+                  class="side-button ma-0"
+                  icon
+                  @click="remove(check)"
+                >
                   <v-icon color="#FF6347">delete</v-icon>
                 </v-btn>
               </div>
@@ -66,7 +71,26 @@ export default class CheckList extends Vue {
   private error: string = "";
 
   isMe(creator: string): boolean {
-    return (this.$store as Store<RootState>).state.user.userName == creator;
+    const userState = (this.$store as Store<RootState>).state.user;
+
+    // admin can delete all
+    if (userState.roles.indexOf("ROLE_ADMIN") >= 0) {
+      return true;
+    }
+    return userState.displayName == creator;
+  }
+
+  remove(check: Check) {
+    Axios.delete("/checks/remove/" + check.id)
+      .then(response => {
+        this.error = "";
+        
+        const index = this.checks.indexOf(check);
+        if (index >= 0) {
+          this.checks.splice(index, 1);
+        }
+      })
+      .catch(error => (this.error = extractErrorMessage(error)));
   }
 
   mounted() {
