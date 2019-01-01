@@ -6,49 +6,69 @@
           <v-toolbar-title>All checks</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <v-expansion-panel expand>
-            <v-expansion-panel-content v-for="(check, i) in checks" :key="i">
-              <div slot="header" class="monospaced subheading d-flex check-header">
-                <span
-                  class="left-side-text"
-                >Check '{{ check.name }}' by '{{ check.creator }}' (ID: {{ check.id }})</span>
-                <span class="pl-2 unapproved" v-if="!check.approved">Unapproved</span>
-                <!-- Dummy element to push buttons to the right side -->
-                <span v-if="check.approved"></span>
-                <v-btn
-                  v-if="isMe(check.creator)"
-                  class="side-button ma-0"
-                  icon
-                  @click.stop="remove(check)"
-                >
-                  <v-icon color="#FF6347">delete</v-icon>
-                </v-btn>
+          <v-text-field
+            class="mx-5 mb-2"
+            v-model="search"
+            append-icon="search"
+            label="Search..."
+            single-line
+          ></v-text-field>
 
-                <!-- APPROVE BUTTONS -->
-                <v-btn
-                  v-if="canApprove(check)"
-                  class="side-button ma-0"
-                  icon
-                  @click.stop="changeApproval(check, true)"
-                >
-                  <v-icon color="primary">check_circle_outline</v-icon>
-                </v-btn>
-                <v-btn
-                  v-if="canRevokeApprove(check)"
-                  class="side-button ma-0"
-                  icon
-                  @click.stop="changeApproval(check, false)"
-                >
-                  <v-icon color="#FF6347">highlight_off</v-icon>
-                </v-btn>
-              </div>
-              <v-card>
-                <v-card-text class="grey lighten-3">
-                  <prism class="code" language="java">{{ check.text }}</prism>
-                </v-card-text>
-              </v-card>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+          <v-data-iterator
+            :items="checks"
+            :rows-per-page-items="rowsPerPageItems"
+            :pagination.sync="pagination"
+            :search="search"
+            content-tag="v-layout"
+            column
+            wrap
+          >
+            <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
+              <v-expansion-panel expand>
+                <v-expansion-panel-content @input="checkOpened(props.item)">
+                  <div slot="header" class="monospaced subheading d-flex check-header">
+                    <span
+                      class="left-side-text"
+                    >Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>
+                    <span class="pl-2 unapproved" v-if="!props.item.approved">Unapproved</span>
+                    <!-- Dummy element to push buttons to the right side -->
+                    <span v-if="props.item.approved"></span>
+                    <v-btn
+                      v-if="isMe(props.item.creator)"
+                      class="side-button ma-0"
+                      icon
+                      @click.stop="remove(props.item)"
+                    >
+                      <v-icon color="#FF6347">delete</v-icon>
+                    </v-btn>
+
+                    <!-- APPROVE BUTTONS -->
+                    <v-btn
+                      v-if="canApprove(props.item)"
+                      class="side-button ma-0"
+                      icon
+                      @click.stop="changeApproval(props.item, true)"
+                    >
+                      <v-icon color="primary">check_circle_outline</v-icon>
+                    </v-btn>
+                    <v-btn
+                      v-if="canRevokeApprove(props.item)"
+                      class="side-button ma-0"
+                      icon
+                      @click.stop="changeApproval(props.item, false)"
+                    >
+                      <v-icon color="#FF6347">highlight_off</v-icon>
+                    </v-btn>
+                  </div>
+                  <v-card>
+                    <v-card-text class="grey lighten-3">
+                      <prism class="code" language="java">{{ checkTexts[props.item.id] }}</prism>
+                    </v-card-text>
+                  </v-card>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-flex>
+          </v-data-iterator>
         </v-card-text>
         <v-alert type="error" :value="error.length > 0">{{ error }}</v-alert>
       </v-card>
@@ -70,25 +90,32 @@ import "prismjs/themes/prism.css";
 require("prismjs/components/prism-java.min.js");
 import Prism from "vue-prism-component";
 
-class Check {
+class CheckBase {
   id: number;
   creator: string;
-  text: string;
   name: string;
   approved: boolean;
+
+  constructor(id: number, creator: string, name: string, approved: boolean) {
+    this.id = id;
+    this.creator = creator;
+    this.name = name;
+    this.approved = approved;
+  }
+}
+
+class Check extends CheckBase {
+  text: string;
 
   constructor(
     id: number,
     creator: string,
-    text: string,
     name: string,
-    approved: boolean
+    approved: boolean,
+    text: string
   ) {
-    this.id = id;
-    this.creator = creator;
+    super(id, creator, name, approved);
     this.text = text;
-    this.name = name;
-    this.approved = approved;
   }
 }
 
@@ -98,8 +125,14 @@ class Check {
   }
 })
 export default class CheckList extends Vue {
-  private checks: Array<Check> = [];
+  private checks: Array<CheckBase> = [];
   private error: string = "";
+  private search: string = "";
+  private rowsPerPageItems = [4, 8, 12];
+  private pagination = {
+    rowsPerPage: 4
+  };
+  private checkTexts: any = {};
 
   get userState() {
     return (this.$store as Store<RootState>).state.user;
@@ -131,12 +164,13 @@ export default class CheckList extends Vue {
         const index = this.checks.indexOf(check);
         if (index >= 0) {
           this.checks.splice(index, 1);
+          delete this.checkTexts[check.id];
         }
       })
       .catch(error => (this.error = extractErrorMessage(error)));
   }
 
-  changeApproval(check: Check, approved: boolean) {
+  changeApproval(check: CheckBase, approved: boolean) {
     const formData = new FormData();
     formData.append("id", check.id.toString());
     formData.append("approved", approved ? "true" : "false");
@@ -150,11 +184,32 @@ export default class CheckList extends Vue {
       });
   }
 
+  checkOpened(checkBase: CheckBase) {
+    if (this.checkTexts[checkBase.id] !== undefined) {
+      return;
+    }
+    Axios.get("/checks/get", {
+      params: {
+        id: checkBase.id
+      }
+    })
+      .then(response => {
+        this.checkTexts[checkBase.id] = response.data.text;
+        this.error = "";
+      })
+      .catch(error => (this.error = extractErrorMessage(error)));
+  }
+
   mounted() {
     Axios.get("/checks/get-all")
       .then(response => {
-        this.checks = response.data as Array<Check>;
+        this.checks = response.data as Array<CheckBase>;
         this.error = "";
+        const scratchObject = {} as any;
+        this.checks.forEach(it => (scratchObject[it.id] = undefined));
+        // This is needed as vue can not observe property addition/deletion
+        // So we just build the full object and then assign to to vue (and making it reactive)
+        this.checkTexts = scratchObject;
       })
       .catch(error => (this.error = extractErrorMessage(error)));
   }
