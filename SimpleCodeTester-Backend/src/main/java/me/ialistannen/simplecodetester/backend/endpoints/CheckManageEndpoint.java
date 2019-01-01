@@ -1,5 +1,10 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
+import static java.util.stream.Collectors.toList;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +44,28 @@ public class CheckManageEndpoint {
   }
 
   @GetMapping("/checks/get-all")
-  public List<CodeCheck> getAll() {
-    return checkService.getAll();
+  public List<JsonNode> getAll(ObjectMapper objectMapper) {
+    return checkService.getAll().stream()
+        .map(codeCheck -> {
+          ObjectNode object = objectMapper.createObjectNode();
+          object.put("id", codeCheck.getId());
+          object.put("name", codeCheck.getName());
+          object.put("creator", codeCheck.getCreator().getName());
+          object.put("approved", codeCheck.isApproved());
+          return object;
+        })
+        .collect(toList());
+  }
+
+  @GetMapping("/checks/get")
+  public ResponseEntity<CodeCheck> getCheck(@RequestParam long id) {
+    Optional<CodeCheck> check = checkService.getCheck(id);
+
+    if (check.isEmpty()) {
+      return ResponseUtil.error(HttpStatus.NOT_FOUND, "Check not found!");
+    }
+
+    return ResponseEntity.ok(check.get());
   }
 
   /**
