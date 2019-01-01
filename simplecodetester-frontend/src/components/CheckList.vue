@@ -22,6 +22,7 @@
             content-tag="v-layout"
             column
             wrap
+            :filter="filterValueHandleApproved"
           >
             <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
               <v-expansion-panel expand>
@@ -198,6 +199,21 @@ export default class CheckList extends Vue {
         this.error = "";
       })
       .catch(error => (this.error = extractErrorMessage(error)));
+  }
+
+  filterValueHandleApproved(val: any, search: string) {
+    if (typeof val === "boolean") {
+      return (
+        (search === "approved" && val) || (search === "unapproved" && !val)
+      );
+    }
+    return (
+      val != null &&
+      val
+        .toString()
+        .toLowerCase()
+        .indexOf(search) !== -1
+    );
   }
 
   mounted() {
