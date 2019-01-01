@@ -1,14 +1,16 @@
 package me.ialistannen.simplecodetester.execution.master;
 
 import java.util.List;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.submission.Submission;
+import me.ialistannen.simplecodetester.util.Pair;
 
 class SubmissionCheckEntry {
 
   private Submission submission;
-  private List<String> checks;
+  private List<Pair<CheckType, String>> checks;
 
-  SubmissionCheckEntry(Submission submission, List<String> checks) {
+  SubmissionCheckEntry(Submission submission, List<Pair<CheckType, String>> checks) {
     this.submission = submission;
     this.checks = checks;
   }
@@ -17,7 +19,7 @@ class SubmissionCheckEntry {
     return submission;
   }
 
-  List<String> getCheckSource() {
+  List<Pair<CheckType, String>> getChecks() {
     return checks;
   }
 }

@@ -5,11 +5,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 
 public class ConfiguredGson {
 
@@ -27,6 +31,7 @@ public class ConfiguredGson {
 
     return gsonBuilder
         .registerTypeAdapter(Path.class, new PathTypeAdapter())
+        .registerTypeAdapter(StaticInputOutputCheck.class, new StaticInputOutputCheckAdapter())
         .create();
   }
 
@@ -40,6 +45,53 @@ public class ConfiguredGson {
     @Override
     public Path read(JsonReader in) throws IOException {
       return Paths.get(in.nextString());
+    }
+  }
+
+  private static class StaticInputOutputCheckAdapter extends TypeAdapter<StaticInputOutputCheck> {
+
+    @Override
+    public void write(JsonWriter out, StaticInputOutputCheck value) throws IOException {
+      out.beginObject();
+
+      out.name("name");
+      out.value(value.name());
+
+      out.name("input");
+      out.beginArray();
+      for (String input : value.getInput()) {
+        out.value(input);
+      }
+      out.endArray();
+
+      out.name("expectedOutput");
+      out.value(value.getExpectedOutput());
+
+      out.endObject();
+    }
+
+    @Override
+    public StaticInputOutputCheck read(JsonReader in) throws IOException {
+      in.beginObject();
+
+      in.nextName();
+      String name = in.nextString();
+
+      in.nextName();
+      in.beginArray();
+
+      List<String> input = new ArrayList<>();
+      while (in.peek() != JsonToken.END_ARRAY) {
+        input.add(in.nextString());
+      }
+      in.endArray();
+
+      in.nextName();
+      String expectedOutput = in.nextString();
+
+      in.endObject();
+
+      return new StaticInputOutputCheck(input, expectedOutput, name);
     }
   }
 }

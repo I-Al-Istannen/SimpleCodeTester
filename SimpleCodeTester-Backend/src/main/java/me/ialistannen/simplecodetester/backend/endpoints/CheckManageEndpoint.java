@@ -22,6 +22,7 @@ import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -89,7 +90,7 @@ public class CheckManageEndpoint {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    CodeCheck codeCheck = new CodeCheck(text, userOptional.get());
+    CodeCheck codeCheck = new CodeCheck(text, CheckType.SOURCE_CODE, userOptional.get());
 
     try {
       return ResponseEntity.ok(checkService.addCheck(codeCheck));

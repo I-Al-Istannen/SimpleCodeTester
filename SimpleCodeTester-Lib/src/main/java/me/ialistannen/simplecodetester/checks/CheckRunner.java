@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
@@ -62,8 +63,9 @@ public class CheckRunner {
       Terminal.reset();
       return check.check(file);
     } catch (Throwable e) { // user checks should not crash everything
+      e.printStackTrace(System.out);
       return ImmutableCheckResult.builder()
-          .message(findRootCause(e).getMessage())
+          .message(Objects.toString(findRootCause(e).getMessage()))
           .check(check.name())
           .successful(false)
           .errorOutput(capture.getCaptured())

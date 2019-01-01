@@ -11,6 +11,7 @@ import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -169,7 +170,7 @@ class CodeCheckServiceTest {
   }
 
   private CodeCheck getCheck(User user) {
-    return new CodeCheck(getCodeCheckText(), user);
+    return new CodeCheck(getCodeCheckText(), CheckType.SOURCE_CODE, user);
   }
 
   private String getCodeCheckText() {

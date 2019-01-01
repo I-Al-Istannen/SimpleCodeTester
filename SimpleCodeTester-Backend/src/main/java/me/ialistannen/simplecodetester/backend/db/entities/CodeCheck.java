@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,10 +16,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -49,6 +52,10 @@ public class CodeCheck {
    */
   private boolean approved;
 
+  @NotNull
+  @Enumerated
+  private CheckType checkType;
+
   @NotEmpty
   private String name;
 
@@ -62,10 +69,12 @@ public class CodeCheck {
    * entity.</strong></p>
    *
    * @param text the text
+   * @param checkType the {@link CheckType}
    * @param creator the creator
    */
-  public CodeCheck(@NotEmpty String text, User creator) {
+  public CodeCheck(@NotEmpty String text, CheckType checkType, User creator) {
     this.text = text;
+    this.checkType = checkType;
     this.creator = creator;
   }
 

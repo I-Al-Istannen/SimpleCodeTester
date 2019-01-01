@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.backend.services.checkrunning;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +11,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import lombok.Getter;
 import lombok.Setter;
+import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningException;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
 import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.execution.MessageClient;
@@ -23,6 +27,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.Submission;
+import me.ialistannen.simplecodetester.util.Pair;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,12 +54,12 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
    *
    * @param userId the id of the user
    * @param submission the {@link Submission} to check
-   * @param checks the source code of the checks to run
+   * @param checks the checks to run
    * @return the {@link SubmissionCheckResult}
    * @throws CompilationFailedException if the compilation failed
    * @throws CheckRunningFailedException if an unknown error occured
    */
-  public SubmissionCheckResult check(String userId, Submission submission, List<String> checks) {
+  public SubmissionCheckResult check(String userId, Submission submission, List<CodeCheck> checks) {
     if (runningChecks.containsKey(userId)) {
       throw new CheckAlreadyRunningException();
     }
@@ -63,7 +68,11 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
     RunningCheck check = new RunningCheck(semaphore);
     runningChecks.put(userId, check);
 
-    slaveManager.runSubmission(submission, checks, userId);
+    List<Pair<CheckType, String>> checksToRun = checks.stream()
+        .map(codeCheck -> new Pair<>(codeCheck.getCheckType(), codeCheck.getText()))
+        .collect(toList());
+
+    slaveManager.runSubmission(submission, checksToRun, userId);
 
     try {
       if (!semaphore.tryAcquire(maxComputationTimeSeconds + 20, TimeUnit.SECONDS)) {

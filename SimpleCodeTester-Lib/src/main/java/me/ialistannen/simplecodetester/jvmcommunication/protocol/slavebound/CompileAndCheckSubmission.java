@@ -1,22 +1,25 @@
 package me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound;
 
 import java.util.List;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 import me.ialistannen.simplecodetester.submission.Submission;
+import me.ialistannen.simplecodetester.util.Pair;
 
 public class CompileAndCheckSubmission extends ProtocolMessage {
 
   private Submission submission;
-  private List<String> checks;
+  private List<Pair<CheckType, String>> checks;
 
   /**
    * Creates a new message.
    *
    * @param uid the uid of the client
    * @param submission the submission to compile and check
-   * @param checks a list with the surce code of all checks to run
+   * @param checks a list with all checks to run
    */
-  public CompileAndCheckSubmission(String uid, Submission submission, List<String> checks) {
+  public CompileAndCheckSubmission(String uid, Submission submission,
+      List<Pair<CheckType, String>> checks) {
     super(uid);
     this.submission = submission;
     this.checks = checks;
@@ -32,11 +35,11 @@ public class CompileAndCheckSubmission extends ProtocolMessage {
   }
 
   /**
-   * Returns a list with the source code of all checks to run.
+   * Returns a list with the checks to run.
    *
-   * @return a list with the source code of all checks to run
+   * @return a list with the checks to run
    */
-  public List<String> getChecks() {
+  public List<Pair<CheckType, String>> getChecks() {
     return checks;
   }
 

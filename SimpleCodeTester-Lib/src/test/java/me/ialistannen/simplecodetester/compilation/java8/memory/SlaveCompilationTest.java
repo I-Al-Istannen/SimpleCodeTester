@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.execution.master.SlaveManager;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
@@ -16,6 +17,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
+import me.ialistannen.simplecodetester.util.Pair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -92,7 +94,7 @@ class SlaveCompilationTest {
     slaveManager.start();
     slaveManager.runSubmission(
         submission,
-        List.of(getCheckSource()),
+        List.of(new Pair<>(CheckType.SOURCE_CODE, getCheckSource())),
         "test"
     );
 

@@ -59,9 +59,8 @@ public class TestRunEndpoint {
   }
 
   private ResponseEntity<Object> test(String id, Submission submission) {
-    List<String> checks = codeCheckService.getAll().stream()
+    List<CodeCheck> checks = codeCheckService.getAll().stream()
         .filter(CodeCheck::isApproved)
-        .map(CodeCheck::getText)
         .collect(toList());
 
     if (checks.isEmpty()) {

@@ -1,17 +1,25 @@
 package me.ialistannen.simplecodetester.execution.slave;
 
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+
+import com.google.gson.Gson;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckRunner;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
+import me.ialistannen.simplecodetester.checks.defaults.ImportCheck;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.compilation.java8.memory.Java8InMemoryCompiler;
 import me.ialistannen.simplecodetester.exceptions.CompilationException;
@@ -26,6 +34,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.Comp
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
+import me.ialistannen.simplecodetester.util.Pair;
 import me.ialistannen.simplecodetester.util.Stacktrace;
 
 /**
@@ -39,11 +48,13 @@ public class UntrustedJvmMain {
   private MessageClient client;
   private TimerTask idleKiller;
   private CheckCompiler checkCompiler;
+  private Gson gson;
 
   private UntrustedJvmMain(int port, String uid) throws IOException {
     this.port = port;
     this.uid = uid;
 
+    this.gson = ConfiguredGson.createGson();
     this.client = createMessageClient();
     this.checkCompiler = new CheckCompiler();
   }
@@ -51,7 +62,7 @@ public class UntrustedJvmMain {
   private MessageClient createMessageClient() throws IOException {
     return new MessageClient(
         new Socket(InetAddress.getLocalHost(), port),
-        ConfiguredGson.createGson(),
+        gson,
         (client, message) -> {
           if (message instanceof CompileAndCheckSubmission) {
             idleKiller.cancel();
@@ -82,7 +93,7 @@ public class UntrustedJvmMain {
         .schedule(idleKiller, TimeUnit.SECONDS.toMillis(30));
   }
 
-  private void receivedSubmission(Submission submission, List<String> checks) {
+  private void receivedSubmission(Submission submission, List<Pair<CheckType, String>> checks) {
     try {
       CompiledSubmission compiledSubmission = compile(submission);
 
@@ -119,9 +130,33 @@ public class UntrustedJvmMain {
     client.stop();
   }
 
-  private void runChecks(CompiledSubmission compiledSubmission, List<String> checkSource) {
-    List<Check> checks = checkCompiler
-        .compileAndInstantiateChecks(checkSource, new Java8InMemoryCompiler());
+  private void runChecks(CompiledSubmission compiledSubmission,
+      List<Pair<CheckType, String>> receivedChecks) {
+
+    List<Check> checks = receivedChecks.stream()
+        .filter(pair -> pair.getKey() == CheckType.IMPORT || pair.getKey() == CheckType.IO)
+        .map(pair -> {
+          if (pair.getKey() == CheckType.IMPORT) {
+            return gson.fromJson(pair.getValue(), ImportCheck.class);
+          } else if (pair.getKey() == CheckType.IO) {
+            return gson.fromJson(pair.getValue(), StaticInputOutputCheck.class);
+          } else {
+            throw new IllegalArgumentException("Unknown check");
+          }
+        })
+        .collect(toCollection(ArrayList::new));
+
+    List<String> checkSourceToCompile = receivedChecks.stream()
+        .filter(pair -> pair.getKey() == CheckType.SOURCE_CODE)
+        .map(Pair::getValue)
+        .collect(toList());
+
+    if (!checkSourceToCompile.isEmpty()) {
+      List<Check> compiledChecks = checkCompiler
+          .compileAndInstantiateChecks(checkSourceToCompile, new Java8InMemoryCompiler());
+
+      checks.addAll(compiledChecks);
+    }
 
     CheckRunner checkRunner = new CheckRunner(checks);
     SubmissionCheckResult checkResult = checkRunner.checkSubmission(compiledSubmission);

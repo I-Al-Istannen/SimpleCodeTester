@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A simple {@link Check} verifying all used classes/methods are whitelisted.
  */
-public abstract class ImportCheck implements Check {
+public class ImportCheck implements Check {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportCheck.class);
 
@@ -47,6 +47,14 @@ public abstract class ImportCheck implements Check {
       }
     });
     return CheckResult.emptySuccess(this);
+  }
+
+  @Override
+  public String toString() {
+    return "ImportCheck{" +
+        "whitelist=" + whitelist +
+        ", blacklist=" + blacklist +
+        '}';
   }
 
   private boolean isWhitelisted(String input) {

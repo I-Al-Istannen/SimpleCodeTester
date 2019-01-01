@@ -15,6 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.slave.UntrustedCodeJvmStarter;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
@@ -23,6 +24,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.CompileAndCheckSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
+import me.ialistannen.simplecodetester.util.Pair;
 import me.ialistannen.simplecodetester.util.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +96,8 @@ public class SlaveManager {
    * @param checks the source code of all {@link Check}s to run
    * @param uid the UID of the submission
    */
-  public void runSubmission(Submission submission, List<String> checks, String uid) {
+  public void runSubmission(Submission submission, List<Pair<CheckType, String>> checks,
+      String uid) {
     pendingSubmissions.put(uid, new SubmissionCheckEntry(submission, checks));
     untrustedCodeJvmStarter.startSlave(port, uid, classpath);
   }
@@ -138,7 +141,7 @@ public class SlaveManager {
         SubmissionCheckEntry checkEntry = pendingSubmissions.remove(uid);
         client.queueMessage(
             new CompileAndCheckSubmission(
-                uid, checkEntry.getSubmission(), checkEntry.getCheckSource()
+                uid, checkEntry.getSubmission(), checkEntry.getChecks()
             )
         );
       }

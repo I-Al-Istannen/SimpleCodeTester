@@ -15,15 +15,40 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
 
   private List<String> input;
   private String expectedOutput;
+  private String name;
 
-  public StaticInputOutputCheck(List<String> input, String expectedOutput) {
+  public StaticInputOutputCheck(List<String> input, String expectedOutput, String name) {
     this.input = input;
     this.expectedOutput = expectedOutput;
+    this.name = name;
   }
 
   @Override
   protected List<String> getInput(CompiledFile file) {
     return input;
+  }
+
+  @Override
+  public String name() {
+    return name;
+  }
+
+  /**
+   * Return the input.
+   *
+   * @return the input
+   */
+  public List<String> getInput() {
+    return input;
+  }
+
+  /**
+   * The expected output.
+   *
+   * @return the expected output
+   */
+  public String getExpectedOutput() {
+    return expectedOutput;
   }
 
   @Override
@@ -37,5 +62,14 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
           )
       );
     }
+  }
+
+  @Override
+  public String toString() {
+    return "StaticInputOutputCheck{" +
+        "input=" + input +
+        ", expectedOutput='" + expectedOutput + '\'' +
+        ", name='" + name + '\'' +
+        '}';
   }
 }
