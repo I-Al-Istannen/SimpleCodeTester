@@ -2,24 +2,16 @@ package me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound;
 
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 
-public class SlaveStarted extends ProtocolMessage {
+public class SlaveComputationTookTooLong extends ProtocolMessage {
 
-  private long pid;
-
-  public SlaveStarted(String uid, long pid) {
+  public SlaveComputationTookTooLong(String uid) {
     super(uid);
-    this.pid = pid;
-  }
-
-  public long getPid() {
-    return pid;
   }
 
   @Override
   public String toString() {
-    return "SlaveStarted{"
+    return "SlaveComputationTookTooLong{"
         + "uid=" + getUid()
-        + ", pid=" + pid
         + "}";
   }
 }

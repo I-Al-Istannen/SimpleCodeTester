@@ -1,9 +1,11 @@
 package me.ialistannen.simplecodetester.backend.services.checkrunning;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +18,7 @@ import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.master.SlaveManager;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveComputationTookTooLong;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
@@ -30,6 +33,8 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
 
   @Value("${runner.classpath}")
   private String[] additionalClasspath;
+  @Value("${runner.max-computation-time-seconds}")
+  private long maxComputationTimeSeconds;
 
   private SlaveManager slaveManager;
 
@@ -61,7 +66,11 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
     slaveManager.runSubmission(submission, checks, userId);
 
     try {
-      semaphore.acquire();
+      if (!semaphore.tryAcquire(maxComputationTimeSeconds + 20, TimeUnit.SECONDS)) {
+        throw new CheckRunningFailedException(
+            "Not sure, but I got no message. Maybe the slave died horribly?"
+        );
+      }
     } catch (InterruptedException e) {
       throw new CheckRunningFailedException("Interrupted while running check", e);
     }
@@ -97,6 +106,9 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
       } else if (protocolMessage instanceof CompilationFailed) {
         runningCheck.setCompilationOutput(((CompilationFailed) protocolMessage).getOutput());
         runningCheck.getLock().release();
+      } else if (protocolMessage instanceof SlaveComputationTookTooLong) {
+        runningCheck.setError("Computation took too long!");
+        runningCheck.getLock().release();
       }
     };
   }
@@ -105,7 +117,8 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
   public void afterPropertiesSet() {
     slaveManager = new SlaveManager(
         getMessageConsumer(),
-        additionalClasspath
+        additionalClasspath,
+        Duration.ofSeconds(maxComputationTimeSeconds)
     );
     slaveManager.start();
   }

@@ -2,6 +2,7 @@ package me.ialistannen.simplecodetester.compilation.java8.memory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -85,7 +86,8 @@ class SlaveCompilationTest {
             semaphore.release();
           }
         },
-        getClasspath()
+        getClasspath(),
+        Duration.ofSeconds(30)
     );
     slaveManager.start();
     slaveManager.runSubmission(

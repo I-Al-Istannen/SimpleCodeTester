@@ -67,7 +67,7 @@ public class UntrustedJvmMain {
   private void execute() {
     new Thread(client).start();
 
-    client.queueMessage(new SlaveStarted(uid));
+    client.queueMessage(new SlaveStarted(uid, ProcessHandle.current().pid()));
 
     // Kill yourself if you get no task in a reasonable timeframe
     idleKiller = new TimerTask() {

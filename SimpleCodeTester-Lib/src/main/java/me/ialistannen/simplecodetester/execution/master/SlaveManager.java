@@ -5,16 +5,20 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.slave.UntrustedCodeJvmStarter;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveComputationTookTooLong;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.CompileAndCheckSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
@@ -31,6 +35,7 @@ public class SlaveManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(SlaveManager.class);
 
   private ExecutorService executorService;
+  private ScheduledExecutorService watchdogService;
 
   private Gson gson;
   private Thread thread;
@@ -41,17 +46,20 @@ public class SlaveManager {
 
   private Map<String, SubmissionCheckEntry> pendingSubmissions;
   private volatile boolean started;
+  private Duration maxAllowedComputationTime;
 
   public SlaveManager(BiConsumer<MessageClient, ProtocolMessage> messageHandler,
-      String[] classpath) {
+      String[] classpath, Duration maxAllowedComputationTime) {
     this.messageHandler = messageHandler;
     this.classpath = classpath;
+    this.maxAllowedComputationTime = maxAllowedComputationTime;
 
     this.gson = ConfiguredGson.createGson();
     this.executorService = Executors
         .newCachedThreadPool(ThreadHelper.deamonThreadFactory(Thread::new));
     this.untrustedCodeJvmStarter = new UntrustedCodeJvmStarter();
     this.pendingSubmissions = new ConcurrentHashMap<>();
+    this.watchdogService = Executors.newSingleThreadScheduledExecutor();
   }
 
   /**
@@ -124,7 +132,9 @@ public class SlaveManager {
     return (client, message) -> {
       if (message instanceof SlaveStarted) {
         String uid = message.getUid();
-        SubmissionCheckEntry checkEntry = pendingSubmissions.get(uid);
+        scheduleWatchdog(client, ((SlaveStarted) message).getPid(), uid);
+
+        SubmissionCheckEntry checkEntry = pendingSubmissions.remove(uid);
         client.queueMessage(
             new CompileAndCheckSubmission(
                 uid, checkEntry.getSubmission(), checkEntry.getCheckSource()
@@ -134,5 +144,16 @@ public class SlaveManager {
 
       messageHandler.accept(client, message);
     };
+  }
+
+  private void scheduleWatchdog(MessageClient client, long pid, String uid) {
+    watchdogService.schedule(
+        () -> ProcessHandle.of(pid).ifPresent(handle -> {
+          handle.destroy();
+          LOGGER.info("Forcibly killed slave with pid '{}' for uid '{}'", pid, uid);
+          messageHandler.accept(client, new SlaveComputationTookTooLong(uid));
+        }),
+        maxAllowedComputationTime.getSeconds(), TimeUnit.SECONDS
+    );
   }
 }
