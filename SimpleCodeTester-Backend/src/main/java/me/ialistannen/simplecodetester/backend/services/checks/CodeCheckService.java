@@ -110,6 +110,34 @@ public class CodeCheckService {
   }
 
   /**
+   * Saves a {@link CodeCheck} in the repository that wants a given input and output.
+   *
+   * @param id the id of the check
+   * @param input the input to give
+   * @param output the output to expect
+   * @param name the name of the check
+   * @return the added check, with its id field populated
+   * @throws IllegalArgumentException if the check was no IO check
+   */
+  public boolean updateIOCheck(long id, List<String> input, String output, String name) {
+    Optional<CodeCheck> check = getCheck(id);
+    if (check.isEmpty()) {
+      return false;
+    }
+    if (check.get().getCheckType() != CheckType.IO) {
+      throw new IllegalArgumentException("Check is no IO check!");
+    }
+
+    StaticInputOutputCheck outputCheck = new StaticInputOutputCheck(input, output, name);
+    String payload = gson.toJson(outputCheck);
+
+    return updateCheck(id, codeCheck -> {
+      codeCheck.setText(payload);
+      codeCheck.setName(name);
+    });
+  }
+
+  /**
    * Saves a {@link CodeCheck} in the repository.
    *
    * @param id the id of the check

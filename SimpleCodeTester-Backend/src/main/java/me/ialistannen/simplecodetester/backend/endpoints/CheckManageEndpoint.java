@@ -112,21 +112,51 @@ public class CheckManageEndpoint {
       @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
       Principal principal) {
 
-    String slightlySanerInput = input.replace("\r\n", "\n").trim();
-    String slightlySanerOutput = output.replace("\r\n", "\n").trim() + "\n";
+    String slightlySanerInput = sanitizeIOInput(input);
+    String slightlySanerOutput = sanitizeIOInput(output) + "\n";
 
-    Optional<User> userOptional = userService.getUser(principal.getName());
-
-    if (userOptional.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
+    // User logged in, so they very likely still exist
+    User user = userService.getUser(principal.getName()).orElseThrow();
 
     return ResponseEntity.ok(checkService.addIOCheck(
         Arrays.asList(slightlySanerInput.split("\n")),
         slightlySanerOutput,
         name,
-        userOptional.get()
+        user
     ));
+  }
+
+  private String sanitizeIOInput(String input) {
+    return input.replace("\r\n", "\n").trim();
+  }
+
+  @PostMapping("/checks/update-io")
+  public ResponseEntity<Object> updateInputOutputCheck(@RequestParam @NotNull String input,
+      @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
+      @RequestParam long checkId) {
+
+    String slightlySanerInput = sanitizeIOInput(input);
+    String slightlySanerOutput = sanitizeIOInput(output) + "\n";
+
+    Optional<CodeCheck> check = checkService.getCheck(checkId);
+    if (check.isEmpty()) {
+      return ResponseUtil.error(HttpStatus.NOT_FOUND, "Check not found");
+    }
+    if (check.get().getCheckType() != CheckType.IO) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "Check is no IO check!");
+    }
+
+    boolean successfullyUpdated = checkService.updateIOCheck(
+        checkId,
+        Arrays.asList(slightlySanerInput.split("\n")),
+        slightlySanerOutput,
+        name
+    );
+
+    if (successfullyUpdated) {
+      return ResponseEntity.ok("{}");
+    }
+    return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error");
   }
 
   /**
