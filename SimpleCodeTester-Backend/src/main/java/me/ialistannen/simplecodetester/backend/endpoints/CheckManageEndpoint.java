@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotEmpty;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
@@ -12,6 +13,7 @@ import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
+import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -108,7 +110,7 @@ public class CheckManageEndpoint {
    * @return true if the check was removed
    */
   @DeleteMapping("/checks/remove/{id}")
-  public ResponseEntity<Void> remove(@PathVariable long id) {
+  public ResponseEntity<Object> remove(@PathVariable long id) {
     Optional<CodeCheck> check = checkService.getCheck(id);
 
     if (check.isEmpty()) {
@@ -121,7 +123,31 @@ public class CheckManageEndpoint {
 
     checkService.removeCheck(id);
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok("{}");
+  }
+
+  /**
+   * Sets the approve status for a given check.
+   *
+   * @param id the if of the check
+   * @param approved whether the check should be approved
+   */
+  @PostMapping("/checks/approve")
+  @RolesAllowed("ROLE_ADMIN")
+  public ResponseEntity<Object> approve(long id, boolean approved) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    System.out.println("Inside!");
+    System.out.println(authentication.getAuthorities());
+    if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+      return ResponseUtil.error(HttpStatus.FORBIDDEN, "You are not allowed to do this.");
+    }
+
+    if (checkService.approveCheck(id, approved)) {
+      return ResponseEntity.ok("{}");
+    }
+
+    return ResponseUtil.error(HttpStatus.NOT_FOUND, "The check could not be found.");
   }
 
   private void assertHasPermission(Authentication authentication, CodeCheck check) {
@@ -130,7 +156,7 @@ public class CheckManageEndpoint {
       return;
     }
 
-    if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+    if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
       throw new WebStatusCodeException("Forbidden", HttpStatus.FORBIDDEN);
     }
   }

@@ -60,8 +60,13 @@ public class TestRunEndpoint {
 
   private ResponseEntity<Object> test(String id, Submission submission) {
     List<String> checks = codeCheckService.getAll().stream()
+        .filter(CodeCheck::isApproved)
         .map(CodeCheck::getText)
         .collect(toList());
+
+    if (checks.isEmpty()) {
+      return ResponseUtil.error(HttpStatus.NOT_FOUND, "No checks I am allowed to run found.");
+    }
 
     try {
       return ResponseEntity.ok(

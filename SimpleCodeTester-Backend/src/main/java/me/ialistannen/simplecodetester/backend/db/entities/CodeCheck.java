@@ -44,6 +44,11 @@ public class CodeCheck {
   @JoinColumn(referencedColumnName = "id")
   private User creator;
 
+  /**
+   * Whether the check is approved and allowed to run.
+   */
+  private boolean approved;
+
   @NotEmpty
   private String name;
 

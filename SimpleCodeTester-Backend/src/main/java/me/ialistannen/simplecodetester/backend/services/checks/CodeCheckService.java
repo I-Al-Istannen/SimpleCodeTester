@@ -84,6 +84,16 @@ public class CodeCheckService {
   }
 
   /**
+   * Saves a {@link CodeCheck} in the repository.
+   *
+   * @param id the id of the check
+   * @param approved whether the check is approved
+   */
+  public boolean approveCheck(long id, boolean approved) {
+    return updateCheck(id, codeCheck -> codeCheck.setApproved(approved));
+  }
+
+  /**
    * Validates a {@link CodeCheck}.
    *
    * @param codeCheck the code check to validate
