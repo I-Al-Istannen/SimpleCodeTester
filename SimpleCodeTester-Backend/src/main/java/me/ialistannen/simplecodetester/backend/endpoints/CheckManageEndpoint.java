@@ -56,6 +56,7 @@ public class CheckManageEndpoint {
           object.put("name", codeCheck.getName());
           object.put("creator", codeCheck.getCreator().getName());
           object.put("approved", codeCheck.isApproved());
+          object.put("checkType", codeCheck.getCheckType().name());
           return object;
         })
         .collect(toList());
