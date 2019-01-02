@@ -44,7 +44,7 @@
                   </div>
                   <v-card>
                     <v-card-text class="grey lighten-3">
-                      <prism class="code" language="java">{{ checkTexts[props.item.id] }}</prism>
+                      <check-display :checkBase="props.item" :content="checkTexts[props.item.id]"></check-display>
                     </v-card-text>
                   </v-card>
                 </v-expansion-panel-content>
@@ -67,17 +67,14 @@ import { Store } from "vuex";
 import { RootState } from "@/store/types";
 import Axios from "axios";
 import { extractErrorMessage } from "@/util/requests";
-import "prismjs";
-import "prismjs/themes/prism.css";
-require("prismjs/components/prism-java.min.js");
-import Prism from "vue-prism-component";
 import ModifyActions from "@/components/checklist/ModifyActions.vue";
 import { CheckBase, Check } from "@/components/checklist/types";
+import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
 
 @Component({
   components: {
-    prism: Prism,
-    "modify-actions": ModifyActions
+    "modify-actions": ModifyActions,
+    "check-display": CheckDisplay
   }
 })
 export default class CheckList extends Vue {
@@ -152,16 +149,6 @@ export default class CheckList extends Vue {
 }
 .check-header > .left-side-text {
   flex: none !important;
-}
-.code {
-  font-size: 16px;
-}
-.code > code {
-  box-shadow: none;
-  -webkit-box-shadow: none;
-}
-.code > code::before {
-  content: "";
 }
 .unapproved {
   color: tomato;
