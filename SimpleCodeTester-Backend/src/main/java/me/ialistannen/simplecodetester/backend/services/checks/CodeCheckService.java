@@ -142,9 +142,16 @@ public class CodeCheckService {
    *
    * @param id the id of the check
    * @param approved whether the check is approved
+   * @return false if the check could not be found
    */
   public boolean approveCheck(long id, boolean approved) {
-    return updateCheck(id, codeCheck -> codeCheck.setApproved(approved));
+    Optional<CodeCheck> check = getCheck(id);
+    if (check.isEmpty()) {
+      return false;
+    }
+    check.get().setApproved(approved);
+    checkRepository.save(check.get()).isApproved();
+    return true;
   }
 
   /**
