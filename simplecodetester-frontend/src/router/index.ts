@@ -5,7 +5,7 @@ import Profile from '@/components/Profile.vue'
 import CheckCode from '@/components/CheckCode.vue'
 import ViewCheckResult from '@/components/ViewCheckResult.vue'
 import UploadCheck from '@/components/checksubmit/UploadCheck.vue'
-import CheckList from '@/components/CheckList.vue'
+import CheckList from '@/components/checklist/CheckList.vue'
 import store from '@/store';
 
 let router = new Router({

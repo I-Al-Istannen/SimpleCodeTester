@@ -26,7 +26,7 @@
           >
             <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
               <v-expansion-panel expand>
-                <v-expansion-panel-content @input="checkOpened(props.item)">
+                <v-expansion-panel-content @input="fetchCheckText(props.item)">
                   <div slot="header" class="monospaced subheading d-flex check-header">
                     <span
                       class="left-side-text"
@@ -34,32 +34,13 @@
                     <span class="pl-2 unapproved" v-if="!props.item.approved">Unapproved</span>
                     <!-- Dummy element to push buttons to the right side -->
                     <span v-if="props.item.approved"></span>
-                    <v-btn
-                      v-if="isMe(props.item.creator)"
-                      class="side-button ma-0"
-                      icon
-                      @click.stop="remove(props.item)"
-                    >
-                      <v-icon color="#FF6347">delete</v-icon>
-                    </v-btn>
-
-                    <!-- APPROVE BUTTONS -->
-                    <v-btn
-                      v-if="canApprove(props.item)"
-                      class="side-button ma-0"
-                      icon
-                      @click.stop="changeApproval(props.item, true)"
-                    >
-                      <v-icon color="primary">check_circle_outline</v-icon>
-                    </v-btn>
-                    <v-btn
-                      v-if="canRevokeApprove(props.item)"
-                      class="side-button ma-0"
-                      icon
-                      @click.stop="changeApproval(props.item, false)"
-                    >
-                      <v-icon color="#FF6347">highlight_off</v-icon>
-                    </v-btn>
+                    <modify-actions
+                      :checks="checks"
+                      :checkTexts="checkTexts"
+                      :userState="userState"
+                      :myCheck="props.item"
+                      @error="setError"
+                    ></modify-actions>
                   </div>
                   <v-card>
                     <v-card-text class="grey lighten-3">
@@ -90,39 +71,13 @@ import "prismjs";
 import "prismjs/themes/prism.css";
 require("prismjs/components/prism-java.min.js");
 import Prism from "vue-prism-component";
-
-class CheckBase {
-  id: number;
-  creator: string;
-  name: string;
-  approved: boolean;
-
-  constructor(id: number, creator: string, name: string, approved: boolean) {
-    this.id = id;
-    this.creator = creator;
-    this.name = name;
-    this.approved = approved;
-  }
-}
-
-class Check extends CheckBase {
-  text: string;
-
-  constructor(
-    id: number,
-    creator: string,
-    name: string,
-    approved: boolean,
-    text: string
-  ) {
-    super(id, creator, name, approved);
-    this.text = text;
-  }
-}
+import ModifyActions from "@/components/checklist/ModifyActions.vue";
+import { CheckBase, Check } from "@/components/checklist/types";
 
 @Component({
   components: {
-    prism: Prism
+    prism: Prism,
+    "modify-actions": ModifyActions
   }
 })
 export default class CheckList extends Vue {
@@ -139,53 +94,11 @@ export default class CheckList extends Vue {
     return (this.$store as Store<RootState>).state.user;
   }
 
-  isMe(creator: string): boolean {
-    if (this.userState.isAdmin()) {
-      return true;
-    }
-    return this.userState.displayName == creator;
+  setError(error: string) {
+    this.error = error;
   }
 
-  canApprove(check: Check) {
-    return this.userState.isAdmin() && !check.approved;
-  }
-
-  canRevokeApprove(check: Check) {
-    return this.userState.isAdmin() && check.approved;
-  }
-
-  remove(check: Check) {
-    if (!confirm("Delete check: " + check.name + " (" + check.id + ")")) {
-      return;
-    }
-    Axios.delete("/checks/remove/" + check.id)
-      .then(response => {
-        this.error = "";
-
-        const index = this.checks.indexOf(check);
-        if (index >= 0) {
-          this.checks.splice(index, 1);
-          delete this.checkTexts[check.id];
-        }
-      })
-      .catch(error => (this.error = extractErrorMessage(error)));
-  }
-
-  changeApproval(check: CheckBase, approved: boolean) {
-    const formData = new FormData();
-    formData.append("id", check.id.toString());
-    formData.append("approved", approved ? "true" : "false");
-    Axios.post("/checks/approve", formData)
-      .then(response => {
-        check.approved = approved;
-        this.error = "";
-      })
-      .catch(error => {
-        this.error = extractErrorMessage(error);
-      });
-  }
-
-  checkOpened(checkBase: CheckBase) {
+  fetchCheckText(checkBase: CheckBase) {
     if (this.checkTexts[checkBase.id] !== undefined) {
       return;
     }
@@ -237,7 +150,6 @@ export default class CheckList extends Vue {
   justify-content: space-between;
   align-items: center;
 }
-.check-header > .side-button,
 .check-header > .left-side-text {
   flex: none !important;
 }
