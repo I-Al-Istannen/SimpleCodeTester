@@ -9,6 +9,8 @@
 </template>
 
 <script lang="ts">
+/// <reference path="../../vue-prism-component.d.ts" />
+
 import Vue from "vue";
 import Component from "vue-class-component";
 import "prismjs";
