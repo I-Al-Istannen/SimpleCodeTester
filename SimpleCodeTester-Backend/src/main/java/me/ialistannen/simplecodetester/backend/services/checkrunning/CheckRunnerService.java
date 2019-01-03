@@ -82,9 +82,9 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
       }
     } catch (InterruptedException e) {
       throw new CheckRunningFailedException("Interrupted while running check", e);
+    } finally {
+      runningChecks.remove(userId);
     }
-
-    runningChecks.remove(userId);
 
     if (check.getCompilationOutput() != null) {
       throw new CompilationFailedException(check.getCompilationOutput());

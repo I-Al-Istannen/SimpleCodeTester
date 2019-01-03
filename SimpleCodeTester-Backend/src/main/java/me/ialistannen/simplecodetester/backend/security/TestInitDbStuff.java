@@ -25,14 +25,14 @@ public class TestInitDbStuff implements CommandLineRunner {
       userRepository.save(new User(
           "123",
           "John",
-          passwordEncoder.encode("hey"),
+          passwordEncoder.encode("aVerySecurePassword"),
           true,
           Collections.emptyList()
       ));
       userRepository.save(new User(
           "1234",
           "Johnny",
-          passwordEncoder.encode("hey"),
+          passwordEncoder.encode("aVerySecurePassword"),
           true,
           List.of("ROLE_ADMIN")
       ));

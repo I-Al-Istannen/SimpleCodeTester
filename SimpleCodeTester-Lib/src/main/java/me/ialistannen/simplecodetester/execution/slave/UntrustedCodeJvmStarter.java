@@ -23,9 +23,8 @@ public class UntrustedCodeJvmStarter {
   }
 
   private List<String> buildArguments(int port, String uid, String... classpath) {
-
     return Arrays.asList(
-        "/lib/jvm/java-11-openjdk/bin/java",
+        ProcessHandle.current().info().command().orElseThrow(),
         // Limit heap size
         "-Xmx20m",
         // classpath only added when it is specified
