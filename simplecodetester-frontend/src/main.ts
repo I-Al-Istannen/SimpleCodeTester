@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import App from './App.vue'
-import Vuex from 'vuex'
 import router from './router'
 import Router from 'vue-router'
 import Vuetify from 'vuetify'
@@ -17,7 +16,8 @@ Vue.use(Vuetify, {
   }
 })
 
-Axios.defaults.baseURL = "http://localhost:8081"
+Axios.defaults.baseURL = "https://codetester.ialistannen.de"
+// Axios.defaults.baseURL = "http://localhost:8081"
 
 Axios.interceptors.request.use(
   it => {

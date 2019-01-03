@@ -43,7 +43,10 @@
                   </div>
                   <v-card>
                     <v-card-text class="grey lighten-3">
-                      <check-display :checkBase="props.item" :content="checks.checkContents[props.item.id]"></check-display>
+                      <check-display
+                        :checkBase="props.item"
+                        :content="checks.checkContents[props.item.id]"
+                      ></check-display>
                     </v-card-text>
                   </v-card>
                 </v-expansion-panel-content>
@@ -65,11 +68,7 @@ import { RootState } from "@/store/types";
 import Axios from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import ModifyActions from "@/components/checklist/ModifyActions.vue";
-import {
-  CheckBase,
-  Check,
-  CheckCollection
-} from "@/components/checklist/types";
+import { CheckBase, CheckCollection } from "@/components/checklist/types";
 import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
 
 @Component({

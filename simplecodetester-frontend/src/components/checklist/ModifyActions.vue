@@ -32,11 +32,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import {
-  CheckBase,
-  Check,
-  CheckCollection
-} from "@/components/checklist/types";
+import { CheckBase, CheckCollection } from "@/components/checklist/types";
 import { Prop } from "vue-property-decorator";
 import { UserState } from "@/store/types";
 import Axios from "axios";
@@ -98,6 +94,6 @@ export default class ModifyActions extends Vue {
 }
 
 #wrapper {
-  justify-content: end;
+  justify-content: flex-end;
 }
 </style>
