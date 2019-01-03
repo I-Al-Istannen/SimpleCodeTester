@@ -15,7 +15,7 @@
           ></v-text-field>
 
           <v-data-iterator
-            :items="checks"
+            :items="checks.checkBases"
             :rows-per-page-items="rowsPerPageItems"
             :pagination.sync="pagination"
             :search="search"
@@ -36,7 +36,6 @@
                     <span v-if="props.item.approved"></span>
                     <modify-actions
                       :checks="checks"
-                      :checkTexts="checkTexts"
                       :userState="userState"
                       :myCheck="props.item"
                       @error="setError"
@@ -44,7 +43,7 @@
                   </div>
                   <v-card>
                     <v-card-text class="grey lighten-3">
-                      <check-display :checkBase="props.item" :content="checkTexts[props.item.id]"></check-display>
+                      <check-display :checkBase="props.item" :content="checks.checkContents[props.item.id]"></check-display>
                     </v-card-text>
                   </v-card>
                 </v-expansion-panel-content>
@@ -66,7 +65,11 @@ import { RootState } from "@/store/types";
 import Axios from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import ModifyActions from "@/components/checklist/ModifyActions.vue";
-import { CheckBase, Check } from "@/components/checklist/types";
+import {
+  CheckBase,
+  Check,
+  CheckCollection
+} from "@/components/checklist/types";
 import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
 
 @Component({
@@ -76,14 +79,13 @@ import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
   }
 })
 export default class CheckList extends Vue {
-  private checks: Array<CheckBase> = [];
+  private checks: CheckCollection = new CheckCollection();
   private error: string = "";
   private search: string = "";
   private rowsPerPageItems = [4, 8, 12];
   private pagination = {
     rowsPerPage: 4
   };
-  private checkTexts: any = {};
 
   get userState() {
     return (this.$store as Store<RootState>).state.user;
@@ -94,19 +96,10 @@ export default class CheckList extends Vue {
   }
 
   fetchCheckText(checkBase: CheckBase) {
-    if (this.checkTexts[checkBase.id] !== undefined) {
-      return;
-    }
-    Axios.get("/checks/get", {
-      params: {
-        id: checkBase.id
-      }
-    })
-      .then(response => {
-        this.checkTexts[checkBase.id] = response.data.text;
-        this.error = "";
-      })
-      .catch(error => (this.error = extractErrorMessage(error)));
+    this.checks
+      .fetchContent(checkBase)
+      .then(() => this.setError(""))
+      .catch(error => this.setError(extractErrorMessage(error)));
   }
 
   filterValueHandleApproved(val: any, search: string) {
@@ -125,17 +118,10 @@ export default class CheckList extends Vue {
   }
 
   mounted() {
-    Axios.get("/checks/get-all")
-      .then(response => {
-        this.checks = response.data as Array<CheckBase>;
-        this.error = "";
-        const scratchObject = {} as any;
-        this.checks.forEach(it => (scratchObject[it.id] = undefined));
-        // This is needed as vue can not observe property addition/deletion
-        // So we just build the full object and then assign to to vue (and making it reactive)
-        this.checkTexts = scratchObject;
-      })
-      .catch(error => (this.error = extractErrorMessage(error)));
+    this.checks
+      .fetchAll()
+      .then(() => this.setError(""))
+      .catch(error => this.setError(extractErrorMessage(error)));
   }
 }
 </script>

@@ -1,14 +1,6 @@
 <template>
   <div class="d-flex" id="wrapper">
     <v-btn
-      v-if="false && canModifyCheck(myCheck.creator)"
-      class="side-button ma-0"
-      icon
-      @click.stop="edit(myCheck)"
-    >
-      <v-icon>edit</v-icon>
-    </v-btn>
-    <v-btn
       v-if="canModifyCheck(myCheck.creator)"
       class="side-button ma-0"
       icon
@@ -40,7 +32,11 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { CheckBase, Check } from "@/components/checklist/types";
+import {
+  CheckBase,
+  Check,
+  CheckCollection
+} from "@/components/checklist/types";
 import { Prop } from "vue-property-decorator";
 import { UserState } from "@/store/types";
 import Axios from "axios";
@@ -52,13 +48,10 @@ export default class ModifyActions extends Vue {
   private userState!: UserState;
 
   @Prop()
-  private checks!: Array<CheckBase>;
+  private checks!: CheckCollection;
 
   @Prop()
   private myCheck!: CheckBase;
-
-  @Prop()
-  private checkTexts!: any;
 
   emitError(message: string) {
     this.$emit("error", message);
@@ -83,28 +76,16 @@ export default class ModifyActions extends Vue {
     if (!confirm("Delete check: " + check.name + " (" + check.id + ")")) {
       return;
     }
-    Axios.delete("/checks/remove/" + check.id)
-      .then(response => {
-        this.emitError("");
-
-        const index = this.checks.indexOf(check);
-        if (index >= 0) {
-          this.checks.splice(index, 1);
-          delete this.checkTexts[check.id];
-        }
-      })
+    this.checks
+      .deleteCheck(check)
+      .then(() => this.emitError(""))
       .catch(error => this.emitError(extractErrorMessage(error)));
   }
 
   changeApproval(check: CheckBase, approved: boolean) {
-    const formData = new FormData();
-    formData.append("id", check.id.toString());
-    formData.append("approved", approved ? "true" : "false");
-    Axios.post("/checks/approve", formData)
-      .then(response => {
-        check.approved = approved;
-        this.emitError("");
-      })
+    this.checks
+      .setCheckApproval(check, approved)
+      .then(() => this.emitError(""))
       .catch(error => this.emitError(extractErrorMessage(error)));
   }
 }
