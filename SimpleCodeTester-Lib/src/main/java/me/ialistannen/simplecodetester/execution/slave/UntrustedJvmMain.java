@@ -4,9 +4,7 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 import com.google.gson.Gson;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -172,10 +170,6 @@ public class UntrustedJvmMain {
     }
     int port = Integer.parseInt(args[0]);
     String uid = args[1];
-
-    PrintStream out = new PrintStream(new FileOutputStream("/tmp/test_out.txt"));
-    System.setOut(out);
-    System.setErr(out);
 
     System.setSecurityManager(new SubmissionSecurityManager());
 
