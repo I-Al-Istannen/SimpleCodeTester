@@ -1,5 +1,8 @@
 import Axios, { AxiosPromise } from 'axios';
 
+/**
+ * The base of a check, containing all metadata but no content.
+ */
 export class CheckBase {
   id: number;
   creator: string;
@@ -22,22 +25,9 @@ export class CheckBase {
   }
 }
 
-export class Check extends CheckBase {
-  text: string;
-
-  constructor(
-    id: number,
-    creator: string,
-    name: string,
-    approved: boolean,
-    text: string,
-    checkType: string
-  ) {
-    super(id, creator, name, approved, checkType);
-    this.text = text;
-  }
-}
-
+/**
+ * A collection of CheckBases and their content, lazily fetched.
+ */
 export class CheckCollection {
   private checkBases: Array<CheckBase> = []
   private checkContents: any = {}
