@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 public class CheckRunnerService implements DisposableBean, InitializingBean {
 
   @Value("${runner.classpath}")
-  private String[] additionalClasspath;
+  private String[] slaveClasspath;
   @Value("${runner.max-computation-time-seconds}")
   private long maxComputationTimeSeconds;
 
@@ -126,7 +126,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
   public void afterPropertiesSet() {
     slaveManager = new SlaveManager(
         getMessageConsumer(),
-        additionalClasspath,
+        slaveClasspath,
         Duration.ofSeconds(maxComputationTimeSeconds)
     );
     slaveManager.start();

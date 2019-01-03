@@ -53,7 +53,7 @@ public class SlaveManager {
   public SlaveManager(BiConsumer<MessageClient, ProtocolMessage> messageHandler,
       String[] classpath, Duration maxAllowedComputationTime) {
     this.messageHandler = messageHandler;
-    this.classpath = classpath;
+    this.classpath = classpath.clone();
     this.maxAllowedComputationTime = maxAllowedComputationTime;
 
     this.gson = ConfiguredGson.createGson();
