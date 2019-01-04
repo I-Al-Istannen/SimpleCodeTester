@@ -8,8 +8,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ClassParsingUtil {
 
-  private static final Pattern CLASS_DECLARATION_PATTERN = Pattern.compile("class (\\w+) ?");
-  private static final Pattern PACKAGE_PATTERN = Pattern.compile("package (\\w+);");
+  private static final Pattern CLASS_DECLARATION_PATTERN = Pattern
+      .compile("(class|interface|@interface|enum) (\\w+) ?");
+  private static final Pattern PACKAGE_PATTERN = Pattern.compile("package (\\S+);");
 
   /**
    * Returns the name of the class.
@@ -22,7 +23,7 @@ public class ClassParsingUtil {
     if (!matcher.find()) {
       return Optional.empty();
     }
-    return Optional.ofNullable(matcher.group(1));
+    return Optional.ofNullable(matcher.group(2));
   }
 
   /**

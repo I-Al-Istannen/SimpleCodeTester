@@ -3,6 +3,7 @@ package me.ialistannen.simplecodetester.backend.endpoints;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +115,13 @@ public class TestRunEndpoint {
           stringOutputStream.write(buffer, 0, readLength);
         }
 
-        files.put(entry.getName(), stringOutputStream.toString());
+        String source = stringOutputStream.toString();
+        String packageName = ClassParsingUtil.getPackage(source)
+            .map(s -> s + "/")
+            .orElse("");
+
+        String fileName = Paths.get(entry.getName()).getFileName().toString();
+        files.put(packageName + fileName, source);
       }
 
       return testMultipleFiles(files, user.getName());
