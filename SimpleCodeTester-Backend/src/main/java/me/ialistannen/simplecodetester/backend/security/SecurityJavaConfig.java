@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.backend.security;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletResponse;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -39,7 +40,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
     return new JwtConsumerBuilder()
         .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(60)
-        .setMaxFutureValidityInMinutes(60)
+        .setMaxFutureValidityInMinutes((int) TimeUnit.DAYS.toMinutes(2))
         .setVerificationKey(new HmacKey(jwtTokenSecret.getBytes()))
         .build();
   }
@@ -68,6 +69,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/login").permitAll()
+        .antMatchers("/login/get-access-token").permitAll()
         .antMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated();
   }
