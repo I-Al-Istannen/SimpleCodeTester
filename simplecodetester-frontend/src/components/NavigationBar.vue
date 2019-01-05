@@ -5,24 +5,26 @@
       <v-toolbar-title>{{title}}</v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <!-- PROFILE -->
-      <v-btn flat v-if="currentRoute.name !== 'profile'" @click="$router.push('/profile')">Profile
-        <v-icon right dark>person</v-icon>
-      </v-btn>
+      <div v-if="!actionsHidden">
+        <!-- PROFILE -->
+        <v-btn flat v-if="currentRoute.name !== 'profile'" @click="$router.push('/profile')">Profile
+          <v-icon right dark>person</v-icon>
+        </v-btn>
 
-      <!-- CHECK CODE -->
-      <v-btn
-        flat
-        v-if="currentRoute.name !== 'checkCode'"
-        @click="$router.push('/check-code')"
-      >Check code
-        <v-icon right dark>star_half</v-icon>
-      </v-btn>
+        <!-- CHECK CODE -->
+        <v-btn
+          flat
+          v-if="currentRoute.name !== 'checkCode'"
+          @click="$router.push('/check-code')"
+        >Check code
+          <v-icon right dark>star_half</v-icon>
+        </v-btn>
 
-      <!-- LOGOUT -->
-      <v-btn flat @click="logout">Logout
-        <v-icon right dark>exit_to_app</v-icon>
-      </v-btn>
+        <!-- LOGOUT -->
+        <v-btn flat @click="logout">Logout
+          <v-icon right dark>exit_to_app</v-icon>
+        </v-btn>
+      </div>
     </v-toolbar>
 
     <!-- DRAWER -->

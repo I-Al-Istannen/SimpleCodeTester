@@ -10,9 +10,10 @@ export interface UserState {
   displayName: string;
   roles: Array<string>;
   token: string | null;
+  refreshToken: string | null;
 
   /**
-   * Returns whether the current token is valid.
+   * Returns whether the current refresh token is valid.
    */
   isTokenValid(): boolean;
 

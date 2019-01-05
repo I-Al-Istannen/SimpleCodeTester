@@ -9,8 +9,9 @@ export const state: UserState = {
   roles: [],
   displayName: "Bobby Tables",
   token: null,
-  isTokenValid: function () {
-    return isJwtValid(this.token)
+  refreshToken: null,
+  isTokenValid(): boolean {
+    return isJwtValid(this.refreshToken)
   },
   isAdmin: function () {
     return this.roles.indexOf("ROLE_ADMIN") >= 0;

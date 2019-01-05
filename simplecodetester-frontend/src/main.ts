@@ -5,6 +5,7 @@ import Router from 'vue-router'
 import Vuetify from 'vuetify'
 import store from './store'
 import Axios from 'axios';
+import { isJwtValid } from './util/requests';
 
 Vue.config.productionTip = false
 
@@ -17,17 +18,22 @@ Vue.use(Vuetify, {
 })
 
 Axios.defaults.baseURL = "https://codetester.ialistannen.de"
-// Axios.defaults.baseURL = "http://localhost:8081"
+//Axios.defaults.baseURL = "http://localhost:8081"
 
 Axios.interceptors.request.use(
-  it => {
-    if (store.state.user.token) {
-      it.headers['Authorization'] = 'Bearer ' + store.state.user.token;
+  async request => {
+    if (!store.state.user.token) {
+      return Promise.resolve(request);
     }
-    return Promise.resolve(it)
+
+    if (!(request.url && request.url.indexOf("/login") >= 0) && !isJwtValid(store.state.user.token) && store.state.user.refreshToken) {
+      await store.dispatch("user/fetchAccessToken");
+    }
+
+    request.headers['Authorization'] = 'Bearer ' + store.state.user.token;
+    return Promise.resolve(request)
   }
 )
-
 
 new Vue({
   router,
