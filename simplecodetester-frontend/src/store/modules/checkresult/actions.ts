@@ -41,6 +41,11 @@ function parseCompilationOutput(json: any): CheckResult {
     entries.push(new Pair(fileName, convertedToCheckResults));
   })
 
+  if (json.output && json.output !== "") {
+    const checkResult = new FileCheckResult("Compilation", false, json.output, "");
+    entries.push(new Pair("N/A", [checkResult]));
+  }
+
   return new CheckResult(entries);
 }
 
