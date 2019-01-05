@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ReflectionHelper;
@@ -53,7 +54,10 @@ public abstract class MainClassRunnerCheck implements Check {
 
     assertOutputValid(file);
 
-    return CheckResult.emptySuccess(this);
+    return ImmutableCheckResult.builder()
+        .from(CheckResult.emptySuccess(this))
+        .message(Terminal.getOutput())
+        .build();
   }
 
   /**
