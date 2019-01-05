@@ -119,6 +119,14 @@ public class UntrustedJvmMain {
     if (!compiledSubmission.compilationOutput().successful()) {
       throw new CompilationException(compiledSubmission.compilationOutput());
     }
+    // compiler emitted something as normal output
+    if (!compiledSubmission.compilationOutput().output().isEmpty()) {
+      throw new CompilationException(compiledSubmission.compilationOutput().output());
+    }
+    // a compiler warning
+    if (!compiledSubmission.compilationOutput().diagnostics().isEmpty()) {
+      throw new CompilationException(compiledSubmission.compilationOutput());
+    }
 
     return compiledSubmission;
   }
