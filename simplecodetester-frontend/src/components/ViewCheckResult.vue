@@ -2,12 +2,18 @@
   <v-layout align-center justify-center>
     <v-flex xs12 sm8 md6>
       <v-card class="elevation-12 pb-2">
-        <v-toolbar dark :color="allPassed ? 'primary' : '#ff6347'">
+        <v-toolbar dark :color="allPassed && items.length > 0 ? 'primary' : '#ff6347'">
           <v-toolbar-title>
             Check results
             <span v-if="!allPassed">({{ failCount }} classes failed)</span>
+            <span v-if="items.length == 0">(No tests run)</span>
           </v-toolbar-title>
         </v-toolbar>
+        <v-card-title v-if="items.length === 0">
+          <h2
+            class="headline"
+          >No tests were run against your code. Are you sure it has a main class?</h2>
+        </v-card-title>
         <v-card-text class="scrollable-container">
           <v-expansion-panel expand v-model="failureBooleanArray">
             <v-expansion-panel-content v-for="(item, i) in items" :key="i">
