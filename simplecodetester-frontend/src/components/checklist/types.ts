@@ -39,6 +39,9 @@ export class CheckCollection {
    * @param check the check to fetch the content for
    */
   fetchContent(check: CheckBase): Promise<void> {
+    if (this.checkContents[check.id]) {
+      return Promise.resolve()
+    }
     return Axios.get("/checks/get", {
       params: {
         id: check.id
