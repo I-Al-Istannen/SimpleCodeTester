@@ -22,7 +22,7 @@
                   <v-expansion-panel expand class="elevation-4">
                     <v-expansion-panel-content v-for="(result, i) in item.results" :key="i">
                       <div slot="header" class="monospaced">
-                        <v-icon v-if="result.successful" color="green">check_circle_outline</v-icon>
+                        <v-icon v-if="!result.failed()" color="green">check_circle_outline</v-icon>
                         <v-icon v-else color="#ff6347">highlight_off</v-icon>
                         Check '{{ result.check }}'
                       </div>
@@ -49,7 +49,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState, FileCheckResult } from "@/store/types";
+import { RootState, FileCheckResult, CheckResultType } from "@/store/types";
 
 class SingleFileResult {
   fileName: string;
@@ -96,7 +96,9 @@ export default class Test extends Vue {
     }
 
     checkResult.results.forEach(({ key, value }) => {
-      const allSuccessful = value.every(elem => elem.successful);
+      const allSuccessful = value.every(
+        elem => elem.result !== CheckResultType.FAILED
+      );
 
       this.items.push(new SingleFileResult(key, value.slice(), allSuccessful));
     });

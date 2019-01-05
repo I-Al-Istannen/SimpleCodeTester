@@ -1,6 +1,6 @@
 import { ActionTree } from 'vuex';
 import axios, { AxiosPromise } from 'axios';
-import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair } from '../../types';
+import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType } from '../../types';
 import { RootState } from '../../types';
 
 /**
@@ -17,7 +17,9 @@ function parseCheckResponse(json: any): CheckResult {
 
   const entries = new Array<Pair<string, Array<FileCheckResult>>>()
   Object.keys(json.fileResults).forEach(fileName => {
-    const checkResults = json.fileResults[fileName] as Array<FileCheckResult>;
+    const checkResults = json.fileResults[fileName].map((json: any) => {
+      return new FileCheckResult(json.check, json.result, json.message, json.errorOutput)
+    })
     entries.push(new Pair(fileName, checkResults));
   })
 
@@ -36,13 +38,13 @@ function parseCompilationOutput(json: any): CheckResult {
   Object.keys(json.diagnostics).forEach(fileName => {
     const diagnostics = json.diagnostics[fileName] as Array<string>
     const convertedToCheckResults = diagnostics
-      .map(diagString => new FileCheckResult("Compilation", false, diagString, ""))
+      .map(diagString => new FileCheckResult("Compilation", CheckResultType.FAILED, diagString, ""))
 
     entries.push(new Pair(fileName, convertedToCheckResults));
   })
 
   if (json.output && json.output !== "") {
-    const checkResult = new FileCheckResult("Compilation", false, json.output, "");
+    const checkResult = new FileCheckResult("Compilation", CheckResultType.FAILED, json.output, "");
     entries.push(new Pair("N/A", [checkResult]));
   }
 

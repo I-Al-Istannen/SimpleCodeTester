@@ -46,16 +46,29 @@ export class CheckResult {
 
 export class FileCheckResult {
   check: string;
-  successful: boolean;
+  result: CheckResultType;
   message: string;
   errorOutput: string;
 
-  constructor(check: string, successful: boolean, message: string, errorOutput: string) {
+  constructor(check: string, result: CheckResultType, message: string, errorOutput: string) {
     this.check = check;
-    this.successful = successful;
+    this.result = result;
     this.message = message;
     this.errorOutput = errorOutput;
   }
+
+  /**
+   * Returns whether the result is FAILED.
+   */
+  failed(): boolean {
+    return this.result === CheckResultType.FAILED;
+  }
+}
+
+export enum CheckResultType {
+  SUCCESSFUL = "SUCCESSFUL",
+  FAILED = "FAILED",
+  NOT_APPLICABLE = "NOT_APPLICABLE"
 }
 
 export class UserInfo {
