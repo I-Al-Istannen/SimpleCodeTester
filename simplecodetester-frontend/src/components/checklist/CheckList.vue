@@ -81,9 +81,9 @@ export default class CheckList extends Vue {
   private checks: CheckCollection = new CheckCollection();
   private error: string = "";
   private search: string = "";
-  private rowsPerPageItems = [4, 8, 12];
+  private rowsPerPageItems = [4, 10, 20, 50, 100];
   private pagination = {
-    rowsPerPage: 4
+    rowsPerPage: 10
   };
 
   get userState() {
