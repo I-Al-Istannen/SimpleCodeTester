@@ -13,7 +13,8 @@ Vue.use(Router)
 Vue.use(Vuetify, {
   theme: {
     primary: '#4CAF50',
-    accent: '#E040FB'
+    accent: '#E040FB',
+    red: '#FF6347'
   }
 })
 

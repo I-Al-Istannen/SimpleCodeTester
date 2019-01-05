@@ -6,6 +6,7 @@ import CheckCode from '@/components/CheckCode.vue'
 import ViewCheckResult from '@/components/ViewCheckResult.vue'
 import UploadCheck from '@/components/checksubmit/UploadCheck.vue'
 import CheckList from '@/components/checklist/CheckList.vue'
+import UserList from '@/components/users/UserList.vue'
 import store from '@/store';
 
 let router = new Router({
@@ -71,6 +72,16 @@ let router = new Router({
       meta: {
         title: function () {
           return 'View all checks'
+        }
+      }
+    },
+    {
+      path: '/view-users',
+      name: 'viewUsers',
+      component: UserList,
+      meta: {
+        title: function () {
+          return 'View all users'
         }
       }
     }

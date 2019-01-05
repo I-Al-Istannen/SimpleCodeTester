@@ -41,7 +41,7 @@
 
       <v-list dense class="pt-0">
         <v-list-tile
-          v-for="item in navigationItems"
+          v-for="item in applicableItems"
           :key="item.title"
           @click="navigate(item)"
           :class="{selected: item.predicatePath === currentRoute.name, headline: true}"
@@ -66,6 +66,7 @@ import { RootState } from "@/store/types";
 import { Route } from "vue-router";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
+import { user } from "@/store/modules/user";
 
 @Component({})
 export default class NavigationBar extends Vue {
@@ -98,6 +99,13 @@ export default class NavigationBar extends Vue {
       predicatePath: "viewChecks"
     },
     {
+      icon: "people",
+      title: "Manage Users",
+      route: "/view-users",
+      predicatePath: "viewUsers",
+      admin: true
+    },
+    {
       icon: "exit_to_app",
       title: "Logout",
       route: "/login",
@@ -111,6 +119,18 @@ export default class NavigationBar extends Vue {
   get currentRoute(): Route {
     return this.$route;
   }
+
+  get applicableItems(): Array<any> {
+    return this.navigationItems.filter(
+      it => !it.admin || (it.admin && this.isAdmin)
+    );
+  }
+
+  get isAdmin(): boolean {
+    const userState = (this.$store as Store<RootState>).state.user;
+    return userState.roles && userState.roles.some(it => it === "ROLE_ADMIN");
+  }
+
   logout() {
     this.$store.dispatch("logout");
     this.$router.push("/login");
