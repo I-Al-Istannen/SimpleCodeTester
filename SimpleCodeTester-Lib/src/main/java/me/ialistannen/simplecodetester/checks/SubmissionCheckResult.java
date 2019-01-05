@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.submission.Submission;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -31,6 +32,6 @@ public abstract class SubmissionCheckResult {
   public boolean overallSuccessful() {
     return fileResults().values().stream()
         .flatMap(Collection::stream)
-        .allMatch(CheckResult::successful);
+        .allMatch(checkResult -> checkResult.result() != ResultType.FAILED);
   }
 }

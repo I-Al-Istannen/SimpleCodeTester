@@ -6,6 +6,7 @@ import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
@@ -67,7 +68,7 @@ public class CheckRunner {
       return ImmutableCheckResult.builder()
           .message(Objects.toString(findRootCause(e).getMessage()))
           .check(check.name())
-          .successful(false)
+          .result(ResultType.FAILED)
           .errorOutput(capture.getCaptured())
           .build();
     } finally {

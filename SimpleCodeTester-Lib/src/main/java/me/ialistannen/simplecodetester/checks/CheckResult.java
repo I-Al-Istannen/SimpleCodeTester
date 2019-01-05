@@ -24,7 +24,7 @@ public abstract class CheckResult {
    *
    * @return true if the check was successful
    */
-  public abstract boolean successful();
+  public abstract ResultType result();
 
   /**
    * The associated message, if any.
@@ -44,14 +44,47 @@ public abstract class CheckResult {
    * Returns a successful CheckResult with no message.
    *
    * @param check the check that returned this
-   * @return a successful CheckResult with no message.
+   * @return a successful CheckResult with no message
    */
   public static CheckResult emptySuccess(Check check) {
     return ImmutableCheckResult.builder()
-        .successful(true)
+        .result(ResultType.SUCCESSFUL)
         .check(check.name())
         .message("")
         .errorOutput("")
         .build();
+  }
+
+  /**
+   * Returns a CheckResult with no message and the type {@link ResultType#NOT_APPLICABLE}.
+   *
+   * @param check the check that returned this
+   * @return a CheckResult with no message and {@link ResultType#NOT_APPLICABLE}
+   */
+  public static CheckResult notApplicable(Check check) {
+    return ImmutableCheckResult.builder()
+        .result(ResultType.NOT_APPLICABLE)
+        .check(check.name())
+        .message("")
+        .errorOutput("")
+        .build();
+  }
+
+  /**
+   * The result type of a check.
+   */
+  public enum ResultType {
+    /**
+     * The check was successful.
+     */
+    SUCCESSFUL,
+    /**
+     * The check failed.
+     */
+    FAILED,
+    /**
+     * The check was not applicable to the file.
+     */
+    NOT_APPLICABLE
   }
 }

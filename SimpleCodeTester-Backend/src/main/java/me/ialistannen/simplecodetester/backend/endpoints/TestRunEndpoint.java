@@ -22,6 +22,10 @@ import me.ialistannen.simplecodetester.backend.exception.CompilationFailedExcept
 import me.ialistannen.simplecodetester.backend.services.checkrunning.CheckRunnerService;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
+import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
+import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult;
+import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ClassParsingUtil;
@@ -69,8 +73,26 @@ public class TestRunEndpoint {
     }
 
     try {
+      SubmissionCheckResult checkResult = checkRunnerService.check(id, submission, checks);
+
+      Map<String, List<CheckResult>> skippedChecksRemoved = new HashMap<>();
+
+      for (Entry<String, List<CheckResult>> entry : checkResult.fileResults().entrySet()) {
+        List<CheckResult> withoutSkipped = entry.getValue().stream()
+            .filter(result -> result.result() != ResultType.NOT_APPLICABLE)
+            .collect(toList());
+
+        if (withoutSkipped.isEmpty()) {
+          continue;
+        }
+
+        skippedChecksRemoved.put(entry.getKey(), withoutSkipped);
+      }
       return ResponseEntity.ok(
-          checkRunnerService.check(id, submission, checks)
+          ImmutableSubmissionCheckResult.builder()
+              .from(checkResult)
+              .fileResults(skippedChecksRemoved)
+              .build()
       );
     } catch (CompilationFailedException e) {
       return ResponseEntity.ok().body(e.getOutput());

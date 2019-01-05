@@ -42,7 +42,7 @@ public abstract class MainClassRunnerCheck implements Check {
   @Override
   public CheckResult check(CompiledFile file) {
     if (!mainClassPredicate.test(file)) {
-      return CheckResult.emptySuccess(this);
+      return CheckResult.notApplicable(this);
     }
 
     Terminal.setInput(getInput(file));
