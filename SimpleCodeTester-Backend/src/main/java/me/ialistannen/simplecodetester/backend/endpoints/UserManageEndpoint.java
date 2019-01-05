@@ -4,10 +4,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import lombok.Data;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
+import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserManageEndpoint {
 
   private UserService userService;
+  private PasswordEncoder passwordEncoder;
 
-  UserManageEndpoint(UserService userService) {
+  UserManageEndpoint(UserService userService, PasswordEncoder passwordEncoder) {
     this.userService = userService;
+    this.passwordEncoder = passwordEncoder;
   }
 
   /**
@@ -52,6 +60,32 @@ public class UserManageEndpoint {
   }
 
   /**
+   * Deletes a user by its id.
+   *
+   * @param userBase the user to add
+   * @return ok if the user was deleted, 404 if not found
+   */
+  @PostMapping("/admin/add-user")
+  public ResponseEntity<Void> addUser(@RequestBody @Valid @NotNull UserBase userBase) {
+
+    if (userService.containsUser(userBase.id)) {
+      return ResponseUtil.error(HttpStatus.CONFLICT, "User already exists.");
+    }
+
+    userService.addUser(
+        new User(
+            userBase.id,
+            userBase.displayName,
+            passwordEncoder.encode(userBase.password),
+            true,
+            userBase.roles
+        )
+    );
+
+    return ResponseEntity.ok().build();
+  }
+
+  /**
    * Sets the roies for a given user.
    *
    * @param userId the id of the user
@@ -76,12 +110,25 @@ public class UserManageEndpoint {
    */
   @PostMapping("/admin/set-enabled")
   public ResponseEntity<Boolean> setEnabled(@RequestParam @NotEmpty String userId,
-      @RequestBody boolean enabled) {
+      @RequestParam boolean enabled) {
 
     if (!userService.containsUser(userId)) {
       return ResponseEntity.notFound().build();
     }
     userService.updateUser(userId, user -> user.setEnabled(enabled));
     return ResponseEntity.ok(enabled);
+  }
+
+  @Data
+  private static class UserBase {
+
+    @NotEmpty
+    private String displayName;
+    @NotEmpty
+    private String password;
+    @NotEmpty
+    private String id;
+    @NotEmpty
+    private List<String> roles;
   }
 }

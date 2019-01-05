@@ -69,7 +69,7 @@ public class LoginEndpoint {
   }
 
   @PostMapping("/login/get-access-token")
-  public ResponseEntity<Object> getAccessToken(@RequestParam String refreshToken) {
+  public ResponseEntity<Object> getAccessToken(@RequestParam @NotEmpty String refreshToken) {
     try {
       JwtClaims claims = jwtConsumer.processToClaims(refreshToken);
       String subject = claims.getSubject();

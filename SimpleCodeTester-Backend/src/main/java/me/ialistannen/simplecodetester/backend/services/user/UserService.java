@@ -20,7 +20,7 @@ public class UserService {
    * Adds a new user.
    *
    * @param user the user to add
-   * @throws IllegalArgumentException if the user alreadx existed
+   * @throws IllegalArgumentException if the user already existed
    */
   public void addUser(User user) {
     if (containsUser(user.getId())) {

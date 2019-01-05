@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.backend.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class User {
   @Setter(AccessLevel.NONE)
   private String id;
   private String name;
+  @JsonIgnore
   private String passwordHash;
   @Column(name = "enabled")
   private Boolean enabled = true;
