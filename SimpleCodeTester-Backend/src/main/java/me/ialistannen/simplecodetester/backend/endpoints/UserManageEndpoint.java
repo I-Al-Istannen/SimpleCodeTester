@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
+import java.security.Principal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -117,6 +118,41 @@ public class UserManageEndpoint {
     }
     userService.updateUser(userId, user -> user.setEnabled(enabled));
     return ResponseEntity.ok(enabled);
+  }
+
+  /**
+   * Sets an account's password.
+   *
+   * @param userId the id of the account
+   * @param newPassword the new password
+   */
+  @PostMapping("/admin/set-password")
+  public ResponseEntity<String> setPassword(@RequestParam @NotEmpty String userId,
+      @RequestParam @NotEmpty String newPassword) {
+
+    if (!userService.containsUser(userId)) {
+      return ResponseEntity.notFound().build();
+    }
+    userService
+        .updateUser(userId, user -> user.setPasswordHash(passwordEncoder.encode(newPassword)));
+    return ResponseEntity.ok("{}");
+  }
+
+  /**
+   * Sets your own password.
+   *
+   * @param newPassword the new password
+   */
+  @PostMapping("/set-own-password")
+  public ResponseEntity<String> setOwnPassword(@RequestParam @NotEmpty String newPassword,
+      @NotNull Principal principal) {
+
+    userService.updateUser(
+        principal.getName(),
+        user -> user.setPasswordHash(passwordEncoder.encode(newPassword))
+    );
+
+    return ResponseEntity.ok("{}");
   }
 
   @Data
