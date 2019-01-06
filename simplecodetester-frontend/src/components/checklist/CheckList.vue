@@ -21,6 +21,7 @@
             :search="search"
             content-tag="v-layout"
             column
+            style="overflow-x: auto;"
             wrap
             :filter="filterValueHandleApproved"
           >

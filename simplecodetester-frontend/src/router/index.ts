@@ -81,7 +81,7 @@ let router = new Router({
       component: UserList,
       meta: {
         title: function () {
-          return 'View all users'
+          return 'Manage Users'
         }
       }
     }

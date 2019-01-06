@@ -3,7 +3,7 @@
     <v-flex xs12 sm8 md6>
       <v-card class="elevation-12">
         <v-toolbar dark color="primary">
-          <v-toolbar-title>All Users</v-toolbar-title>
+          <v-toolbar-title>Manage Users</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
           <v-text-field
