@@ -31,23 +31,12 @@
                       <span class="font-weight-medium">{{ props.item.displayName }}</span>
                       ({{ props.item.id }})
                     </span>
-                    <span class="aside">
-                      <span v-if="!props.item.enabled" class="subheading disabled mr-4">(Disabled)</span>
-                      <v-btn
-                        v-if="!props.item.enabled"
-                        class="ma-0"
-                        icon
-                        @click="setEnabled(props.item, true)"
-                      >
-                        <v-icon color="primary">check_circle_outline</v-icon>
-                      </v-btn>
-                      <v-btn v-else class="ma-0" icon @click="setEnabled(props.item, false)">
-                        <v-icon color="#FF6347">highlight_off</v-icon>
-                      </v-btn>
-                      <v-btn class="ma-0" icon @click="deleteUser(props.item)">
-                        <v-icon color="#FF6347">delete</v-icon>
-                      </v-btn>
-                    </span>
+                    <user-modify-actions
+                      class="aside"
+                      @error="setError"
+                      :user="props.item"
+                      :users="users"
+                    ></user-modify-actions>
                   </div>
                   <div v-if="props.item.roles.length > 0" class="ma-2 mx-4">
                     <v-chip
@@ -84,10 +73,12 @@ import { Users, User, UserToAdd } from "@/components/users/Users";
 import { extractErrorMessage } from "@/util/requests";
 import Component from "vue-class-component";
 import NewUser from "@/components/users/NewUser.vue";
+import UserModifyActions from "@/components/users/UserModifyActions.vue";
 
 @Component({
   components: {
-    "new-user": NewUser
+    "new-user": NewUser,
+    "user-modify-actions": UserModifyActions
   }
 })
 export default class UserList extends Vue {
@@ -102,16 +93,6 @@ export default class UserList extends Vue {
 
   setError(error: string) {
     this.error = error;
-  }
-
-  setEnabled(user: User, enabled: boolean) {
-    this.handlePromise(this.users.setEnabled(user, enabled));
-  }
-
-  deleteUser(user: User) {
-    if (confirm(`Do you really want to delete ${user.id}?`)) {
-      this.handlePromise(this.users.deleteUser(user));
-    }
   }
 
   addUser(user: UserToAdd) {
