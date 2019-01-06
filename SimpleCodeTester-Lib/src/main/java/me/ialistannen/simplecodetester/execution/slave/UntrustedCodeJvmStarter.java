@@ -24,6 +24,9 @@ public class UntrustedCodeJvmStarter {
 
   private List<String> buildArguments(int port, String uid, String... classpath) {
     return Arrays.asList(
+        "nice",
+        "-n",
+        "10",
         ProcessHandle.current().info().command().orElseThrow(),
         // Limit heap size
         "-Xmx20m",
