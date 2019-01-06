@@ -7,6 +7,7 @@ import ViewCheckResult from '@/components/ViewCheckResult.vue'
 import UploadCheck from '@/components/checksubmit/UploadCheck.vue'
 import CheckList from '@/components/checklist/CheckList.vue'
 import UserList from '@/components/users/UserList.vue'
+import ChangeOwnPassword from '@/components/users/ChangeOwnPassword.vue'
 import store from '@/store';
 
 let router = new Router({
@@ -82,6 +83,16 @@ let router = new Router({
       meta: {
         title: function () {
           return 'Manage Users'
+        }
+      }
+    },
+    {
+      path: '/change-own-password',
+      name: 'changePassword',
+      component: ChangeOwnPassword,
+      meta: {
+        title: function () {
+          return 'Change your password'
         }
       }
     }

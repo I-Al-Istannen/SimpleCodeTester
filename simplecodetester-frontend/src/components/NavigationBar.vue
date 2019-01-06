@@ -106,6 +106,12 @@ export default class NavigationBar extends Vue {
       admin: true
     },
     {
+      icon: "lock",
+      title: "Change password",
+      route: "/change-own-password",
+      predicatePath: "changePassword"
+    },
+    {
       icon: "exit_to_app",
       title: "Logout",
       route: "/login",
