@@ -6,17 +6,7 @@
           <v-toolbar-title>Submit a new check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <v-select
-            v-model="checkCategory"
-            outline
-            :items="allCheckCategories"
-            label="Check category"
-          >
-            <template slot="selection" slot-scope="data">
-              <span>{{ data.item.name }}</span>
-            </template>
-            <template slot="item" slot-scope="data">{{ data.item.name }}</template>
-          </v-select>
+          <check-category-selection @input="setCategory"></check-category-selection>
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>Paste source</v-tab>
             <v-tab-item class="flex">
@@ -65,12 +55,14 @@ import IOCheckComponent, {
 } from "@/components/checksubmit/IOCheckComponent.vue";
 import { CheckCategoryState, CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
+import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
 
 @Component({
   components: {
     "highlighted-code": HighlightedCode,
     "check-submit-error-dialog": CheckSubmitErrorDialogVue,
-    "io-check": IOCheckComponent
+    "io-check": IOCheckComponent,
+    "check-category-selection": CheckCategorySelection
   }
 })
 export default class UploadCheck extends Vue {
@@ -92,8 +84,8 @@ export default class UploadCheck extends Vue {
     return dataEntered && this.checkCategory;
   }
 
-  get allCheckCategories() {
-    return (this.$store as Store<RootState>).state.checkcategory.categories;
+  setCategory(checkCategory: CheckCategory) {
+    this.checkCategory = checkCategory;
   }
 
   upload() {
@@ -152,10 +144,6 @@ export default class UploadCheck extends Vue {
         this.feedbackMessageType = "error";
       })
       .finally(() => (this.uploading = false));
-  }
-
-  mounted() {
-    this.$store.dispatch("checkcategory/fetchAll");
   }
 }
 </script>

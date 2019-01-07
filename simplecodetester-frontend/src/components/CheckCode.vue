@@ -6,17 +6,7 @@
           <v-toolbar-title>Submit code to check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <v-select
-            v-model="checkCategory"
-            outline
-            :items="allCheckCategories"
-            label="Check category"
-          >
-            <template slot="selection" slot-scope="data">
-              <span>{{ data.item.name }}</span>
-            </template>
-            <template slot="item" slot-scope="data">{{ data.item.name }}</template>
-          </v-select>
+          <check-category-selection @input="setCategory"></check-category-selection>
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>Paste source</v-tab>
             <v-tab-item class="flex">
@@ -57,11 +47,13 @@ import {
   Pair
 } from "@/store/types";
 import { Store } from "vuex";
+import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
 
 @Component({
   components: {
     "highlighted-code": HighlightedCode,
-    "multi-file-select": MultiFileSelect
+    "multi-file-select": MultiFileSelect,
+    "check-category-selection": CheckCategorySelection
   }
 })
 export default class CheckCode extends Vue {
@@ -80,8 +72,8 @@ export default class CheckCode extends Vue {
     return inputProvided && this.checkCategory;
   }
 
-  get allCheckCategories() {
-    return (this.$store as Store<RootState>).state.checkcategory.categories;
+  setCategory(checkCategory: CheckCategory) {
+    this.checkCategory = checkCategory;
   }
 
   upload() {
@@ -137,10 +129,6 @@ export default class CheckCode extends Vue {
 
   filesSelected(files: Array<File>) {
     this.files = files;
-  }
-
-  mounted() {
-    this.$store.dispatch("checkcategory/fetchAll");
   }
 }
 </script>
