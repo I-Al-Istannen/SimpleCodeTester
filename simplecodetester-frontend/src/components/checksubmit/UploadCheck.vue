@@ -6,6 +6,17 @@
           <v-toolbar-title>Submit a new check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
+          <v-select
+            v-model="checkCategory"
+            outline
+            :items="allCheckCategories"
+            label="Check category"
+          >
+            <template slot="selection" slot-scope="data">
+              <span>{{ data.item.name }}</span>
+            </template>
+            <template slot="item" slot-scope="data">{{ data.item.name }}</template>
+          </v-select>
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>Paste source</v-tab>
             <v-tab-item class="flex">
@@ -49,7 +60,11 @@ import Axios, { AxiosPromise, AxiosError } from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import HighlightedCode from "@/components/highlighting/HighlightedCode.vue";
 import CheckSubmitErrorDialogVue from "@/components/checksubmit/CheckSubmitErrorDialog.vue";
-import IOCheckComponent,{ IOCheck } from "@/components/checksubmit/IOCheckComponent.vue";
+import IOCheckComponent, {
+  IOCheck
+} from "@/components/checksubmit/IOCheckComponent.vue";
+import { CheckCategoryState, CheckCategory, RootState } from "@/store/types";
+import { Store } from "vuex";
 
 @Component({
   components: {
@@ -66,14 +81,19 @@ export default class UploadCheck extends Vue {
   private displayDialog: boolean = false;
   private code = "";
   private selectedTab = 0;
+  private checkCategory: CheckCategory | null = null;
 
   private ioCheck: IOCheck | null = null;
 
   get uploadPossible() {
-    return (
+    const dataEntered =
       (this.code.length > 0 && this.selectedTab === 0) ||
-      (this.selectedTab == 1 && this.ioCheck && this.ioCheck.name.length > 0)
-    );
+      (this.selectedTab == 1 && this.ioCheck && this.ioCheck.name.length > 0);
+    return dataEntered && this.checkCategory;
+  }
+
+  get allCheckCategories() {
+    return (this.$store as Store<RootState>).state.checkcategory.categories;
   }
 
   upload() {
@@ -87,7 +107,7 @@ export default class UploadCheck extends Vue {
 
   uploadSource() {
     this.handleUploadResult(
-      Axios.post("/checks/add", this.code, {
+      Axios.post(`/checks/add/${this.checkCategory!.id}`, this.code, {
         headers: { "Content-Type": "text/plain" }
       })
     );
@@ -98,6 +118,7 @@ export default class UploadCheck extends Vue {
     formData.append("input", this.ioCheck!.input);
     formData.append("output", this.ioCheck!.output);
     formData.append("name", this.ioCheck!.name);
+    formData.append("categoryId", "" + this.checkCategory!.id);
     this.handleUploadResult(Axios.post("/checks/add-io", formData));
   }
 
@@ -131,6 +152,10 @@ export default class UploadCheck extends Vue {
         this.feedbackMessageType = "error";
       })
       .finally(() => (this.uploading = false));
+  }
+
+  mounted() {
+    this.$store.dispatch("checkcategory/fetchAll");
   }
 }
 </script>

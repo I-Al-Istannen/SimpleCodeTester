@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Vuex, { StoreOptions } from 'vuex'
-import { RootState, UserInfo, UserState } from './types'
+import { RootState } from './types'
 import { user } from './modules/user'
 import { checkresult } from './modules/checkresult'
+import { checkcategory } from './modules/checkcategories'
 import createPersistedState from 'vuex-persistedstate'
 
 const debug = process.env.NODE_ENV !== 'production'
@@ -15,16 +16,20 @@ const storeOptions: StoreOptions<RootState> = {
   } as RootState,
   modules: {
     user,
-    checkresult
+    checkresult,
+    checkcategory
   },
   actions: {
-    logout({commit}) {
+    logout({ commit }) {
       commit("user/logout");
       commit("checkresult/clear");
+      commit("checkcategory/clear")
     }
   },
   strict: debug,
-  plugins: [createPersistedState()]
+  plugins: [createPersistedState({
+    paths: ["user"]
+  })]
 }
 
 export default new Vuex.Store(storeOptions);

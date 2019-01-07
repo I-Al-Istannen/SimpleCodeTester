@@ -3,6 +3,7 @@ export interface RootState {
 
   user: UserState;
   checkresult: CheckResultState;
+  checkcategory: CheckCategoryState;
 }
 
 export interface UserState {
@@ -93,5 +94,23 @@ export class UserLoginInfo {
   constructor(username: string, password: string) {
     this.password = password;
     this.username = username;
+  }
+}
+
+export class CheckCategoryState {
+  categories: Array<CheckCategory>
+
+  constructor(categories: Array<CheckCategory>) {
+    this.categories = categories;
+  }
+}
+
+export class CheckCategory {
+  name: string;
+  id: number;
+
+  constructor(name: string, id: number) {
+    this.name = name;
+    this.id = id;
   }
 }
