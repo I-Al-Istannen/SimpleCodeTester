@@ -6,6 +6,17 @@
           <v-toolbar-title>Submit code to check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
+          <v-select
+            v-model="checkCategory"
+            outline
+            :items="allCheckCategories"
+            label="Check category"
+          >
+            <template slot="selection" slot-scope="data">
+              <span>{{ data.item.name }}</span>
+            </template>
+            <template slot="item" slot-scope="data">{{ data.item.name }}</template>
+          </v-select>
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>Paste source</v-tab>
             <v-tab-item class="flex">
@@ -39,7 +50,12 @@ import HighlightedCode from "./highlighting/HighlightedCode.vue";
 import MultiFileSelect from "./upload/MultiFileSelect.vue";
 import Axios, { AxiosPromise } from "axios";
 import { extractErrorMessage } from "@/util/requests";
-import { CheckResultState } from "@/store/types";
+import {
+  CheckResultState,
+  RootState,
+  CheckCategory,
+  Pair
+} from "@/store/types";
 import { Store } from "vuex";
 
 @Component({
@@ -53,14 +69,19 @@ export default class CheckCode extends Vue {
   private files: Array<File> = [];
   private error: string = "";
   private uploading: boolean = false;
+  private checkCategory: CheckCategory | null = null;
 
   private selectedTab: Number = 0;
 
   get uploadPossible() {
-    return (
+    const inputProvided =
       (this.code.length > 0 && this.selectedTab === 0) ||
-      (this.files.length > 0 && this.selectedTab === 1)
-    );
+      (this.files.length > 0 && this.selectedTab === 1);
+    return inputProvided && this.checkCategory;
+  }
+
+  get allCheckCategories() {
+    return (this.$store as Store<RootState>).state.checkcategory.categories;
   }
 
   upload() {
@@ -74,7 +95,10 @@ export default class CheckCode extends Vue {
   uploadSource() {
     this.uploading = true;
     this.handleUploadResult(
-      this.$store.dispatch("checkresult/checkSingle", this.code)
+      this.$store.dispatch(
+        "checkresult/checkSingle",
+        new Pair(this.code, this.checkCategory!)
+      )
     );
   }
 
@@ -96,17 +120,27 @@ export default class CheckCode extends Vue {
 
     if (zipFile) {
       this.handleUploadResult(
-        this.$store.dispatch("checkresult/checkZip", zipFile)
+        this.$store.dispatch(
+          "checkresult/checkZip",
+          new Pair(this.checkCategory, zipFile)
+        )
       );
     } else {
       this.handleUploadResult(
-        this.$store.dispatch("checkresult/checkMultiple", this.files)
+        this.$store.dispatch(
+          "checkresult/checkMultiple",
+          new Pair(this.checkCategory, this.files)
+        )
       );
     }
   }
 
   filesSelected(files: Array<File>) {
     this.files = files;
+  }
+
+  mounted() {
+    this.$store.dispatch("checkcategory/fetchAll");
   }
 }
 </script>

@@ -1,6 +1,6 @@
 import { ActionTree } from 'vuex';
 import axios, { AxiosPromise } from 'axios';
-import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType } from '../../types';
+import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType, CheckCategory } from '../../types';
 import { RootState } from '../../types';
 
 /**
@@ -52,8 +52,8 @@ function parseCompilationOutput(json: any): CheckResult {
 }
 
 export const actions: ActionTree<CheckResultState, RootState> = {
-  checkSingle({ commit, state }, payload: string): AxiosPromise<any> {
-    return axios.post("/test/single", payload, {
+  checkSingle({ commit, state }, payload: Pair<CheckCategory, string>): AxiosPromise<any> {
+    return axios.post(`/test/single/${payload.key.id}`, payload, {
       headers: { "Content-Type": "text/plain" }
     }).then(response => {
       commit("checkResult", parseCheckResponse(response.data))
@@ -61,22 +61,22 @@ export const actions: ActionTree<CheckResultState, RootState> = {
       return response
     });
   },
-  checkMultiple({ commit, state }, payload: Array<File>): AxiosPromise<any> {
+  checkMultiple({ commit, state }, payload: Pair<CheckCategory, Array<File>>): AxiosPromise<any> {
     const formData = new FormData()
-    payload.forEach(file => {
+    payload.value.forEach(file => {
       formData.append(file.name, file)
     })
-    return axios.post("/test/multiple", formData)
+    return axios.post(`/test/multiple/${payload.key.id}`, formData)
       .then(response => {
         commit("checkResult", parseCheckResponse(response.data))
 
         return response
       })
   },
-  checkZip({ commit, state }, payload: File): AxiosPromise<any> {
+  checkZip({ commit, state }, payload: Pair<CheckCategory, File>): AxiosPromise<any> {
     const formData = new FormData()
-    formData.append("file", payload)
-    return axios.post("/test/zip", formData)
+    formData.append("file", payload.value)
+    return axios.post(`/test/zip/${payload.key.id}`, formData)
       .then(response => {
         commit("checkResult", parseCheckResponse(response.data))
 
