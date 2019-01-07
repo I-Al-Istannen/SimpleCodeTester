@@ -32,9 +32,6 @@
                     <span
                       class="left-side-text"
                     >Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>
-                    <span class="pl-2 unapproved" v-if="!props.item.approved">Unapproved</span>
-                    <!-- Dummy element to push buttons to the right side -->
-                    <span v-if="props.item.approved"></span>
                     <modify-actions
                       :checks="checks"
                       :userState="userState"
@@ -136,8 +133,5 @@ export default class CheckList extends Vue {
 }
 .check-header > .left-side-text {
   flex: none !important;
-}
-.unapproved {
-  color: tomato;
 }
 </style>

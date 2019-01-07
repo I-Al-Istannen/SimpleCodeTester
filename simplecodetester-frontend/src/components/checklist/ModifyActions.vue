@@ -1,8 +1,10 @@
 <template>
   <div class="d-flex" id="wrapper">
+    <span class="pr-4 unapproved aside" v-if="!myCheck.approved">Unapproved</span>
+
     <v-btn
       v-if="canModifyCheck(myCheck.creator)"
-      class="side-button ma-0"
+      class="aside ma-0"
       icon
       @click.stop="remove(myCheck)"
     >
@@ -12,7 +14,7 @@
     <!-- APPROVE BUTTONS -->
     <v-btn
       v-if="canApprove(myCheck)"
-      class="side-button ma-0"
+      class="aside ma-0"
       icon
       @click.stop="changeApproval(myCheck, true)"
     >
@@ -20,7 +22,7 @@
     </v-btn>
     <v-btn
       v-if="canRevokeApprove(myCheck)"
-      class="side-button ma-0"
+      class="aside ma-0"
       icon
       @click.stop="changeApproval(myCheck, false)"
     >
@@ -88,12 +90,16 @@ export default class ModifyActions extends Vue {
 </script>
 
 <style scoped>
-.side-button,
-.left-side-text {
+.aside {
   flex: none !important;
 }
 
 #wrapper {
   justify-content: flex-end;
+  align-items: center;
+}
+
+.unapproved {
+  color: tomato;
 }
 </style>
