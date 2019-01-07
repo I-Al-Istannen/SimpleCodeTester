@@ -5,7 +5,7 @@
       <v-toolbar-title>{{title}}</v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <div v-if="!actionsHidden">
+      <div v-if="!actionsHidden" class="hidden-sm-and-down">
         <!-- PROFILE -->
         <v-btn flat v-if="currentRoute.name !== 'profile'" @click="$router.push('/profile')">Profile
           <v-icon right dark>person</v-icon>
