@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
@@ -28,8 +29,11 @@ class CodeCheckServiceTest {
   private UserService userService;
   @Autowired
   private CodeCheckService codeCheckService;
+  @Autowired
+  private CheckCategoryService checkCategoryService;
 
   private User user;
+  private CheckCategory category;
 
   @BeforeEach
   void setupUser() {
@@ -37,6 +41,7 @@ class CodeCheckServiceTest {
     if (!userService.containsUser(user.getId())) {
       userService.addUser(user);
     }
+    category = checkCategoryService.addCategory("Test");
   }
 
   private User createUser(String id) {
@@ -170,7 +175,7 @@ class CodeCheckServiceTest {
   }
 
   private CodeCheck getCheck(User user) {
-    return new CodeCheck(getCodeCheckText(), CheckType.SOURCE_CODE, user);
+    return new CodeCheck(getCodeCheckText(), CheckType.SOURCE_CODE, user, category);
   }
 
   private String getCodeCheckText() {

@@ -14,11 +14,13 @@ import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
+import me.ialistannen.simplecodetester.backend.services.checks.CheckCategoryService;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
@@ -39,10 +41,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CheckManageEndpoint {
 
+  private CheckCategoryService checkCategoryService;
   private CodeCheckService checkService;
   private UserService userService;
 
-  public CheckManageEndpoint(CodeCheckService checkService, UserService userService) {
+  public CheckManageEndpoint(CheckCategoryService checkCategoryService,
+      CodeCheckService checkService, UserService userService) {
+    this.checkCategoryService = checkCategoryService;
     this.checkService = checkService;
     this.userService = userService;
   }
@@ -51,12 +56,18 @@ public class CheckManageEndpoint {
   public List<JsonNode> getAll(ObjectMapper objectMapper) {
     return checkService.getAll().stream()
         .map(codeCheck -> {
-          ObjectNode object = objectMapper.createObjectNode();
-          object.put("id", codeCheck.getId());
-          object.put("name", codeCheck.getName());
-          object.put("creator", codeCheck.getCreator().getName());
-          object.put("approved", codeCheck.isApproved());
-          object.put("checkType", codeCheck.getCheckType().name());
+          ObjectNode object = objectMapper.createObjectNode()
+              .put("id", codeCheck.getId())
+              .put("name", codeCheck.getName())
+              .put("creator", codeCheck.getCreator().getName())
+              .put("approved", codeCheck.isApproved())
+              .put("checkType", codeCheck.getCheckType().name());
+
+          ObjectNode categoryNode = objectMapper.createObjectNode();
+          categoryNode.put("id", codeCheck.getCategory().getId());
+          categoryNode.put("name", codeCheck.getCategory().getName());
+
+          object.set("category", categoryNode);
           return object;
         })
         .collect(toList());
@@ -76,11 +87,13 @@ public class CheckManageEndpoint {
   /**
    * Adds a new check.
    *
+   * @param categoryId the id of the category
    * @param text the text of the check
    * @return true if the check was added
    */
-  @PostMapping("/checks/add")
-  public ResponseEntity<Object> addNew(@RequestBody @NotEmpty String text) {
+  @PostMapping("/checks/add/{categoryId}")
+  public ResponseEntity<Object> addNew(@PathVariable("categoryId") long categoryId,
+      @RequestBody @NotEmpty String text) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -91,7 +104,15 @@ public class CheckManageEndpoint {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    CodeCheck codeCheck = new CodeCheck(text, CheckType.SOURCE_CODE, userOptional.get());
+    CheckCategory checkCategory = checkCategoryService.getById(categoryId)
+        .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
+
+    CodeCheck codeCheck = new CodeCheck(
+        text,
+        CheckType.SOURCE_CODE,
+        userOptional.get(),
+        checkCategory
+    );
 
     try {
       return ResponseEntity.ok(checkService.addCheck(codeCheck));
@@ -111,7 +132,10 @@ public class CheckManageEndpoint {
   @PostMapping("/checks/add-io")
   public ResponseEntity<Object> addInputOutputCheck(@RequestParam @NotNull String input,
       @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
-      Principal principal) {
+      @RequestParam long categoryId, Principal principal) {
+
+    CheckCategory checkCategory = checkCategoryService.getById(categoryId)
+        .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
     String slightlySanerInput = sanitizeIOInput(input);
     String slightlySanerOutput = sanitizeIOInput(output) + "\n";
@@ -123,7 +147,8 @@ public class CheckManageEndpoint {
         Arrays.asList(slightlySanerInput.split("\n")),
         slightlySanerOutput,
         name,
-        user
+        user,
+        checkCategory
     ));
   }
 

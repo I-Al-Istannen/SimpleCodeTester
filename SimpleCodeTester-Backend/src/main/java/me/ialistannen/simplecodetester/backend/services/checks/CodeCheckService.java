@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
+import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.db.repos.CheckRepository;
@@ -97,13 +98,15 @@ public class CodeCheckService {
    * @param output the output to expect
    * @param name the name of the check
    * @param creator the {@link User} that created it
+   * @param category the {@link CheckCategory}
    * @return the added check, with its id field populated
    */
-  public CodeCheck addIOCheck(List<String> input, String output, String name, User creator) {
+  public CodeCheck addIOCheck(List<String> input, String output, String name, User creator,
+      CheckCategory category) {
     StaticInputOutputCheck outputCheck = new StaticInputOutputCheck(input, output, name);
     String payload = gson.toJson(outputCheck);
 
-    CodeCheck codeCheck = new CodeCheck(payload, CheckType.IO, creator);
+    CodeCheck codeCheck = new CodeCheck(payload, CheckType.IO, creator, category);
     codeCheck.setName(name);
     codeCheck.setApproved(true);
     return checkRepository.save(codeCheck);

@@ -47,6 +47,12 @@ public class CodeCheck {
   @JoinColumn(referencedColumnName = "id")
   private User creator;
 
+  @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(referencedColumnName = "id")
+  @NotNull
+  private CheckCategory category;
+
   /**
    * Whether the check is approved and allowed to run.
    */
@@ -71,11 +77,14 @@ public class CodeCheck {
    * @param text the text
    * @param checkType the {@link CheckType}
    * @param creator the creator
+   * @param category the {@link CheckCategory}
    */
-  public CodeCheck(@NotEmpty String text, CheckType checkType, User creator) {
+  public CodeCheck(@NotEmpty String text, CheckType checkType, User creator,
+      CheckCategory category) {
     this.text = text;
     this.checkType = checkType;
     this.creator = creator;
+    this.category = category;
   }
 
 
