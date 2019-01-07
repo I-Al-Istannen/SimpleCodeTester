@@ -1,10 +1,14 @@
 <template>
-  <div v-if="content">
-    <prism v-if="checkBase.checkType === 'SOURCE_CODE'" class="code" language="java">{{ content }}</prism>
-    <span v-if="checkBase.checkType === 'IO'">
-      <v-textarea label="Input" :value="contentJson.input.join('\n')" readonly></v-textarea>
-      <v-textarea label="Expected output" :value="contentJson.expectedOutput"></v-textarea>
-    </span>
+  <div>
+    <div class="label caption">Category</div>
+    <v-chip class="ml-0 mb-3" label color="accent" outline>{{ checkBase.category.name }}</v-chip>
+    <div v-if="content">
+      <prism v-if="checkBase.checkType === 'SOURCE_CODE'" class="code" language="java">{{ content }}</prism>
+      <span v-if="checkBase.checkType === 'IO'">
+        <v-textarea label="Input" :value="contentJson.input.join('\n')" readonly></v-textarea>
+        <v-textarea label="Expected output" :value="contentJson.expectedOutput"></v-textarea>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -48,5 +52,9 @@ export default class CheckDisplay extends Vue {
 }
 .code > code::before {
   content: "";
+}
+
+.label {
+  color: rgba(0, 0, 0, 0.54)
 }
 </style>

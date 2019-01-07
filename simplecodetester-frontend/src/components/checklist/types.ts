@@ -1,4 +1,5 @@
 import Axios, { AxiosPromise } from 'axios';
+import { CheckCategory } from '@/store/types';
 
 /**
  * The base of a check, containing all metadata but no content.
@@ -9,19 +10,22 @@ export class CheckBase {
   name: string;
   approved: boolean;
   checkType: string;
+  category: CheckCategory;
 
   constructor(
     id: number,
     creator: string,
     name: string,
     approved: boolean,
-    checkType: string
+    checkType: string,
+    category: CheckCategory
   ) {
     this.id = id;
     this.creator = creator;
     this.name = name;
     this.approved = approved;
     this.checkType = checkType;
+    this.category = category;
   }
 }
 
