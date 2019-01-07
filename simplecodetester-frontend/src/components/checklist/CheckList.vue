@@ -65,7 +65,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState } from "@/store/types";
+import { RootState, CheckCategory } from "@/store/types";
 import Axios from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import ModifyActions from "@/components/checklist/ModifyActions.vue";
@@ -107,6 +107,9 @@ export default class CheckList extends Vue {
       return (
         (search === "approved" && val) || (search === "unapproved" && !val)
       );
+    }
+    if (val.name) {
+      return val.name.toLowerCase().indexOf(search) !== -1;
     }
     return (
       val != null &&
