@@ -118,9 +118,6 @@ export default class UserList extends Vue {
 .flex-container > .aside {
   flex: none !important;
 }
-.disabled {
-  color: #ff6347;
-}
 </style>
 
 <style>

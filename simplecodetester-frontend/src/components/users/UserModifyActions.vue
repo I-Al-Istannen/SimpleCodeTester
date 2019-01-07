@@ -85,5 +85,8 @@ export default class UserModifyActions extends Vue {
 </script>
 
 <style scoped>
+.disabled {
+  color: #ff6347;
+}
 </style>
 
