@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import Router from 'vue-router'
-import Vuetify from 'vuetify/lib'
+import Vuetify, { VLayout } from 'vuetify/lib'
 import store from './store'
 import Axios from 'axios';
 import { isJwtValid } from './util/requests';
@@ -12,6 +12,9 @@ Vue.config.productionTip = false
 
 Vue.use(Router)
 Vue.use(Vuetify, {
+  components: {
+    VLayout
+  },
   theme: {
     primary: '#4CAF50',
     accent: '#E040FB',
