@@ -2,10 +2,11 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import Router from 'vue-router'
-import Vuetify from 'vuetify'
+import Vuetify from 'vuetify/lib'
 import store from './store'
 import Axios from 'axios';
 import { isJwtValid } from './util/requests';
+import 'vuetify/src/stylus/app.styl'
 
 Vue.config.productionTip = false
 
