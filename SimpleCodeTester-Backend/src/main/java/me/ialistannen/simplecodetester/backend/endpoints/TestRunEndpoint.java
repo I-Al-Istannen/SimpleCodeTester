@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningException;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
@@ -33,6 +34,7 @@ import me.ialistannen.simplecodetester.util.StringOutputStream;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,8 +53,9 @@ public class TestRunEndpoint {
     this.codeCheckService = codeCheckService;
   }
 
-  @PostMapping("/test/single")
-  public ResponseEntity<Object> testSingleFile(@RequestBody @NotEmpty String source, @NotNull
+  @PostMapping("/test/single/{categoryId}")
+  public ResponseEntity<Object> testSingleFile(@PathVariable long categoryId,
+      @RequestBody @NotEmpty String source, @NotNull
       Principal user) {
     String id = user.getName();
 
@@ -60,12 +63,13 @@ public class TestRunEndpoint {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No class declaration found!");
     }
 
-    return test(id, fileToSubmission(source));
+    return test(id, fileToSubmission(source), categoryId);
   }
 
-  private ResponseEntity<Object> test(String id, Submission submission) {
+  private ResponseEntity<Object> test(String id, Submission submission, long categoryId) {
     List<CodeCheck> checks = codeCheckService.getAll().stream()
         .filter(CodeCheck::isApproved)
+        .filter(codeCheck -> codeCheck.getCategory().getId() == categoryId)
         .collect(toList());
 
     if (checks.isEmpty()) {
@@ -108,8 +112,9 @@ public class TestRunEndpoint {
    * @param user the user that requested it
    * @return the test result
    */
-  @PostMapping("/test/zip")
-  public ResponseEntity<Object> testZipFile(@RequestBody MultipartFile file,
+  @PostMapping("/test/zip/{categoryId}")
+  public ResponseEntity<Object> testZipFile(@PathVariable("categoryId") long categoryId,
+      @RequestBody MultipartFile file,
       @NotNull Principal user) {
     Map<String, String> files = new HashMap<>();
 
@@ -146,15 +151,16 @@ public class TestRunEndpoint {
         files.put(packageName + fileName, source);
       }
 
-      return testMultipleFiles(files, user.getName());
+      return testMultipleFiles(files, user.getName(), categoryId);
     } catch (IOException e) {
       log.info("Error extracting file for user '{}'", user.getName(), e);
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
   }
 
-  @PostMapping("/test/multiple")
-  public ResponseEntity<Object> testMultipleFiles(@NotNull Principal user,
+  @PostMapping("/test/multiple/{categoryId}")
+  public ResponseEntity<Object> testMultipleFiles(@PathVariable("categoryId") long categoryId,
+      @NotNull Principal user,
       HttpServletRequest request) {
 
     if (!(request instanceof MultipartHttpServletRequest)) {
@@ -181,7 +187,7 @@ public class TestRunEndpoint {
         }
       }
 
-      return testMultipleFiles(files, user.getName());
+      return testMultipleFiles(files, user.getName(), categoryId);
     } catch (IOException e) {
       log.warn("Error fetching files", e);
       return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching files.");
@@ -193,9 +199,11 @@ public class TestRunEndpoint {
    *
    * @param files a map from file name to file content
    * @param userId the id of the user
+   * @param categoryId the if the {@link CheckCategory} to use
    * @return the resulting response
    */
-  private ResponseEntity<Object> testMultipleFiles(Map<String, String> files, String userId) {
+  private ResponseEntity<Object> testMultipleFiles(Map<String, String> files, String userId,
+      long categoryId) {
     if (files.isEmpty()) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No files given.");
     }
@@ -204,7 +212,7 @@ public class TestRunEndpoint {
         .putAllFiles(files)
         .build();
 
-    return test(userId, submission);
+    return test(userId, submission, categoryId);
   }
 
   private Submission fileToSubmission(String source) {
