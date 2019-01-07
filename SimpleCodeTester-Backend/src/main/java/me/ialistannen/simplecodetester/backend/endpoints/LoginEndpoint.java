@@ -55,7 +55,7 @@ public class LoginEndpoint {
     JwtClaims claims = new JwtClaims();
     claims.setIssuer("SimpleCodeTester");
     claims.setSubject(user.getId());
-    claims.setExpirationTimeMinutesInTheFuture(TimeUnit.HOURS.toMinutes(24));
+    claims.setExpirationTimeMinutesInTheFuture(TimeUnit.DAYS.toMinutes(2));
     claims.setNotBeforeMinutesInThePast(1);
     claims.setGeneratedJwtId();
 
