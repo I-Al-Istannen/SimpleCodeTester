@@ -47,7 +47,7 @@ public class CheckCategoryEndpoint {
 
   @PostMapping("/check-category/add-new")
   @RolesAllowed("ROLE_ADMIN")
-  public ResponseEntity<Object> addNew(@RequestParam @NotEmpty String name) {
+  public ResponseEntity<CheckCategory> addNew(@RequestParam @NotEmpty String name) {
     return ResponseEntity.ok(checkCategoryService.addCategory(name));
   }
 }
