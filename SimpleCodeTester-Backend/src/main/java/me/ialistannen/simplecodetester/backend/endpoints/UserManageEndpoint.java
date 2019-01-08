@@ -164,7 +164,6 @@ public class UserManageEndpoint {
     private String password;
     @NotEmpty
     private String id;
-    @NotEmpty
     private List<String> roles;
   }
 }
