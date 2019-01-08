@@ -7,6 +7,7 @@ import ViewCheckResult from '@/components/ViewCheckResult.vue'
 import UploadCheck from '@/components/checksubmit/UploadCheck.vue'
 import CheckList from '@/components/checklist/CheckList.vue'
 import UserList from '@/components/users/UserList.vue'
+import CheckCategoryList from '@/components/checkcategory/CheckCategoryList.vue'
 import ChangeOwnPassword from '@/components/users/ChangeOwnPassword.vue'
 import store from '@/store';
 
@@ -93,6 +94,16 @@ let router = new Router({
       meta: {
         title: function () {
           return 'Change your password'
+        }
+      }
+    },
+    {
+      path: '/view-check-categories',
+      name: 'viewCheckCategories',
+      component: CheckCategoryList,
+      meta: {
+        title: function () {
+          return 'View all check categories'
         }
       }
     }

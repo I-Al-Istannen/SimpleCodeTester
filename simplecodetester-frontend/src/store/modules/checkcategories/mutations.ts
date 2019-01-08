@@ -5,6 +5,15 @@ export const mutations: MutationTree<CheckCategoryState> = {
   setCategories(state: CheckCategoryState, payload: Array<CheckCategory>) {
     state.categories = payload;
   },
+  addCategory(state: CheckCategoryState, category: CheckCategory) {
+    state.categories.push(category)
+  },
+  removeCategory(state: CheckCategoryState, category: CheckCategory) {
+    const index = state.categories.findIndex(it => it.id === category.id)
+    if (index >= 0) {
+      state.categories.splice(index, 1)
+    }
+  },
   clear(state: CheckCategoryState) {
     state.categories = []
   }
