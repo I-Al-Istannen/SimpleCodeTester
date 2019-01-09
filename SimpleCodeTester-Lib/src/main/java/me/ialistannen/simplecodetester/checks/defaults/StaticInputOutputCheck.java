@@ -13,6 +13,8 @@ import me.ialistannen.simplecodetester.submission.CompiledFile;
  */
 public class StaticInputOutputCheck extends MainClassRunnerCheck {
 
+  private static final String REGEX_MARKER = "?r";
+
   private List<String> input;
   private String expectedOutput;
   private String name;
@@ -55,13 +57,34 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
   protected void assertOutputValid(CompiledFile file) {
     String actualOutput = Terminal.getOutput();
 
-    if (!expectedOutput.equals(actualOutput)) {
-      throw new CheckFailedException(
-          String.format("The output of %s was\n'%s'\nExpected\n'%s'.", file.qualifiedName(),
-              actualOutput, this.expectedOutput
-          )
-      );
+    String[] outputLines = actualOutput.split("\n");
+    String[] expectedLines = expectedOutput.split("\n");
+
+    if (expectedLines.length != outputLines.length) {
+      throw new CheckFailedException(String.format(
+          "Output length does not match (got %d, expected %d).\n"
+              + "Output was \n'%s'\nExpected:\n'%s'",
+          outputLines.length, expectedLines.length, actualOutput, expectedOutput
+      ));
     }
+
+    for (int i = 0; i < outputLines.length; i++) {
+      String outputLine = outputLines[i];
+      if (!lineMatches(outputLine, expectedLines[i])) {
+        throw new CheckFailedException(String.format(
+            "Output did not match at line %d, expected: '%s', got '%s'.\n"
+                + "Full input:\n'%s'\nExpected:\n'%s'",
+            i, expectedLines[i], outputLine, actualOutput, expectedOutput
+        ));
+      }
+    }
+  }
+
+  private boolean lineMatches(String actualLine, String expectedLine) {
+    if (!expectedLine.startsWith(REGEX_MARKER)) {
+      return actualLine.equals(expectedLine);
+    }
+    return actualLine.matches(expectedLine.substring(REGEX_MARKER.length()));
   }
 
   @Override
