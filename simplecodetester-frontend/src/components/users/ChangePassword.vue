@@ -3,13 +3,7 @@
     <slot name="header"></slot>
     <v-card-text>
       <v-form v-model="formValid" ref="form">
-        <v-text-field
-          label="Password"
-          type="password"
-          prepend-icon="lock"
-          v-model="password"
-          :rules="[notEmpty, passwordsMatch]"
-        ></v-text-field>
+        <v-text-field label="Password" type="password" prepend-icon="lock" v-model="password"></v-text-field>
         <v-text-field
           label="Confirm password"
           type="password"
