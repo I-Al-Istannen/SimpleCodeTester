@@ -60,7 +60,7 @@ public class Java8InMemoryCompiler implements Compiler {
 
           diagnostics.put(diagnostic.getSource().getName(), diagnosticMessages);
         },
-        Arrays.asList("-Xlint:all", "-Xlint:-processing", "--release=8"),
+        Arrays.asList("-Xlint:all", "-Xlint:-processing", "-Xlint:-serial", "--release=8"),
         null,
         compilationUnits
     )
