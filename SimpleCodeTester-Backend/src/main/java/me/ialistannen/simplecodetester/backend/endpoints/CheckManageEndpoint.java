@@ -138,7 +138,11 @@ public class CheckManageEndpoint {
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
     String slightlySanerInput = sanitizeIOInput(input);
-    String slightlySanerOutput = sanitizeIOInput(output) + "\n";
+    String slightlySanerOutput = sanitizeIOInput(output);
+    // PrintLine always adds a newline
+    if (!slightlySanerOutput.endsWith("\n")) {
+      slightlySanerOutput = slightlySanerOutput + "\n";
+    }
 
     // User logged in, so they very likely still exist
     User user = userService.getUser(principal.getName()).orElseThrow();
@@ -153,7 +157,7 @@ public class CheckManageEndpoint {
   }
 
   private String sanitizeIOInput(String input) {
-    return input.replace("\r\n", "\n").trim();
+    return input.replace("\r\n", "\n");
   }
 
   @PostMapping("/checks/update-io")
