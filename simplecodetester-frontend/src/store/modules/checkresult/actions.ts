@@ -53,7 +53,7 @@ function parseCompilationOutput(json: any): CheckResult {
 
 export const actions: ActionTree<CheckResultState, RootState> = {
   checkSingle({ commit, state }, payload: Pair<CheckCategory, string>): AxiosPromise<any> {
-    return axios.post(`/test/single/${payload.key.id}`, payload, {
+    return axios.post(`/test/single/${payload.key.id}`, payload.value, {
       headers: { "Content-Type": "text/plain" }
     }).then(response => {
       commit("checkResult", parseCheckResponse(response.data))

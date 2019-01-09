@@ -89,7 +89,7 @@ export default class CheckCode extends Vue {
     this.handleUploadResult(
       this.$store.dispatch(
         "checkresult/checkSingle",
-        new Pair(this.code, this.checkCategory!)
+        new Pair(this.checkCategory, this.code)
       )
     );
   }
