@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
@@ -89,13 +90,17 @@ public class MessageClient implements Runnable {
 
   private void writeQueue(DataOutputStream dataOutputStream) throws IOException {
     while (!outgoing.isEmpty()) {
-      dataOutputStream.writeUTF(gson.toJson(outgoing.poll()));
+      String json = gson.toJson(outgoing.poll());
+      byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+      dataOutputStream.writeInt(bytes.length);
+      dataOutputStream.write(bytes);
     }
   }
 
   private void readInput(DataInputStream dataInputStream)
       throws IOException, ClassNotFoundException {
-    String messageJson = dataInputStream.readUTF();
+    int transmittedStringLength = dataInputStream.readInt();
+    String messageJson = new String(dataInputStream.readNBytes(transmittedStringLength));
 
     JsonObject jsonObject = gson.fromJson(messageJson, JsonObject.class);
     JsonPrimitive className = jsonObject.getAsJsonPrimitive("className");
