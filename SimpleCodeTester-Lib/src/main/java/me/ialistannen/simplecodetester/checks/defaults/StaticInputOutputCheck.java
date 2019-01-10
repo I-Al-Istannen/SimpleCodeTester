@@ -62,9 +62,12 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
 
     if (expectedLines.length != outputLines.length) {
       throw new CheckFailedException(String.format(
-          "Output length does not match (got %d, expected %d).\n"
-              + "Output was \n'%s'\nExpected:\n'%s'",
-          outputLines.length, expectedLines.length, actualOutput, expectedOutput
+          "Output length does not match (got %d, expected %d).\n\n"
+              + "Full input:\n'%s'\n\n"
+              + "Full output:\n'%s'\n\n"
+              + "Expected output:\n'%s'",
+          outputLines.length, expectedLines.length, String.join("\n", input),
+          actualOutput, expectedOutput
       ));
     }
 
@@ -72,9 +75,12 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
       String outputLine = outputLines[i];
       if (!lineMatches(outputLine, expectedLines[i])) {
         throw new CheckFailedException(String.format(
-            "Output did not match at line %d, expected: '%s', got '%s'.\n"
-                + "Full input:\n'%s'\nExpected:\n'%s'",
-            i, expectedLines[i], outputLine, actualOutput, expectedOutput
+            "Output did not match at line %d, expected: '%s', got '%s'.\n\n"
+                + "Full input:\n'%s'\n\n"
+                + "Full output:\n'%s'\n\n"
+                + "Expected output:\n'%s'",
+            i, expectedLines[i], outputLine, String.join("\n", input),
+            actualOutput, expectedOutput
         ));
       }
     }
