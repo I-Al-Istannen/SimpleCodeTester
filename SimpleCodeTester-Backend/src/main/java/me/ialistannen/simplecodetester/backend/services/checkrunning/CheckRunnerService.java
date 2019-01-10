@@ -59,7 +59,8 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
    * @throws CompilationFailedException if the compilation failed
    * @throws CheckRunningFailedException if an unknown error occured
    */
-  public SubmissionCheckResult check(String userId, Submission submission, List<CodeCheck> checks) {
+  public synchronized SubmissionCheckResult check(String userId, Submission submission,
+      List<CodeCheck> checks) {
     if (runningChecks.containsKey(userId)) {
       throw new CheckAlreadyRunningException();
     }
