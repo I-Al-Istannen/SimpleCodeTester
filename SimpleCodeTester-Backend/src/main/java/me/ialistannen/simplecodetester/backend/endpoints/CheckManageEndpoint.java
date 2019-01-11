@@ -166,7 +166,11 @@ public class CheckManageEndpoint {
       @RequestParam long checkId) {
 
     String slightlySanerInput = sanitizeIOInput(input);
-    String slightlySanerOutput = sanitizeIOInput(output) + "\n";
+    String slightlySanerOutput = sanitizeIOInput(output);
+    // PrintLine always adds a newline
+    if (!slightlySanerOutput.endsWith("\n")) {
+      slightlySanerOutput = slightlySanerOutput + "\n";
+    }
 
     Optional<CodeCheck> check = checkService.getCheck(checkId);
     if (check.isEmpty()) {
@@ -184,7 +188,7 @@ public class CheckManageEndpoint {
     );
 
     if (successfullyUpdated) {
-      return ResponseEntity.ok("{}");
+      return ResponseEntity.ok(checkService.getCheck(checkId).orElseThrow());
     }
     return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error");
   }

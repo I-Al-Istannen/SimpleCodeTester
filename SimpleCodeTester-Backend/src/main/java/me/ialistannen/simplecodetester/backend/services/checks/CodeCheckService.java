@@ -134,10 +134,12 @@ public class CodeCheckService {
     StaticInputOutputCheck outputCheck = new StaticInputOutputCheck(input, output, name);
     String payload = gson.toJson(outputCheck);
 
-    return updateCheck(id, codeCheck -> {
-      codeCheck.setText(payload);
-      codeCheck.setName(name);
-    });
+    CodeCheck codeCheck = check.get();
+    codeCheck.setText(payload);
+    codeCheck.setName(name);
+    checkRepository.save(codeCheck);
+
+    return true;
   }
 
   /**
@@ -233,9 +235,7 @@ public class CodeCheckService {
 
     validateCheckAndSetName(codeCheck.get());
 
-    if (codeCheck.get().getCheckType() == CheckType.SOURCE_CODE) {
-      codeCheck.get().setApproved(false);
-    }
+    codeCheck.get().setApproved(false);
 
     checkRepository.save(codeCheck.get());
 
