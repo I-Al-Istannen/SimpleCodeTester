@@ -50,12 +50,11 @@ import Axios, { AxiosPromise, AxiosError } from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import HighlightedCode from "@/components/highlighting/HighlightedCode.vue";
 import CheckSubmitErrorDialogVue from "@/components/checksubmit/CheckSubmitErrorDialog.vue";
-import IOCheckComponent, {
-  IOCheck
-} from "@/components/checksubmit/IOCheckComponent.vue";
+import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 import { CheckCategoryState, CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
 import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
+import { IOCheck } from '@/components/checklist/types';
 
 @Component({
   components: {

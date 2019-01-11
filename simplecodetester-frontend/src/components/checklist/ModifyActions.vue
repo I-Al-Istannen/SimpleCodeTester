@@ -2,6 +2,22 @@
   <div class="d-flex" id="wrapper">
     <span class="pr-4 unapproved aside" v-if="!myCheck.approved">Unapproved</span>
 
+    <v-dialog v-model="editDialogOpened" v-if="isIoCheck" class="aside" max-width="500">
+      <v-btn slot="activator" icon class="ma-0">
+        <v-icon>edit</v-icon>
+      </v-btn>
+      <v-card>
+        <v-card-text>
+          <io-check-component v-if="isIoCheck" :initialValue="checkContent" @input="setCheck"></io-check-component>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn :disabled="!canUploadEdit" color="primary" @click="changeCheck">Submit change</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-btn
       v-if="canModifyCheck(myCheck.creator)"
       class="aside ma-0"
@@ -34,14 +50,27 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { CheckBase, CheckCollection } from "@/components/checklist/types";
-import { Prop } from "vue-property-decorator";
+import {
+  CheckBase,
+  CheckCollection,
+  IOCheck
+} from "@/components/checklist/types";
+import { Prop, Watch } from "vue-property-decorator";
 import { UserState } from "@/store/types";
 import Axios from "axios";
 import { extractErrorMessage } from "@/util/requests";
+import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 
-@Component
+@Component({
+  components: {
+    "io-check-component": IOCheckComponent
+  }
+})
 export default class ModifyActions extends Vue {
+  private check: any = null;
+  private checkContent: any = null;
+  private editDialogOpened = false;
+
   @Prop()
   private userState!: UserState;
 
@@ -50,6 +79,34 @@ export default class ModifyActions extends Vue {
 
   @Prop()
   private myCheck!: CheckBase;
+
+  get isIoCheck() {
+    return this.myCheck.name;
+  }
+
+  get canUploadEdit() {
+    return (
+      this.check != null &&
+      this.check.name != null &&
+      this.check.name.length > 0
+    );
+  }
+
+  @Watch("editDialogOpened")
+  onEditDialogOpened() {
+    if (!this.editDialogOpened) {
+      return;
+    }
+    this.checks.fetchContent(this.myCheck).then(content => {
+      content = JSON.parse(content);
+
+      this.checkContent = new IOCheck(
+        content.input.join("\n"),
+        content.expectedOutput,
+        content.name
+      );
+    });
+  }
 
   emitError(message: string) {
     this.$emit("error", message);
@@ -84,6 +141,23 @@ export default class ModifyActions extends Vue {
     this.checks
       .setCheckApproval(check, approved)
       .then(() => this.emitError(""))
+      .catch(error => this.emitError(extractErrorMessage(error)));
+  }
+
+  setCheck(check: IOCheck) {
+    this.check = check;
+  }
+
+  changeCheck() {
+    if (this.check == null) {
+      return;
+    }
+    this.checks
+      .updateIoCheck(this.check as IOCheck, this.myCheck.id)
+      .then(() => {
+        this.emitError("");
+        this.editDialogOpened = false;
+      })
       .catch(error => this.emitError(extractErrorMessage(error)));
   }
 }

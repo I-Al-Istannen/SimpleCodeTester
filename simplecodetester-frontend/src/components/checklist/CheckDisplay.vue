@@ -37,6 +37,8 @@ export default class CheckDisplay extends Vue {
   private content!: any;
 
   get contentJson() {
+    console.log(this.content);
+    
     return JSON.parse(this.content);
   }
 }

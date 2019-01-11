@@ -29,6 +29,18 @@ export class CheckBase {
   }
 }
 
+export class IOCheck {
+  input: string;
+  output: string;
+  name: string;
+
+  constructor(input: string, output: string, name: string) {
+    this.input = input;
+    this.output = output;
+    this.name = name;
+  }
+}
+
 /**
  * A collection of CheckBases and their content, lazily fetched.
  */
@@ -42,9 +54,9 @@ export class CheckCollection {
    * 
    * @param check the check to fetch the content for
    */
-  fetchContent(check: CheckBase): Promise<void> {
+  fetchContent(check: CheckBase): Promise<any> {
     if (this.checkContents[check.id]) {
-      return Promise.resolve()
+      return Promise.resolve(this.checkContents[check.id])
     }
     return Axios.get("/checks/get", {
       params: {
@@ -53,6 +65,8 @@ export class CheckCollection {
     })
       .then(response => {
         this.checkContents[check.id] = response.data.text;
+
+        return this.checkContents[check.id]
       })
   }
 
@@ -102,5 +116,24 @@ export class CheckCollection {
         // So we just build the full object and then assign to to vue (and making it reactive)
         this.checkContents = scratchObject;
       });
+  }
+
+  /**
+   * Updates an IO check.
+   * 
+   * @param check the check data
+   * @param id the check id
+   */
+  updateIoCheck(check: IOCheck, id: number): Promise<void> {
+    const formData = new FormData();
+    formData.append("input", check.input)
+    formData.append("output", check.output)
+    formData.append("name", check.name)
+    formData.append("checkId", "" + id)
+
+    return Axios.post("/checks/update-io", formData)
+      .then(response => {
+        this.checkContents[id] = response.data.text
+      })
   }
 }

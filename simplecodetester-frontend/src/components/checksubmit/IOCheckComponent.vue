@@ -10,18 +10,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-
-export class IOCheck {
-  input: string;
-  output: string;
-  name: string;
-
-  constructor(input: string, output: string, name: string) {
-    this.input = input;
-    this.output = output;
-    this.name = name;
-  }
-}
+import { IOCheck } from "@/components/checklist/types";
 
 @Component
 export default class IOCheckComponent extends Vue {
@@ -30,7 +19,17 @@ export default class IOCheckComponent extends Vue {
   private name = "";
 
   @Prop()
+  initialValue!: IOCheck;
+
+  @Prop()
   value!: IOCheck;
+
+  @Watch("initialValue")
+  onInitialValueChanged() {
+    this.input = this.initialValue.input;
+    this.output = this.initialValue.output;
+    this.name = this.initialValue.name;
+  }
 
   @Watch("input")
   inputChanged() {
