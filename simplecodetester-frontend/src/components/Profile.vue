@@ -40,47 +40,45 @@
 import Vue from "vue";
 import { RootState } from "@/store/types";
 import { Store } from "vuex";
-export default Vue.extend({
-  data: function() {
-    return {
-      headers: [
-        { text: "Name", value: "name", align: "center" },
-        { text: "Value", value: "value", align: "center" }
-      ]
-    };
-  },
-  computed: {
-    items: function() {
-      return [
-        {
-          title: "ID",
-          value: this.store.state.user.userName
-        },
-        {
-          title: "Roles",
-          value: this.store.state.user.roles.join(", ")
-        }
-      ];
-    },
-    store: function(): Store<RootState> {
-      return this.$store as Store<RootState>;
-    },
-    userName: function() {
-      return this.store.state.user.userName;
-    },
-    displayName: function() {
-      return this.store.state.user.displayName;
-    }
-  },
-  methods: {
-    submitCheck() {
-      this.$router.push("/submit-check");
-    },
-    checkCode() {
-      this.$router.push("/check-code");
-    }
+import Component from "vue-class-component";
+
+@Component
+export default class Profile extends Vue {
+  private headers = [
+    { text: "Name", value: "name", align: "center" },
+    { text: "Value", value: "value", align: "center" }
+  ];
+
+  get store(): Store<RootState> {
+    return this.$store as Store<RootState>;
   }
-});
+  get userName() {
+    return this.store.state.user.userName;
+  }
+  get displayName() {
+    return this.store.state.user.displayName;
+  }
+
+  get items() {
+    return [
+      {
+        title: "ID",
+        value: this.store.state.user.userName
+      },
+      {
+        title: "Roles",
+        value: this.store.state.user.roles.join(", ")
+      }
+    ];
+  }
+
+  submitCheck() {
+    this.$router.push("/submit-check");
+  }
+  checkCode() {
+    this.$router.push("/check-code");
+  }
+}
 </script>
 
 <style scoped>
