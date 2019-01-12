@@ -29,9 +29,7 @@
               <v-expansion-panel expand>
                 <v-expansion-panel-content @input="fetchCheckText(props.item)">
                   <div slot="header" class="monospaced subheading d-flex check-header">
-                    <span
-                      class="left-side-text"
-                    >Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>
+                    <span>Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>
                     <modify-actions
                       :checks="checks"
                       :userState="userState"
@@ -130,8 +128,5 @@ export default class CheckList extends Vue {
 .check-header {
   justify-content: space-between;
   align-items: center;
-}
-.check-header > .left-side-text {
-  flex: none !important;
 }
 </style>

@@ -116,7 +116,9 @@ export default class UserList extends Vue {
   align-items: center;
 }
 .flex-container > .aside {
-  flex: none !important;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 </style>
 
