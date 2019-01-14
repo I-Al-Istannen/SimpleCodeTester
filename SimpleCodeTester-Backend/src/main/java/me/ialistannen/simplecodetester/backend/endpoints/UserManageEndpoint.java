@@ -1,7 +1,11 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -63,23 +67,24 @@ public class UserManageEndpoint {
   /**
    * Deletes a user by its id.
    *
-   * @param userBase the user to add
+   * @param addUserBase the user to add
    * @return ok if the user was deleted, 404 if not found
    */
   @PostMapping("/admin/add-user")
-  public ResponseEntity<Void> addUser(@RequestBody @Valid @NotNull UserBase userBase) {
+  public ResponseEntity<Void> addUser(
+      @RequestBody @Valid @NotNull UserManageEndpoint.AddUserBase addUserBase) {
 
-    if (userService.containsUser(userBase.id)) {
+    if (userService.containsUser(addUserBase.id)) {
       return ResponseUtil.error(HttpStatus.CONFLICT, "User already exists.");
     }
 
     userService.addUser(
         new User(
-            userBase.id,
-            userBase.displayName,
-            passwordEncoder.encode(userBase.password),
+            addUserBase.id,
+            addUserBase.displayName,
+            passwordEncoder.encode(addUserBase.password),
             true,
-            userBase.roles
+            addUserBase.roles
         )
     );
 
@@ -99,6 +104,43 @@ public class UserManageEndpoint {
     if (!userService.updateUser(userId, user -> user.setAuthorities(roles))) {
       return ResponseEntity.notFound().build();
     }
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * Modifies a given user.
+   *
+   * @param user the user to modify
+   */
+  @PostMapping("/admin/update-user")
+  public ResponseEntity<Void> updateUser(@RequestBody ObjectNode user) {
+    String id = user.get("id").asText();
+    boolean enabled = user.get("enabled").asBoolean();
+    String name = user.get("displayName").asText();
+    List<String> roles = new ArrayList<>();
+
+    if (user.has("roles")) {
+      Iterator<JsonNode> nodes = user.get("roles").elements();
+      while (nodes.hasNext()) {
+        JsonNode next = nodes.next();
+        roles.add(next.asText());
+      }
+    }
+
+    if (!userService.containsUser(id)) {
+      return ResponseUtil.error(HttpStatus.NOT_FOUND, "User not found");
+    }
+
+    userService.updateUser(id, editable -> {
+      editable.setEnabled(enabled);
+      editable.setName(name);
+      editable.setAuthorities(roles);
+
+      if (user.has("password") && !user.get("password").asText().isBlank()) {
+        editable.setPasswordHash(passwordEncoder.encode(user.get("password").asText()));
+      }
+    });
+
     return ResponseEntity.ok().build();
   }
 
@@ -156,7 +198,7 @@ public class UserManageEndpoint {
   }
 
   @Data
-  private static class UserBase {
+  private static class AddUserBase {
 
     @NotEmpty
     private String displayName;
