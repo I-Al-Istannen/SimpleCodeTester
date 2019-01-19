@@ -1,24 +1,24 @@
 <template>
-  <span>
+  <span @updated="updateElement">
     <slot name="preActions"></slot>
-    <v-menu offset-y>
+
+    <!-- Additional items in an edit menu -->
+    <v-menu offset-y v-if="customMenuActionsSet">
       <v-btn slot="activator" icon>
-        <v-icon>edit</v-icon>
+        <slot name="menuActivator">
+          <v-icon>edit</v-icon>
+        </slot>
       </v-btn>
+
       <v-list>
-        <v-list-tile @click="blackhole">
-          <v-list-tile-title v-if="!user.enabled" @click="setEnabled(user, true)">Enable user</v-list-tile-title>
-          <v-list-tile-title v-else @click="setEnabled(user,false)">Disable user</v-list-tile-title>
-        </v-list-tile>
-        <v-dialog v-model="changeDialogOpened" max-width="600">
-          <v-list-tile slot="activator" @click="blackhole">
-            <v-list-tile-title>Change password</v-list-tile-title>
-          </v-list-tile>
-          <change-password @input="submitPasswordChange" :canSubmit="!requestPending"></change-password>
-        </v-dialog>
+        <slot name="customMenuActions"></slot>
       </v-list>
     </v-menu>
-    <v-btn class="ma-0" icon @click="deleteUser(user)">
+
+    <!-- Additional buttons not in menu -->
+    <slot name="customActions"></slot>
+
+    <v-btn class="ma-0" icon @click="deleteElement">
       <v-icon color="#FF6347">delete</v-icon>
     </v-btn>
   </span>
@@ -27,9 +27,52 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
+import { Prop } from "vue-property-decorator";
+import { CrudRepository, Identifiable } from "@/components/crud/CrudTypes";
+import { extractErrorMessage } from "@/util/requests";
 
+/**
+ * Slots:
+ * * "menuActivator" -- the button opening the menu. Default: "edit" icon
+ * * "customMenuActions" -- the actions in that menu
+ * * "customActions" -- additional custom actions
+ */
 @Component
-export default class CrudModifyActions extends Vue {}
+export default class CrudModifyActions<T extends Identifiable, A extends Identifiable> extends Vue {
+  @Prop()
+  private repository!: CrudRepository<T, A>;
+
+  @Prop()
+  private element!: T;
+
+  get customMenuActionsSet(): boolean {
+    const customActionsSlot = this.$slots.customMenuActions;
+    
+    if (!customActionsSlot || !customActionsSlot[0]) {
+      return false;
+    }
+    return true;
+  }
+
+  deleteElement() {
+    this.handlePromise(this.repository.deleteItem(this.element.id));
+  }
+
+  updateElement(newElement: A) {
+    this.handlePromise(this.repository.updateItem(newElement));
+  }
+
+  handlePromise(promise: Promise<any>) {
+    promise
+      .then(success => this.emitError(""))
+      .catch(error => this.emitError(extractErrorMessage(error)))
+      .finally(() => this.$emit("requestFinished"));
+  }
+
+  emitError(error: string) {
+    this.$emit("error", error);
+  }
+}
 </script>
 
 

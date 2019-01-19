@@ -1,9 +1,10 @@
 import Axios from 'axios';
+import { Identifiable, CrudRepository } from '../crud/CrudTypes';
 
 /**
  * A single user.
  */
-export class User {
+export class User implements Identifiable {
   id: string;
   displayName: string;
   enabled: boolean;
@@ -32,16 +33,18 @@ export class UserToAdd extends User {
 /**
  * Contains all users.
  */
-export class Users {
+export class Users implements CrudRepository<User, UserToAdd>{
   users: Array<User> = []
 
   /**
    * Fetches all users.
    */
-  async fetchAll(): Promise<void> {
+  async fetchAll(): Promise<Array<User>> {
     const response = await Axios.get("/admin/get-users");
     this.users = (response.data as Array<any>)
       .map(json => new User(json.id, json.name, json.enabled, json.authorities));
+
+    return this.users
   }
 
   /**
@@ -49,7 +52,7 @@ export class Users {
    * 
    * @param user the user to delete
    */
-  async deleteUser(user: User): Promise<void> {
+  async deleteItem(user: User): Promise<void> {
     const response = await Axios.delete(`/admin/delete-user/${user.id}`);
     const index = this.users.indexOf(user);
     if (index < 0) {
@@ -63,8 +66,18 @@ export class Users {
    * 
    * @param user the user to add
    */
-  async addUser(user: UserToAdd): Promise<void> {
+  async addItem(user: UserToAdd): Promise<void> {
     const response = await Axios.post(`/admin/add-user`, user);
+    this.users.push(user)
+  }
+
+  /**
+   * Edits a user.
+   * 
+   * @param user the user to add
+   */
+  async updateItem(user: UserToAdd): Promise<void> {
+    const response = await Axios.post(`/admin/update-user`, user);
     this.users.push(user)
   }
 

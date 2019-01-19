@@ -37,6 +37,9 @@ export default class NewUser extends Vue {
   @Prop()
   private users!: Users;
 
+  @Prop()
+  private editing!: boolean;
+
   get roleString() {
     return this.roles.join("\n");
   }
@@ -46,6 +49,9 @@ export default class NewUser extends Vue {
   }
 
   idRule(input: string) {
+    if (this.editing) {
+      return true;
+    }
     return this.users.users.some(it => it.id == input)
       ? "A user with that Id exists already!"
       : true;

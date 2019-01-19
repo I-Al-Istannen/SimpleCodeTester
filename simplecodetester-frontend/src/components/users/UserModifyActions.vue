@@ -1,27 +1,39 @@
 <template>
-  <span>
-    <span v-if="!user.enabled" class="subheading disabled mr-4">(Disabled)</span>
-    <v-menu offset-y>
-      <v-btn slot="activator" icon>
-        <v-icon>edit</v-icon>
-      </v-btn>
-      <v-list>
-        <v-list-tile @click="blackhole">
-          <v-list-tile-title v-if="!user.enabled" @click="setEnabled(user, true)">Enable user</v-list-tile-title>
-          <v-list-tile-title v-else @click="setEnabled(user,false)">Disable user</v-list-tile-title>
+  <crud-modify-actions
+    ref="modify-actions"
+    @requestFinished="requestPending = false"
+    :repository="users"
+    :item="user"
+  >
+    <span slot="preActions" v-if="!user.enabled" class="subheading disabled mr-4">(Disabled)</span>
+
+    <template slot="customMenuActions">
+      <v-list-tile @click="blackhole">
+        <v-list-tile-title v-if="!user.enabled" @click="setEnabled(user, true)">Enable user</v-list-tile-title>
+        <v-list-tile-title v-else @click="setEnabled(user,false)">Disable user</v-list-tile-title>
+      </v-list-tile>
+
+      <v-dialog v-model="changeDialogOpened" max-width="600">
+        <v-list-tile slot="activator" @click="blackhole">
+          <v-list-tile-title>Change password</v-list-tile-title>
         </v-list-tile>
-        <v-dialog v-model="changeDialogOpened" max-width="600">
-          <v-list-tile slot="activator" @click="blackhole">
-            <v-list-tile-title>Change password</v-list-tile-title>
-          </v-list-tile>
-          <change-password @input="submitPasswordChange" :canSubmit="!requestPending"></change-password>
-        </v-dialog>
-      </v-list>
-    </v-menu>
-    <v-btn class="ma-0" icon @click="deleteUser(user)">
-      <v-icon color="#FF6347">delete</v-icon>
-    </v-btn>
-  </span>
+        <change-password @input="submitPasswordChange" :canSubmit="!requestPending"></change-password>
+      </v-dialog>
+
+      <v-dialog v-model="editDialogOpened" max-width="600">
+        <v-list-tile slot="activator" @click="blackhole">
+          <v-list-tile-title>Edit user</v-list-tile-title>
+        </v-list-tile>
+        <edit-user
+          @close="editDialogOpened = false"
+          :users="users"
+          @user="submitUserChange"
+          :canSubmit="!requestPending"
+          editing="true"
+        ></edit-user>
+      </v-dialog>
+    </template>
+  </crud-modify-actions>
 </template>
 
 <script lang="ts">
@@ -31,14 +43,19 @@ import { Users, User, UserToAdd } from "@/components/users/Users";
 import { extractErrorMessage } from "@/util/requests";
 import ChangePassword from "@/components/users/ChangePassword.vue";
 import Axios from "axios";
+import CrudModifyActions from "@/components/crud/CrudModifyActions.vue";
+import NewUser from "@/components/users/NewUser.vue";
 
 @Component({
   components: {
-    "change-password": ChangePassword
+    "change-password": ChangePassword,
+    "crud-modify-actions": CrudModifyActions,
+    "edit-user": NewUser
   }
 })
 export default class UserModifyActions extends Vue {
   private changeDialogOpened = false;
+  private editDialogOpened = false;
   private requestPending = false;
 
   @Prop()
@@ -51,33 +68,38 @@ export default class UserModifyActions extends Vue {
     this.handlePromise(this.users.setEnabled(user, enabled));
   }
 
-  deleteUser(user: User) {
-    if (confirm(`Do you really want to delete ${user.id}?`)) {
-      this.handlePromise(this.users.deleteUser(user));
-    }
-  }
-
   handlePromise(promise: Promise<any>) {
-    promise.catch(error => this.$emit("error", extractErrorMessage(error)));
+    promise
+      .catch(error => this.$emit("error", extractErrorMessage(error)))
+      .finally(() => (this.requestPending = false));
   }
 
   submitPasswordChange(password: string) {
     this.requestPending = true;
+    this.changeDialogOpened = false;
 
-    const data = new FormData();
-    data.append("newPassword", password);
-    data.append("userId", this.user.id);
+    const userToAdd = new UserToAdd(
+      this.user.id,
+      this.user.displayName,
+      this.user.roles,
+      ""
+    );
+    this.$emit("updated", userToAdd);
 
-    Axios.post("/admin/set-password", data)
-      .then(response => {
-        this.changeDialogOpened = false;
-      })
-      .catch(error => {
-        this.$emit("error", extractErrorMessage(error));
-      })
-      .finally(() => {
-        this.requestPending = false;
-      });
+    (this.$refs["modify-actions"] as CrudModifyActions<
+      User,
+      UserToAdd
+    >).updateElement(userToAdd);
+  }
+
+  submitUserChange(user: UserToAdd) {
+    this.requestPending = true;
+    this.editDialogOpened = false;
+
+    (this.$refs["modify-actions"] as CrudModifyActions<
+      User,
+      UserToAdd
+    >).updateElement(user);
   }
 
   blackhole() {}

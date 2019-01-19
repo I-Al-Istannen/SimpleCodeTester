@@ -97,7 +97,7 @@ export default class UserList extends Vue {
 
   addUser(user: UserToAdd) {
     this.addDialogOpened = false;
-    this.handlePromise(this.users.addUser(user));
+    this.handlePromise(this.users.addItem(user));
   }
 
   mounted() {
