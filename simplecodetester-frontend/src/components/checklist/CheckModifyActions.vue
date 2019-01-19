@@ -54,7 +54,7 @@ import {
   CheckBase,
   CheckCollection,
   IOCheck
-} from "@/components/checklist/types";
+} from "@/components/checklist/CheckTypes";
 import { Prop, Watch } from "vue-property-decorator";
 import { UserState } from "@/store/types";
 import Axios from "axios";

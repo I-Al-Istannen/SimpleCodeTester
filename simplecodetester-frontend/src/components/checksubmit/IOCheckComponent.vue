@@ -10,7 +10,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-import { IOCheck } from "@/components/checklist/types";
+import { IOCheck } from "@/components/checklist/CheckTypes";
 
 @Component
 export default class IOCheckComponent extends Vue {

@@ -21,7 +21,7 @@ import "prismjs";
 import "prismjs/themes/prism.css";
 require("prismjs/components/prism-java.min.js");
 import Prism from "vue-prism-component";
-import { CheckBase } from "@/components/checklist/types";
+import { CheckBase } from "@/components/checklist/CheckTypes";
 import { Prop, Provide } from "vue-property-decorator";
 
 @Component({

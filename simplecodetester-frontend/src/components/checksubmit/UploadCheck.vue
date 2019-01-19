@@ -54,7 +54,7 @@ import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 import { CheckCategoryState, CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
 import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
-import { IOCheck } from '@/components/checklist/types';
+import { IOCheck } from '@/components/checklist/CheckTypes';
 
 @Component({
   components: {

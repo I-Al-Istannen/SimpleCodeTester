@@ -63,8 +63,8 @@ import { Store } from "vuex";
 import { RootState, CheckCategory } from "@/store/types";
 import Axios from "axios";
 import { extractErrorMessage } from "@/util/requests";
-import ModifyActions from "@/components/checklist/ModifyActions.vue";
-import { CheckBase, CheckCollection } from "@/components/checklist/types";
+import ModifyActions from "@/components/checklist/CheckModifyActions.vue";
+import { CheckBase, CheckCollection } from "@/components/checklist/CheckTypes";
 import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
 
 @Component({
