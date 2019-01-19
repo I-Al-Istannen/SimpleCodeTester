@@ -2,10 +2,16 @@ package me.ialistannen.simplecodetester.execution;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
@@ -20,6 +26,7 @@ import me.ialistannen.simplecodetester.submission.Submission;
 public class SubmissionClassLoader extends URLClassLoader {
 
   private final Map<String, byte[]> compiledClasses;
+  private final Set<Class<?>> loadedSubmissionClasses;
 
   /**
    * Creates a new SubmissionClassLoader loading from the given folder and redefining the classes
@@ -36,6 +43,8 @@ public class SubmissionClassLoader extends URLClassLoader {
             CompiledFile::qualifiedName, CompiledFile::classFile, (a, b) -> a, HashMap::new
         ));
     this.compiledClasses.putAll(submission.generatedAuxiliaryClasses());
+
+    this.loadedSubmissionClasses = Collections.newSetFromMap(new ConcurrentHashMap<>());
   }
 
   @Override
@@ -45,5 +54,22 @@ public class SubmissionClassLoader extends URLClassLoader {
       return defineClass(name, bytes, 0, bytes.length);
     }
     return super.findClass(name);
+  }
+
+  /**
+   * Returns if this class loader loaded a <em>submission</em> class with a static field.
+   *
+   * @return true if this loader loaded a <em>submission</em> class with a static field
+   */
+  public boolean hasClassWithStaticField() {
+    return loadedSubmissionClasses
+        .stream()
+        .anyMatch(this::hasStaticField);
+  }
+
+  private boolean hasStaticField(Class<?> clazz) {
+    return Arrays.stream(clazz.getDeclaredFields())
+        .map(Field::getModifiers)
+        .anyMatch(Modifier::isStatic);
   }
 }

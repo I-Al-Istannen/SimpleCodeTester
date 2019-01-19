@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -69,7 +70,7 @@ public class Java8InMemoryCompiler implements Compiler {
     List<CompiledFile> compiledFiles;
 
     // ugly, but we have a circular reference here
-    AtomicReference<ClassLoader> classLoaderReference = new AtomicReference<>();
+    AtomicReference<Supplier<ClassLoader>> classLoaderReference = new AtomicReference<>();
 
     if (!successful) {
       compiledFiles = Collections.emptyList();
@@ -83,7 +84,7 @@ public class Java8InMemoryCompiler implements Compiler {
       }
       compiledFiles = compilationUnits.stream()
           .map(file -> ImmutableCompiledFile.builder()
-              .classLoaderSupplier(classLoaderReference::get)
+              .classLoaderSupplier(() -> classLoaderReference.get().get())
               .classFile(manager.getForClassPath(file.getName()).getContent())
               .content(file.getContent())
               .qualifiedName(
@@ -117,8 +118,23 @@ public class Java8InMemoryCompiler implements Compiler {
         )
         .build();
 
-    classLoaderReference.set(new SubmissionClassLoader(compiledSubmission));
+    classLoaderReference.set(getMemoizingClassLoaderSupplier(compiledSubmission));
 
     return compiledSubmission;
+  }
+
+  private Supplier<ClassLoader> getMemoizingClassLoaderSupplier(
+      CompiledSubmission compiledSubmission) {
+    return new Supplier<>() {
+      private SubmissionClassLoader last;
+
+      @Override
+      public ClassLoader get() {
+        if (last == null || last.hasClassWithStaticField()) {
+          return last = new SubmissionClassLoader(compiledSubmission);
+        }
+        return last;
+      }
+    };
   }
 }
