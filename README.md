@@ -8,11 +8,10 @@ It accepts new checks from anybody, allowing students to collaborate and crowd-s
 * Create and manage Users
 
 * Two types of checks:
-  1. Source code:
-
+  1. **Source code:**  
      You can submit classes implementing the `Check` interface, which can analyse the bytecode, source code and java class file of a submission.
      As these checks are run *outside the sandbox*, each check that is submitted this way needs to be manually approved.
-  2. Input-Output:
+  2. **Input-Output:**  
      This is a convenience check type which supplies some input, runs the program and verifies the output.
      As these checks can (hopefully) not be malicious, checks do not need to be approved but can be directly submitted and run.
 
