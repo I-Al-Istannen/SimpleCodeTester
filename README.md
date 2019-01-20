@@ -1,3 +1,5 @@
+[![Build Status](https://ci.ialistannen.de/buildStatus/icon?job=SimpleCodeTester)](https://ci.ialistannen.de/job/SimpleCodeTester/)
+
 ## About
 
 This project was created to automatically allow testing programming submissions against a set of tests.
