@@ -13,7 +13,7 @@ public class ResponseUtil {
    *
    * @param status the {@link HttpStatus} code
    * @param message the message
-   * @return the created response entits
+   * @return the created response entity
    */
   public static <T> ResponseEntity<T> error(HttpStatus status, String message) {
     @SuppressWarnings("unchecked")
