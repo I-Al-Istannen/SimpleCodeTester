@@ -57,12 +57,12 @@ If the slave does not answer within the timeout (30s by default) it will be forc
 
 # Todos
 ### Server
-* [] Figure out a nicer way to handle IO/normal checks in the server API
-* [] Manually create a nice schema and do not rely on JPA+Hibernate being nice
-  * [] Add `flyway` or a similar technology to allow seamless database schema upgrades
+* [ ] Figure out a nicer way to handle IO/normal checks in the server API
+* [ ] Manually create a nice schema and do not rely on JPA+Hibernate being nice
+  * [ ] Add `flyway` or a similar technology to allow seamless database schema upgrades
 ### Frontend
-* [] Refactor list components to a common CRUD component, if possible
-* [] Add editing functionality for category names
+* [ ] Refactor list components to a common CRUD component, if possible
+* [ ] Add editing functionality for category names
 
 # Screenshots
 ![Submit code](https://i.imgur.com/EYdEbBO.png)
