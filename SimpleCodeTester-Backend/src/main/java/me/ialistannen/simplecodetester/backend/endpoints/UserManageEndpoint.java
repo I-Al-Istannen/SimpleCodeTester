@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.validation.Valid;
@@ -57,11 +58,11 @@ public class UserManageEndpoint {
    * @return ok if the user was deleted, 404 if not found
    */
   @DeleteMapping("/admin/delete-user/{id}")
-  public ResponseEntity<Void> deleteUser(@PathVariable("id") @NotEmpty String userId) {
+  public ResponseEntity<Object> deleteUser(@PathVariable("id") @NotEmpty String userId) {
     if (!userService.removeUser(userId)) {
       return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(Map.of());
   }
 
   /**
@@ -71,7 +72,7 @@ public class UserManageEndpoint {
    * @return ok if the user was deleted, 404 if not found
    */
   @PostMapping("/admin/add-user")
-  public ResponseEntity<Void> addUser(
+  public ResponseEntity<Object> addUser(
       @RequestBody @Valid @NotNull UserManageEndpoint.AddUserBase addUserBase) {
 
     if (userService.containsUser(addUserBase.id)) {
@@ -88,7 +89,7 @@ public class UserManageEndpoint {
         )
     );
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(Map.of());
   }
 
   /**
@@ -99,12 +100,12 @@ public class UserManageEndpoint {
    * @return ok if the roles were set, 404 if the user was not found
    */
   @PostMapping("/admin/set-roles")
-  public ResponseEntity<Void> setRoles(@RequestParam @NotEmpty String userId,
+  public ResponseEntity<Object> setRoles(@RequestParam @NotEmpty String userId,
       @RequestBody List<String> roles) {
     if (!userService.updateUser(userId, user -> user.setAuthorities(roles))) {
       return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(Map.of());
   }
 
   /**
@@ -113,7 +114,7 @@ public class UserManageEndpoint {
    * @param user the user to modify
    */
   @PostMapping("/admin/update-user")
-  public ResponseEntity<Void> updateUser(@RequestBody ObjectNode user) {
+  public ResponseEntity<Object> updateUser(@RequestBody ObjectNode user) {
     String id = user.get("id").asText();
     boolean enabled = user.get("enabled").asBoolean();
     String name = user.get("displayName").asText();
@@ -141,7 +142,7 @@ public class UserManageEndpoint {
       }
     });
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(Map.of());
   }
 
   /**
