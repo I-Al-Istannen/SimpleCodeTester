@@ -64,6 +64,9 @@ If the slave does not answer within the timeout (30s by default) it will be forc
 * [ ] Refactor list components to a common CRUD component, if possible
 * [ ] Add editing functionality for category names
 
+### General
+* [ ] A lot more unit tests and a few integration tests
+
 # Screenshots
 ![Submit code](https://i.imgur.com/EYdEbBO.png)
 
