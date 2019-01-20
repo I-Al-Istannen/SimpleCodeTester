@@ -3,7 +3,7 @@
     ref="modify-actions"
     @requestFinished="requestPending = false"
     :repository="users"
-    :item="user"
+    :element="user"
   >
     <span slot="preActions" v-if="!user.enabled" class="subheading disabled mr-4">(Disabled)</span>
 

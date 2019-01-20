@@ -18,7 +18,7 @@
     <!-- Additional buttons not in menu -->
     <slot name="customActions"></slot>
 
-    <v-btn class="ma-0" icon @click="deleteElement">
+    <v-btn class="ma-0" icon @click.stop="deleteElement">
       <v-icon color="#FF6347">delete</v-icon>
     </v-btn>
   </span>
@@ -55,7 +55,7 @@ export default class CrudModifyActions<T extends Identifiable, A extends Identif
   }
 
   deleteElement() {
-    this.handlePromise(this.repository.deleteItem(this.element.id));
+    this.handlePromise(this.repository.deleteItem(this.element));
   }
 
   updateElement(newElement: A) {
