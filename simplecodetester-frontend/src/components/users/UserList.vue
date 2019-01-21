@@ -72,12 +72,12 @@ import Vue from "vue";
 import { Users, User, UserToAdd } from "@/components/users/Users";
 import { extractErrorMessage } from "@/util/requests";
 import Component from "vue-class-component";
-import NewUser from "@/components/users/NewUser.vue";
+import UserModificationComponent from "@/components/users/UserModificationComponent.vue";
 import UserModifyActions from "@/components/users/UserModifyActions.vue";
 
 @Component({
   components: {
-    "new-user": NewUser,
+    "new-user": UserModificationComponent,
     "user-modify-actions": UserModifyActions
   }
 })

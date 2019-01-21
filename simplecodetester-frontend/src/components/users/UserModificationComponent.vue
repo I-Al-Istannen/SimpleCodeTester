@@ -33,7 +33,7 @@ import { Watch, Prop } from "vue-property-decorator";
 import { User, UserToAdd, Users } from "@/components/users/Users";
 
 @Component
-export default class NewUser extends Vue {
+export default class UserModificationComponent extends Vue {
   private formValid = true;
 
   @Prop()

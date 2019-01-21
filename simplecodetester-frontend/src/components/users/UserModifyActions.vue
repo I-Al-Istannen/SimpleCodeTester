@@ -45,13 +45,13 @@ import { extractErrorMessage } from "@/util/requests";
 import ChangePassword from "@/components/users/ChangePassword.vue";
 import Axios from "axios";
 import CrudModifyActions from "@/components/crud/CrudModifyActions.vue";
-import NewUser from "@/components/users/NewUser.vue";
+import UserModificationComponent from "@/components/users/UserModificationComponent.vue";
 
 @Component({
   components: {
     "change-password": ChangePassword,
     "crud-modify-actions": CrudModifyActions,
-    "edit-user": NewUser
+    "edit-user": UserModificationComponent
   }
 })
 export default class UserModifyActions extends Vue {
