@@ -1,7 +1,8 @@
 <template>
   <v-card>
     <v-toolbar color="primary" dark>
-      <v-toolbar-title>Add user</v-toolbar-title>
+      <v-toolbar-title v-if="editing">Edit user</v-toolbar-title>
+      <v-toolbar-title v-else>Add user</v-toolbar-title>
     </v-toolbar>
     <v-card-text>
       <v-form v-model="formValid">
