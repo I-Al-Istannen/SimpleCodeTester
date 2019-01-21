@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
@@ -248,7 +247,6 @@ public class CheckManageEndpoint {
    * @param approved whether the check should be approved
    */
   @PostMapping("/checks/approve")
-  @RolesAllowed("ROLE_ADMIN")
   public ResponseEntity<Object> approve(long id, boolean approved) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

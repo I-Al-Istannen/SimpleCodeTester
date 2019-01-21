@@ -1,7 +1,6 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
 import java.util.List;
-import javax.annotation.security.RolesAllowed;
 import javax.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
@@ -37,7 +36,6 @@ public class CheckCategoryEndpoint {
   }
 
   @DeleteMapping("/check-category/delete/{id}")
-  @RolesAllowed("ROLE_ADMIN")
   public ResponseEntity<Object> delete(@PathVariable("id") long id) {
     if (checkCategoryService.removeCategory(id)) {
       return ResponseEntity.ok("{}");
@@ -46,7 +44,6 @@ public class CheckCategoryEndpoint {
   }
 
   @PostMapping("/check-category/add-new")
-  @RolesAllowed("ROLE_ADMIN")
   public ResponseEntity<CheckCategory> addNew(@RequestParam @NotEmpty String name) {
     return ResponseEntity.ok(checkCategoryService.addCategory(name));
   }

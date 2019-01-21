@@ -73,6 +73,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/admin/**").hasRole("ADMIN")
         .antMatchers("/check-category/delete/**").hasRole("ADMIN")
         .antMatchers("/check-category/add-new/**").hasRole("ADMIN")
+        .antMatchers("/checks/approve").hasRole("ADMIN")
         .anyRequest().authenticated();
   }
 
