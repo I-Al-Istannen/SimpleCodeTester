@@ -38,7 +38,10 @@ import { extractErrorMessage } from "@/util/requests";
  * * "customActions" -- additional custom actions
  */
 @Component
-export default class CrudModifyActions<T extends Identifiable, A extends Identifiable> extends Vue {
+export default class CrudModifyActions<
+  T extends Identifiable,
+  A extends Identifiable
+> extends Vue {
   @Prop()
   private repository!: CrudRepository<T, A>;
 
@@ -47,7 +50,7 @@ export default class CrudModifyActions<T extends Identifiable, A extends Identif
 
   get customMenuActionsSet(): boolean {
     const customActionsSlot = this.$slots.customMenuActions;
-    
+
     if (!customActionsSlot || !customActionsSlot[0]) {
       return false;
     }
@@ -55,6 +58,9 @@ export default class CrudModifyActions<T extends Identifiable, A extends Identif
   }
 
   deleteElement() {
+    if (!confirm("Do you really want to delete this item?")) {
+      return;
+    }
     this.handlePromise(this.repository.deleteItem(this.element));
   }
 
