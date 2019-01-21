@@ -27,6 +27,7 @@
         <edit-user
           @close="editDialogOpened = false"
           :users="users"
+          :user="user"
           @user="submitUserChange"
           :canSubmit="!requestPending"
           editing="true"

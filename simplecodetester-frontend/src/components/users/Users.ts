@@ -54,6 +54,10 @@ export class Users implements CrudRepository<User, UserToAdd>{
    */
   async deleteItem(user: User): Promise<void> {
     const response = await Axios.delete(`/admin/delete-user/${user.id}`);
+    this.removeUserFromCollection(user);
+  }
+
+  private removeUserFromCollection(user: User) {
     const index = this.users.indexOf(user);
     if (index < 0) {
       return;
@@ -78,6 +82,9 @@ export class Users implements CrudRepository<User, UserToAdd>{
    */
   async updateItem(user: UserToAdd): Promise<void> {
     const response = await Axios.post(`/admin/update-user`, user);
+
+    this.removeUserFromCollection(user);
+
     this.users.push(user)
   }
 

@@ -5,9 +5,14 @@
     </v-toolbar>
     <v-card-text>
       <v-form v-model="formValid">
-        <v-text-field :rules="[idRule]" label="Id" v-model="id"></v-text-field>
-        <v-text-field label="Display name" v-model="displayName"></v-text-field>
-        <v-text-field label="Password" v-model="password" type="password"></v-text-field>
+        <v-text-field :rules="[idRule]" label="Id" v-model="user.id"></v-text-field>
+        <v-text-field label="Display name" v-model="user.displayName"></v-text-field>
+        <v-text-field
+          v-if="editing"
+          label="Password (leave blank to leave unchanged)"
+          type="password"
+        ></v-text-field>
+        <v-text-field v-else label="Password" v-model="user.password" type="password"></v-text-field>
         <v-textarea label="Roles (one per line)" v-model="roleString"></v-textarea>
       </v-form>
     </v-card-text>
@@ -28,10 +33,6 @@ import { User, UserToAdd, Users } from "@/components/users/Users";
 
 @Component
 export default class NewUser extends Vue {
-  private id: string = "";
-  private displayName: string = "";
-  private password: string = "";
-  private roles: Array<string> = [];
   private formValid = true;
 
   @Prop()
@@ -40,12 +41,15 @@ export default class NewUser extends Vue {
   @Prop()
   private editing!: boolean;
 
+  @Prop({ default: () => new UserToAdd("", "", [], "") })
+  private user!: UserToAdd;
+
   get roleString() {
-    return this.roles.join("\n");
+    return this.user.roles.join("\n");
   }
 
   set roleString(input: string) {
-    this.roles = input.split("\n");
+    this.user.roles = input.split("\n");
   }
 
   idRule(input: string) {
@@ -58,10 +62,7 @@ export default class NewUser extends Vue {
   }
 
   emitUser() {
-    this.$emit(
-      "user",
-      new UserToAdd(this.id, this.displayName, this.roles, this.password)
-    );
+    this.$emit("user", this.user);
   }
 }
 </script>
