@@ -13,26 +13,26 @@
         <v-list-tile-title v-else @click="setEnabled(user,false)">Disable user</v-list-tile-title>
       </v-list-tile>
 
-      <v-dialog v-model="changeDialogOpened" max-width="600">
-        <v-list-tile slot="activator" @click="blackhole">
-          <v-list-tile-title>Change password</v-list-tile-title>
-        </v-list-tile>
-        <change-password @input="submitPasswordChange" :canSubmit="!requestPending"></change-password>
-      </v-dialog>
+      <v-list-tile @click="blackhole">
+        <v-dialog v-model="changeDialogOpened" max-width="600">
+          <v-list-tile-title slot="activator">Change password</v-list-tile-title>
+          <change-password @input="submitPasswordChange" :canSubmit="!requestPending"></change-password>
+        </v-dialog>
+      </v-list-tile>
 
-      <v-dialog v-model="editDialogOpened" max-width="600">
-        <v-list-tile slot="activator" @click="blackhole">
-          <v-list-tile-title>Edit user</v-list-tile-title>
-        </v-list-tile>
-        <edit-user
-          @close="editDialogOpened = false"
-          :users="users"
-          :user="user"
-          @user="submitUserChange"
-          :canSubmit="!requestPending"
-          editing="true"
-        ></edit-user>
-      </v-dialog>
+      <v-list-tile @click="blackhole">
+        <v-dialog v-model="editDialogOpened" max-width="600">
+          <v-list-tile-title slot="activator">Edit user</v-list-tile-title>
+          <edit-user
+            @close="editDialogOpened = false"
+            :users="users"
+            :user="user"
+            @user="submitUserChange"
+            :canSubmit="!requestPending"
+            editing="true"
+          ></edit-user>
+        </v-dialog>
+      </v-list-tile>
     </template>
   </crud-modify-actions>
 </template>
