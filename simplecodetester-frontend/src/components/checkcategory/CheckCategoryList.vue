@@ -27,7 +27,7 @@
             <template slot="items" slot-scope="props">
               <td class="subheading text-xs-center">{{ props.item.name }}</td>
               <td class="subheading text-xs-center">{{ props.item.id }}</td>
-              <td class="subheading text-xs-center">
+              <td class="subheading text-xs-center" v-if="isAdmin">
                 <v-btn icon @click="deleteCheckCategory(props.item)">
                   <v-icon color="red">delete</v-icon>
                 </v-btn>
@@ -35,7 +35,7 @@
             </template>
           </v-data-table>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions v-if="isAdmin">
           <v-spacer></v-spacer>
           <v-dialog v-model="addDialogOpened" max-width="700">
             <v-btn slot="activator" color="primary">Add category</v-btn>
@@ -77,16 +77,29 @@ export default class CheckCategoryList extends Vue {
   private pagination = {
     rowsPerPage: 10
   };
-  private headers = [
-    { text: "Name", value: "name", align: "center" },
-    { text: "Id", value: "id", align: "center" },
-    { text: "Actions", value: "actions", align: "center" }
-  ];
   private newCheckName = "";
   private addDialogOpened = false;
 
+  get headers() {
+    if (this.isAdmin) {
+      return [
+        { text: "Name", value: "name", align: "center" },
+        { text: "Id", value: "id", align: "center" },
+        { text: "Actions", value: "actions", align: "center" }
+      ];
+    }
+    return [
+      { text: "Name", value: "name", align: "center" },
+      { text: "Id", value: "id", align: "center" }
+    ];
+  }
+
   get categories(): Array<CheckCategory> {
     return (this.$store as Store<RootState>).state.checkcategory.categories;
+  }
+
+  get isAdmin() {
+    return (this.$store as Store<RootState>).state.user.isAdmin();
   }
 
   get canSubmit() {
