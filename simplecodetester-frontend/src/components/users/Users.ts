@@ -44,6 +44,7 @@ export class Users implements CrudRepository<User, UserToAdd>{
     this.users = (response.data as Array<any>)
       .map(json => new User(json.id, json.name, json.enabled, json.authorities));
 
+    this.sort()
     return this.users
   }
 
@@ -73,6 +74,8 @@ export class Users implements CrudRepository<User, UserToAdd>{
   async addItem(user: UserToAdd): Promise<void> {
     const response = await Axios.post(`/admin/add-user`, user);
     this.users.push(user)
+
+    this.sort()
   }
 
   /**
@@ -86,6 +89,7 @@ export class Users implements CrudRepository<User, UserToAdd>{
     this.removeUserFromCollection(user);
 
     this.users.push(user)
+    this.sort()
   }
 
   /**
@@ -101,5 +105,21 @@ export class Users implements CrudRepository<User, UserToAdd>{
 
     const response = await Axios.post("/admin/set-enabled", formData);
     user.enabled = enabled;
+  }
+
+  private sort() {
+    console.log(this.users.length);
+
+    this.users.sort((a, b) => {
+      console.log(a.displayName + " " + b.displayName);
+      console.log(a.displayName < b.displayName);
+
+
+      if (a.displayName.toLowerCase() < b.displayName.toLowerCase()) return -1;
+      if (a.displayName.toLowerCase() == b.displayName.toLowerCase()) return 0;
+      return 1;
+    })
+    console.log(this.users.map(u => u.displayName));
+    
   }
 }
