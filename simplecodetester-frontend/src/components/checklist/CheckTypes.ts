@@ -107,6 +107,8 @@ export class CheckCollection {
     // This is needed as vue can not observe property addition/deletion
     // So we just build the full object and then assign to to vue (and making it reactive)
     this.checkContents = scratchObject;
+
+    this.sort()
   }
 
   /**
@@ -124,5 +126,19 @@ export class CheckCollection {
 
     const response = await Axios.post("/checks/update-io", formData);
     this.checkContents[id] = response.data.text;
+  }
+
+  private sort() {
+    this.checkBases.sort((a, b) => {
+      // compare by category
+      if (a.category.name.toLowerCase() < b.category.name.toLowerCase()) return -1;
+      if(a.category.name.toLowerCase() > b.category.name.toLowerCase()) return 1;
+
+      // then by name
+      if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+      if (a.name.toLowerCase() == b.name.toLowerCase()) return 0;
+
+      return 1;
+    })
   }
 }
