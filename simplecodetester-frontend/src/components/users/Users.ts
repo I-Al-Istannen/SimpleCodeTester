@@ -108,18 +108,10 @@ export class Users implements CrudRepository<User, UserToAdd>{
   }
 
   private sort() {
-    console.log(this.users.length);
-
     this.users.sort((a, b) => {
-      console.log(a.displayName + " " + b.displayName);
-      console.log(a.displayName < b.displayName);
-
-
       if (a.displayName.toLowerCase() < b.displayName.toLowerCase()) return -1;
       if (a.displayName.toLowerCase() == b.displayName.toLowerCase()) return 0;
       return 1;
     })
-    console.log(this.users.map(u => u.displayName));
-    
   }
 }
