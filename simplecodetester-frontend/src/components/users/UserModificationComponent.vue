@@ -50,7 +50,8 @@ export default class UserModificationComponent extends Vue {
   }
 
   set roleString(input: string) {
-    this.user.roles = input.split("\n");
+    // filter blank lines
+    this.user.roles = input.split("\n").filter(it => it.length > 0);
   }
 
   public clear() {
