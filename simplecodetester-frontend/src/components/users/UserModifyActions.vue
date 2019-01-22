@@ -26,7 +26,7 @@
           <edit-user
             @close="editDialogOpened = false"
             :users="users"
-            :user="user"
+            :user="userCopy"
             @user="submitUserChange"
             :canSubmit="!requestPending"
             editing="true"
@@ -64,6 +64,15 @@ export default class UserModifyActions extends Vue {
 
   @Prop()
   private users!: Users;
+
+  get userCopy() {
+    return new User(
+      this.user.id,
+      this.user.displayName,
+      this.user.enabled,
+      this.user.roles
+    );
+  }
 
   setEnabled(user: User, enabled: boolean) {
     this.handlePromise(this.users.setEnabled(user, enabled));

@@ -57,7 +57,12 @@
             <v-btn color="primary" slot="activator">Add user
               <v-icon dark right>person_add</v-icon>
             </v-btn>
-            <new-user :users="users" @close="addDialogOpened = false" @user="addUser"></new-user>
+            <new-user
+              ref="addUserModification"
+              :users="users"
+              @close="addDialogOpened = false"
+              @user="addUser"
+            ></new-user>
           </v-dialog>
           <v-spacer></v-spacer>
         </v-card-actions>
@@ -74,6 +79,7 @@ import { extractErrorMessage } from "@/util/requests";
 import Component from "vue-class-component";
 import UserModificationComponent from "@/components/users/UserModificationComponent.vue";
 import UserModifyActions from "@/components/users/UserModifyActions.vue";
+import { Watch } from "vue-property-decorator";
 
 @Component({
   components: {
@@ -97,6 +103,7 @@ export default class UserList extends Vue {
 
   addUser(user: UserToAdd) {
     this.addDialogOpened = false;
+    (this.$refs["addUserModification"] as UserModificationComponent).clear();
     this.handlePromise(this.users.addItem(user));
   }
 

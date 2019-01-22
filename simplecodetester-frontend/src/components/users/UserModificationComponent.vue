@@ -6,7 +6,7 @@
     </v-toolbar>
     <v-card-text>
       <v-form v-model="formValid">
-        <v-text-field :rules="[idRule]" label="Id" v-model="user.id"></v-text-field>
+        <v-text-field v-if="!editing" :rules="[idRule]" label="Id" v-model="user.id"></v-text-field>
         <v-text-field label="Display name" v-model="user.displayName"></v-text-field>
         <v-text-field
           v-if="editing"
@@ -53,12 +53,16 @@ export default class UserModificationComponent extends Vue {
     this.user.roles = input.split("\n");
   }
 
+  public clear() {
+    this.user = new UserToAdd("", "", [], "");
+  }
+
   idRule(input: string) {
     if (this.editing) {
       return true;
     }
     return this.users.users.some(it => it.id == input)
-      ? "A user with that Id exists already!"
+      ? "A user with that id exists already!"
       : true;
   }
 

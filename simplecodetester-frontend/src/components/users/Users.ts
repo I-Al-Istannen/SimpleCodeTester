@@ -58,7 +58,7 @@ export class Users implements CrudRepository<User, UserToAdd>{
   }
 
   private removeUserFromCollection(user: User) {
-    const index = this.users.indexOf(user);
+    const index = this.users.findIndex(u => u.id === user.id);
     if (index < 0) {
       return;
     }
