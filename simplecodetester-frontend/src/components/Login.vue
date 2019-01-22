@@ -27,6 +27,8 @@
             ></v-text-field>
           </v-form>
           <p class="error-message" :display="error.length !== 0">{{ error }}</p>
+
+          <a class="email" @click="sendMail">Send me a message :)</a>
         </v-card-text>
         <v-card-actions class="pr-3 pb-3">
           <v-spacer></v-spacer>
@@ -53,6 +55,24 @@ export default class Login extends Vue {
   private password = "";
   private error = "";
 
+  get email() {
+    // just hide it from crawlers
+    let encoded = "XWBfVF0oW1xdTE1WXBZTUVwWTUxd";
+    let result = "";
+
+    let base64 = atob(encoded);
+    for (let i = 0; i < base64.length; i++) {
+      result += String.fromCodePoint(base64.charCodeAt(i) + 24);
+    }
+
+    return result;
+  }
+
+  sendMail() {
+    // and even those knowing JS, unless they click themselves
+    window.location.href = "mailto:" + this.email;
+  }
+
   /**
    * Tries to log the user in and redirects/sets errors.
    */
@@ -64,11 +84,11 @@ export default class Login extends Vue {
     this.$store
       .dispatch("user/login", new UserLoginInfo(this.username, this.password))
       .then(() => {
-        const redirectLocation = this.$route.query["redirect"]
-        if(redirectLocation) {
-          this.$router.push(redirectLocation.toString())
+        const redirectLocation = this.$route.query["redirect"];
+        if (redirectLocation) {
+          this.$router.push(redirectLocation.toString());
         } else {
-          this.$router.push("/profile")
+          this.$router.push("/profile");
         }
       })
       .catch((error: AxiosError) => {
@@ -106,5 +126,16 @@ export default class Login extends Vue {
   color: red;
   font-size: 1.2rem;
   text-align: center;
+}
+.email {
+  text-align: center;
+  display: block;
+  color: gray;
+  text-decoration: underline;
+}
+.email:hover {
+  transition: 0.2s font-size ease-in-out;
+  font-size: 16px !important;
+  color: var(--primary);
 }
 </style>
