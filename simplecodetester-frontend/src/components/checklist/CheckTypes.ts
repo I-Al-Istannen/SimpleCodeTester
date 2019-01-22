@@ -130,9 +130,9 @@ export class CheckCollection {
 
   private sort() {
     this.checkBases.sort((a, b) => {
-      // compare by category
-      if (a.category.name.toLowerCase() < b.category.name.toLowerCase()) return -1;
-      if(a.category.name.toLowerCase() > b.category.name.toLowerCase()) return 1;
+      // compare by category descending (so higher ones in a nice format are first)
+      if (a.category.name.toLowerCase() > b.category.name.toLowerCase()) return -1;
+      if(a.category.name.toLowerCase() < b.category.name.toLowerCase()) return 1;
 
       // then by name
       if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
