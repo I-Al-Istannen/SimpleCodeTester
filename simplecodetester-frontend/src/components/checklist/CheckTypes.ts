@@ -54,20 +54,17 @@ export class CheckCollection {
    * 
    * @param check the check to fetch the content for
    */
-  fetchContent(check: CheckBase): Promise<any> {
+  async fetchContent(check: CheckBase): Promise<any> {
     if (this.checkContents[check.id]) {
       return Promise.resolve(this.checkContents[check.id])
     }
-    return Axios.get("/checks/get", {
+    const response = await Axios.get("/checks/get", {
       params: {
         id: check.id
       }
-    })
-      .then(response => {
-        this.checkContents[check.id] = response.data.text;
-
-        return this.checkContents[check.id]
-      })
+    });
+    this.checkContents[check.id] = response.data.text;
+    return this.checkContents[check.id];
   }
 
   /**
@@ -75,15 +72,13 @@ export class CheckCollection {
    * 
    * @param check the check to delete
    */
-  deleteCheck(check: CheckBase): Promise<void> {
-    return Axios.delete("/checks/remove/" + check.id)
-      .then(_ => {
-        const index = this.checkBases.indexOf(check);
-        if (index >= 0) {
-          this.checkBases.splice(index, 1);
-          delete this.checkContents[check.id];
-        }
-      });
+  async deleteCheck(check: CheckBase): Promise<void> {
+    const _ = await Axios.delete("/checks/remove/" + check.id);
+    const index = this.checkBases.indexOf(check);
+    if (index >= 0) {
+      this.checkBases.splice(index, 1);
+      delete this.checkContents[check.id];
+    }
   }
 
   /**
@@ -92,30 +87,26 @@ export class CheckCollection {
    * @param check the check to change the approval status for
    * @param approved whether the check is approved
    */
-  setCheckApproval(check: CheckBase, approved: boolean): Promise<void> {
+  async setCheckApproval(check: CheckBase, approved: boolean): Promise<void> {
     const formData = new FormData();
     formData.append("id", check.id.toString());
     formData.append("approved", approved ? "true" : "false");
 
-    return Axios.post("/checks/approve", formData)
-      .then(response => {
-        check.approved = approved;
-      })
+    const response = await Axios.post("/checks/approve", formData);
+    check.approved = approved;
   }
 
   /**
    * Fetches all checks. The promise resolves after they have been fetched.
    */
-  fetchAll(): Promise<void> {
-    return Axios.get("/checks/get-all")
-      .then(response => {
-        this.checkBases = response.data as Array<CheckBase>;
-        const scratchObject = {} as any;
-        this.checkBases.forEach(it => (scratchObject[it.id] = undefined));
-        // This is needed as vue can not observe property addition/deletion
-        // So we just build the full object and then assign to to vue (and making it reactive)
-        this.checkContents = scratchObject;
-      });
+  async fetchAll(): Promise<void> {
+    const response = await Axios.get("/checks/get-all");
+    this.checkBases = (response.data as Array<CheckBase>);
+    const scratchObject = ({} as any);
+    this.checkBases.forEach(it => (scratchObject[it.id] = undefined));
+    // This is needed as vue can not observe property addition/deletion
+    // So we just build the full object and then assign to to vue (and making it reactive)
+    this.checkContents = scratchObject;
   }
 
   /**
@@ -124,16 +115,14 @@ export class CheckCollection {
    * @param check the check data
    * @param id the check id
    */
-  updateIoCheck(check: IOCheck, id: number): Promise<void> {
+  async updateIoCheck(check: IOCheck, id: number): Promise<void> {
     const formData = new FormData();
     formData.append("input", check.input)
     formData.append("output", check.output)
     formData.append("name", check.name)
     formData.append("checkId", "" + id)
 
-    return Axios.post("/checks/update-io", formData)
-      .then(response => {
-        this.checkContents[id] = response.data.text
-      })
+    const response = await Axios.post("/checks/update-io", formData);
+    this.checkContents[id] = response.data.text;
   }
 }
