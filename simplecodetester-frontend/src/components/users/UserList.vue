@@ -42,6 +42,7 @@
                     <v-chip
                       v-for="role in props.item.roles"
                       :key="role"
+                      disabled
                       color="accent"
                       outline
                     >{{ role }}</v-chip>
