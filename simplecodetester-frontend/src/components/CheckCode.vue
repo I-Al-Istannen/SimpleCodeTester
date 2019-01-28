@@ -8,14 +8,14 @@
         <v-card-text>
           <check-category-selection @input="setCategory"></check-category-selection>
           <v-tabs slider-color="accent" v-model="selectedTab">
-            <v-tab ripple>Paste source</v-tab>
-            <v-tab-item class="flex">
-              <highlighted-code v-model="code"></highlighted-code>
-            </v-tab-item>
-
             <v-tab ripple>File upload</v-tab>
             <v-tab-item>
               <multi-file-select @input="filesSelected"></multi-file-select>
+            </v-tab-item>
+
+            <v-tab ripple>Paste source</v-tab>
+            <v-tab-item class="flex">
+              <highlighted-code v-model="code"></highlighted-code>
             </v-tab-item>
           </v-tabs>
         </v-card-text>
@@ -67,8 +67,8 @@ export default class CheckCode extends Vue {
 
   get uploadPossible() {
     const inputProvided =
-      (this.code.length > 0 && this.selectedTab === 0) ||
-      (this.files.length > 0 && this.selectedTab === 1);
+      (this.code.length > 0 && this.selectedTab === 1) ||
+      (this.files.length > 0 && this.selectedTab === 0);
     return inputProvided && this.checkCategory;
   }
 
@@ -77,7 +77,7 @@ export default class CheckCode extends Vue {
   }
 
   upload() {
-    if (this.selectedTab == 0) {
+    if (this.selectedTab == 1) {
       this.uploadSource();
     } else {
       this.uploadFile();

@@ -8,14 +8,14 @@
         <v-card-text>
           <check-category-selection @input="setCategory"></check-category-selection>
           <v-tabs slider-color="accent" v-model="selectedTab">
-            <v-tab ripple>Paste source</v-tab>
-            <v-tab-item class="flex">
-              <highlighted-code v-model="code"></highlighted-code>
-            </v-tab-item>
-
             <v-tab ripple>Input-Output check</v-tab>
             <v-tab-item>
               <io-check v-model="ioCheck"></io-check>
+            </v-tab-item>
+
+            <v-tab ripple>Paste source</v-tab>
+            <v-tab-item class="flex">
+              <highlighted-code v-model="code"></highlighted-code>
             </v-tab-item>
           </v-tabs>
 
@@ -54,7 +54,7 @@ import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 import { CheckCategoryState, CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
 import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
-import { IOCheck } from '@/components/checklist/CheckTypes';
+import { IOCheck } from "@/components/checklist/CheckTypes";
 
 @Component({
   components: {
@@ -78,8 +78,8 @@ export default class UploadCheck extends Vue {
 
   get uploadPossible() {
     const dataEntered =
-      (this.code.length > 0 && this.selectedTab === 0) ||
-      (this.selectedTab == 1 && this.ioCheck && this.ioCheck.name.length > 0);
+      (this.code.length > 0 && this.selectedTab === 1) ||
+      (this.selectedTab == 0 && this.ioCheck && this.ioCheck.name.length > 0);
     return dataEntered && this.checkCategory;
   }
 
@@ -89,7 +89,7 @@ export default class UploadCheck extends Vue {
 
   upload() {
     this.uploading = true;
-    if (this.selectedTab === 0) {
+    if (this.selectedTab === 1) {
       this.uploadSource();
     } else {
       this.uploadIOCheck();
