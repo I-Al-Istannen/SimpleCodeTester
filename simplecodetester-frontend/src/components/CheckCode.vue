@@ -22,7 +22,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn :disabled="uploading || !uploadPossible" color="primary" ripple @click="upload">
-            Upload {{ selectedTab == 0 ? "source" : "files" }}
+            Upload {{ selectedTab == 0 ? "files" : "source" }}
             <v-icon right dard>cloud_upload</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
