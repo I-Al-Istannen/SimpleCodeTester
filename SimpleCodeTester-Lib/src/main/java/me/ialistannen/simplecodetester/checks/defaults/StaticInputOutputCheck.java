@@ -57,8 +57,8 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
   protected void assertOutputValid(CompiledFile file) {
     String actualOutput = Terminal.getOutput();
 
-    String[] outputLines = actualOutput.split("\n");
-    String[] expectedLines = expectedOutput.split("\n");
+    String[] outputLines = stripTrailingNewlines(actualOutput).split("\n");
+    String[] expectedLines = stripTrailingNewlines(expectedOutput).split("\n");
 
     if (expectedLines.length != outputLines.length) {
       throw new CheckFailedException(String.format(
@@ -91,6 +91,16 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
       return actualLine.equals(expectedLine);
     }
     return actualLine.matches(expectedLine.substring(REGEX_MARKER.length()));
+  }
+
+  private String stripTrailingNewlines(String input) {
+    for (int i = input.length() - 1; i >= 0; i--) {
+      if (input.charAt(i) >= ' ') {
+        return input.substring(0, i + 1);
+      }
+    }
+
+    return "";
   }
 
   @Override
