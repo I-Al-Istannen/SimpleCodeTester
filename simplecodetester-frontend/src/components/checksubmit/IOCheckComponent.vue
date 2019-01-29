@@ -1,8 +1,9 @@
 <template>
   <div>
     <v-text-field label="Check name" v-model="name"></v-text-field>
-    <v-textarea label="Input. Hit enter for a new line." v-model="input"></v-textarea>
+    <v-textarea class="monospace-font" label="Input. Hit enter for a new line." v-model="input"></v-textarea>
     <v-textarea
+      class="monospace-font"
       label="Expected output. Hit enter for a new line. Lines starting with '?r' will be treated as a regular expression."
       v-model="output"
     ></v-textarea>
@@ -56,4 +57,7 @@ export default class IOCheckComponent extends Vue {
 </script>
 
 <style scoped>
+.monospace-font {
+  font-family: monospace !important;
+}
 </style>

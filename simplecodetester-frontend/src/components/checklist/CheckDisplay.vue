@@ -5,8 +5,17 @@
     <div v-if="content">
       <prism v-if="checkBase.checkType === 'SOURCE_CODE'" class="code" language="java">{{ content }}</prism>
       <span v-if="checkBase.checkType === 'IO'">
-        <v-textarea label="Input" :value="contentJson.input.join('\n')" readonly></v-textarea>
-        <v-textarea label="Expected output" :value="contentJson.expectedOutput"></v-textarea>
+        <v-textarea
+          class="monospace-font"
+          label="Input"
+          :value="contentJson.input.join('\n')"
+          readonly
+        ></v-textarea>
+        <v-textarea
+          class="monospace-font"
+          label="Expected output"
+          :value="contentJson.expectedOutput"
+        ></v-textarea>
       </span>
     </div>
   </div>
@@ -56,5 +65,9 @@ export default class CheckDisplay extends Vue {
 
 .label {
   color: rgba(0, 0, 0, 0.54);
+}
+
+.monospace-font {
+  font-family: monospace !important;
 }
 </style>
