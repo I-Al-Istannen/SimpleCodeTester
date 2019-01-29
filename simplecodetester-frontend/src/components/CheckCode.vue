@@ -6,7 +6,7 @@
           <v-toolbar-title>Submit code to check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <check-category-selection @input="setCategory"></check-category-selection>
+          <check-category-selection :checkCategory="checkCategory" @input="setCategory"></check-category-selection>
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>File upload</v-tab>
             <v-tab-item>
@@ -61,7 +61,6 @@ export default class CheckCode extends Vue {
   private files: Array<File> = [];
   private error: string = "";
   private uploading: boolean = false;
-  private checkCategory: CheckCategory | null = null;
 
   private selectedTab: Number = 0;
 
@@ -72,8 +71,12 @@ export default class CheckCode extends Vue {
     return inputProvided && this.checkCategory;
   }
 
-  setCategory(checkCategory: CheckCategory) {
-    this.checkCategory = checkCategory;
+  get checkCategory() {
+    return (this.$store.state as RootState).miscsettings.category;
+  }
+
+  setCategory(checkCategory: CheckCategory | null) {
+    this.$store.commit("miscsettings/setCategory", checkCategory);
   }
 
   upload() {

@@ -16,7 +16,8 @@ import { Prop, Watch } from "vue-property-decorator";
 
 @Component
 export default class CheckCategorySelection extends Vue {
-  private checkCategory: CheckCategory | null = null;
+  @Prop({ default: null })
+  checkCategory!: CheckCategory | null;
 
   @Watch("checkCategory")
   updateCategory() {

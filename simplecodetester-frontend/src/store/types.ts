@@ -31,7 +31,7 @@ export interface CheckResultState {
 
 export interface MiscSettingsState {
   itemsPerPage: number;
-  categoryId: number;
+  category: CheckCategory | null;
 }
 
 export class Pair<K, V>{

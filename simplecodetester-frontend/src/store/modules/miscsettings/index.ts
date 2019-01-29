@@ -6,7 +6,7 @@ import { isJwtValid } from '@/util/requests';
 
 export const state: MiscSettingsState = {
   itemsPerPage: 10,
-  categoryId: 0
+  category: null
 };
 
 const namespaced: boolean = true;

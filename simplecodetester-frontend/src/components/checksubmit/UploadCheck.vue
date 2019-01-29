@@ -6,7 +6,7 @@
           <v-toolbar-title>Submit a new check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <check-category-selection @input="setCategory"></check-category-selection>
+          <check-category-selection :checkCategory="checkCategory" @input="setCategory"></check-category-selection>
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>Input-Output check</v-tab>
             <v-tab-item>
@@ -72,7 +72,6 @@ export default class UploadCheck extends Vue {
   private displayDialog: boolean = false;
   private code = "";
   private selectedTab = 0;
-  private checkCategory: CheckCategory | null = null;
 
   private ioCheck: IOCheck | null = null;
 
@@ -83,8 +82,12 @@ export default class UploadCheck extends Vue {
     return dataEntered && this.checkCategory;
   }
 
+  get checkCategory(): CheckCategory | null {
+    return (this.$store.state as RootState).miscsettings.category;
+  }
+
   setCategory(checkCategory: CheckCategory) {
-    this.checkCategory = checkCategory;
+    this.$store.commit("miscsettings/setCategory", checkCategory);
   }
 
   upload() {
