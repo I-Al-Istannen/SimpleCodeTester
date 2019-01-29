@@ -4,6 +4,7 @@ import { RootState } from './types'
 import { user } from './modules/user'
 import { checkresult } from './modules/checkresult'
 import { checkcategory } from './modules/checkcategories'
+import { miscsettings } from './modules/miscsettings'
 import createPersistedState from 'vuex-persistedstate'
 
 const debug = process.env.NODE_ENV !== 'production'
@@ -17,7 +18,8 @@ const storeOptions: StoreOptions<RootState> = {
   modules: {
     user,
     checkresult,
-    checkcategory
+    checkcategory,
+    miscsettings
   },
   actions: {
     logout({ commit }) {

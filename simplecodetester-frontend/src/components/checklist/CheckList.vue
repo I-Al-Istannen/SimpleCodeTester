@@ -66,6 +66,7 @@ import { extractErrorMessage } from "@/util/requests";
 import ModifyActions from "@/components/checklist/CheckModifyActions.vue";
 import { CheckBase, CheckCollection } from "@/components/checklist/CheckTypes";
 import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
+import { Watch } from "vue-property-decorator";
 
 @Component({
   components: {
@@ -79,8 +80,17 @@ export default class CheckList extends Vue {
   private search: string = "";
   private rowsPerPageItems = [4, 10, 20, 50, 100];
   private pagination = {
-    rowsPerPage: 10
+    rowsPerPage: this.rowsPerPage
   };
+
+  get rowsPerPage(): number {
+    return (this.$store.state as RootState).miscsettings.itemsPerPage;
+  }
+
+  @Watch("pagination.rowsPerPage")
+  setRowsPerPage(rows: number) {
+    this.$store.commit("miscsettings/setItemsPerPage", rows);
+  }
 
   get userState() {
     return (this.$store as Store<RootState>).state.user;

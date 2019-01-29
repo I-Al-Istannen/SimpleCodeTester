@@ -81,6 +81,7 @@ import Component from "vue-class-component";
 import UserModificationComponent from "@/components/users/UserModificationComponent.vue";
 import UserModifyActions from "@/components/users/UserModifyActions.vue";
 import { Watch } from "vue-property-decorator";
+import { RootState } from "@/store/types";
 
 @Component({
   components: {
@@ -94,9 +95,18 @@ export default class UserList extends Vue {
   private users: Users = new Users();
   private rowsPerPageItems = [4, 10, 20, 50, 100];
   private pagination = {
-    rowsPerPage: 10
+    rowsPerPage: this.rowsPerPage
   };
   private addDialogOpened = false;
+
+  get rowsPerPage(): number {
+    return (this.$store.state as RootState).miscsettings.itemsPerPage;
+  }
+
+  @Watch("pagination.rowsPerPage")
+  setRowsPerPage(rows: number) {
+    this.$store.commit("miscsettings/setItemsPerPage", rows);
+  }
 
   setError(error: string) {
     this.error = error;

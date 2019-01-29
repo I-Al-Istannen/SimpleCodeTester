@@ -67,6 +67,7 @@ import Component from "vue-class-component";
 import { CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
 import { extractErrorMessage } from "@/util/requests";
+import { Watch } from 'vue-property-decorator';
 
 @Component
 export default class CheckCategoryList extends Vue {
@@ -75,7 +76,7 @@ export default class CheckCategoryList extends Vue {
   private search: string = "";
   private rowsPerPageItems = [4, 10, 20, 50, 100];
   private pagination = {
-    rowsPerPage: 10
+    rowsPerPage: this.rowsPerPage
   };
   private newCheckName = "";
   private addDialogOpened = false;
@@ -104,6 +105,15 @@ export default class CheckCategoryList extends Vue {
 
   get canSubmit() {
     return this.addDialogOpened && this.newCheckName.length > 0;
+  }
+
+  get rowsPerPage(): number {
+    return (this.$store.state as RootState).miscsettings.itemsPerPage;
+  }
+
+  @Watch("pagination.rowsPerPage")
+  setRowsPerPage(rows: number) {
+    this.$store.commit("miscsettings/setItemsPerPage", rows);
   }
 
   addCategory() {

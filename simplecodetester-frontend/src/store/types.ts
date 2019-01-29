@@ -4,6 +4,7 @@ export interface RootState {
   user: UserState;
   checkresult: CheckResultState;
   checkcategory: CheckCategoryState;
+  miscsettings: MiscSettingsState;
 }
 
 export interface UserState {
@@ -26,6 +27,11 @@ export interface UserState {
 
 export interface CheckResultState {
   checkResult: CheckResult | null;
+}
+
+export interface MiscSettingsState {
+  itemsPerPage: number;
+  categoryId: number;
 }
 
 export class Pair<K, V>{
