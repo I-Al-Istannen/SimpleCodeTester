@@ -2,7 +2,12 @@
   <div class="d-flex" id="wrapper">
     <span class="pr-4 unapproved aside" v-if="!myCheck.approved">Unapproved</span>
 
-    <v-dialog v-model="editDialogOpened" v-if="isIoCheck" class="aside" max-width="500">
+    <v-dialog
+      v-model="editDialogOpened"
+      v-if="isIoCheck && canModifyCheck(myCheck.creator)"
+      class="aside"
+      max-width="500"
+    >
       <v-btn slot="activator" icon class="ma-0">
         <v-icon>edit</v-icon>
       </v-btn>
