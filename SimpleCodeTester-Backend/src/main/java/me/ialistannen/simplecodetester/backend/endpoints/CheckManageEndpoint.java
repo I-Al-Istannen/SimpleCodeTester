@@ -179,6 +179,8 @@ public class CheckManageEndpoint {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, "Check is no IO check!");
     }
 
+    assertHasPermission(SecurityContextHolder.getContext().getAuthentication(), check.get());
+
     boolean successfullyUpdated = checkService.updateIOCheck(
         checkId,
         Arrays.asList(slightlySanerInput.split("\n")),
