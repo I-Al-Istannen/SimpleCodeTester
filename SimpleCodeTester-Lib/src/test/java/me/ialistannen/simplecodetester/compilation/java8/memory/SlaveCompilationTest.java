@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
+import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.execution.master.SlaveManager;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
@@ -17,7 +18,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
-import me.ialistannen.simplecodetester.util.Pair;
+import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -94,7 +95,7 @@ class SlaveCompilationTest {
     slaveManager.start();
     slaveManager.runSubmission(
         submission,
-        List.of(new Pair<>(CheckType.SOURCE_CODE, getCheckSource())),
+        List.of(getCheckSource()),
         "test"
     );
 
@@ -116,22 +117,9 @@ class SlaveCompilationTest {
   }
 
   private String getCheckSource() {
-    return "import edu.kit.informatik.Terminal;\n"
-        + "import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;\n"
-        + "import me.ialistannen.simplecodetester.submission.CompiledFile;\n"
-        + "import java.util.*;\n"
-        + ""
-        + "public class ExpectHelloWorldCheck extends MainClassRunnerCheck {\n"
-        + "  @Override\n"
-        + "  protected List<String> getInput(CompiledFile file) {\n"
-        + "    return Collections.emptyList();\n"
-        + "  }\n"
-        + "  @Override\n"
-        + "  protected void assertOutputValid(CompiledFile file) {\n"
-        + "    if (!Terminal.getOutput().equals(\"Hello world!\\n\")) {\n"
-        + "      throw new AssertionError(\"Expected: 'Hello world!', got '\" + Terminal.getOutput() + \"'!\");\n"
-        + "    }\n"
-        + "  }\n"
-        + "}";
+    CheckSerializer checkSerializer = new CheckSerializer(ConfiguredGson.createGson());
+    return checkSerializer.toJson(
+        new StaticInputOutputCheck(List.of("hello"), "Hello world!", "Hello world")
+    );
   }
 }

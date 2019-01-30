@@ -1,18 +1,15 @@
-package me.ialistannen.simplecodetester.backend.endpoints;
+package me.ialistannen.simplecodetester.backend.endpoints.checks;
 
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.security.Principal;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
@@ -23,7 +20,9 @@ import me.ialistannen.simplecodetester.backend.services.checks.CheckCategoryServ
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
-import me.ialistannen.simplecodetester.checks.CheckType;
+import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
+import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -43,12 +42,15 @@ public class CheckManageEndpoint {
   private CheckCategoryService checkCategoryService;
   private CodeCheckService checkService;
   private UserService userService;
+  private CheckSerializer checkSerializer;
 
   public CheckManageEndpoint(CheckCategoryService checkCategoryService,
       CodeCheckService checkService, UserService userService) {
     this.checkCategoryService = checkCategoryService;
     this.checkService = checkService;
     this.userService = userService;
+
+    this.checkSerializer = new CheckSerializer(ConfiguredGson.createGson());
   }
 
   @GetMapping("/checks/get-all")
@@ -59,8 +61,7 @@ public class CheckManageEndpoint {
               .put("id", codeCheck.getId())
               .put("name", codeCheck.getName())
               .put("creator", codeCheck.getCreator().getName())
-              .put("approved", codeCheck.isApproved())
-              .put("checkType", codeCheck.getCheckType().name());
+              .put("approved", codeCheck.isApproved());
 
           ObjectNode categoryNode = objectMapper.createObjectNode();
           categoryNode.put("id", codeCheck.getCategory().getId());
@@ -87,12 +88,12 @@ public class CheckManageEndpoint {
    * Adds a new check.
    *
    * @param categoryId the id of the category
-   * @param text the text of the check
+   * @param payload the json payload
    * @return true if the check was added
    */
   @PostMapping("/checks/add/{categoryId}")
   public ResponseEntity<Object> addNew(@PathVariable("categoryId") long categoryId,
-      @RequestBody @NotEmpty String text) {
+      @RequestBody @NotEmpty String payload) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -106,15 +107,18 @@ public class CheckManageEndpoint {
     CheckCategory checkCategory = checkCategoryService.getById(categoryId)
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
-    CodeCheck codeCheck = new CodeCheck(
-        text,
-        CheckType.SOURCE_CODE,
-        userOptional.get(),
-        checkCategory
-    );
-
     try {
-      return ResponseEntity.ok(checkService.addCheck(codeCheck));
+      Check check = checkSerializer.fromJson(payload);
+      System.out.println(payload);
+
+      System.out.println(check);
+      System.out.println(checkCategory);
+      if ("".isEmpty()) {
+        return ResponseUtil.error(HttpStatus.CONFLICT, "Hey!");
+      }
+      return ResponseEntity.ok(checkService.addCheck(check, userOptional.get(), checkCategory));
+    } catch (IllegalArgumentException e) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (InvalidCheckException e) {
       Map<String, Object> data = new HashMap<>();
 
@@ -128,81 +132,15 @@ public class CheckManageEndpoint {
     }
   }
 
-  @PostMapping("/checks/add-io")
-  public ResponseEntity<Object> addInputOutputCheck(@RequestParam @NotNull String input,
-      @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
-      @RequestParam long categoryId, Principal principal) {
-
-    CheckCategory checkCategory = checkCategoryService.getById(categoryId)
-        .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
-
-    String slightlySanerInput = sanitizeIOInput(input);
-    String slightlySanerOutput = sanitizeIOInput(output);
-    // PrintLine always adds a newline
-    if (!slightlySanerOutput.endsWith("\n")) {
-      slightlySanerOutput = slightlySanerOutput + "\n";
-    }
-
-    // User logged in, so they very likely still exist
-    User user = userService.getUser(principal.getName()).orElseThrow();
-
-    return ResponseEntity.ok(checkService.addIOCheck(
-        Arrays.asList(slightlySanerInput.split("\n")),
-        slightlySanerOutput,
-        name,
-        user,
-        checkCategory
-    ));
-  }
-
-  private String sanitizeIOInput(String input) {
-    return input.replace("\r\n", "\n");
-  }
-
-  @PostMapping("/checks/update-io")
-  public ResponseEntity<Object> updateInputOutputCheck(@RequestParam @NotNull String input,
-      @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
-      @RequestParam long checkId) {
-
-    String slightlySanerInput = sanitizeIOInput(input);
-    String slightlySanerOutput = sanitizeIOInput(output);
-    // PrintLine always adds a newline
-    if (!slightlySanerOutput.endsWith("\n")) {
-      slightlySanerOutput = slightlySanerOutput + "\n";
-    }
-
-    Optional<CodeCheck> check = checkService.getCheck(checkId);
-    if (check.isEmpty()) {
-      return ResponseUtil.error(HttpStatus.NOT_FOUND, "Check not found");
-    }
-    if (check.get().getCheckType() != CheckType.IO) {
-      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "Check is no IO check!");
-    }
-
-    assertHasPermission(SecurityContextHolder.getContext().getAuthentication(), check.get());
-
-    boolean successfullyUpdated = checkService.updateIOCheck(
-        checkId,
-        Arrays.asList(slightlySanerInput.split("\n")),
-        slightlySanerOutput,
-        name
-    );
-
-    if (successfullyUpdated) {
-      return ResponseEntity.ok(checkService.getCheck(checkId).orElseThrow());
-    }
-    return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error");
-  }
-
   /**
    * Adds a new check.
    *
-   * @param text the text of the check
+   * @param payload the new check payload
    * @return true if the check was added
    */
   @PostMapping("/checks/update")
   public ResponseEntity<CodeCheck> updateCheck(@RequestParam long id,
-      @RequestBody @NotEmpty String text) {
+      @RequestBody @NotEmpty String payload) {
     Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
     Optional<CodeCheck> storedCheck = checkService.getCheck(id);
@@ -213,7 +151,11 @@ public class CheckManageEndpoint {
 
     assertHasPermission(user, storedCheck.get());
 
-    checkService.updateCheck(id, check -> check.setText(text));
+    try {
+      checkService.updateCheck(id, checkSerializer.fromJson(payload));
+    } catch (IllegalArgumentException e) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
 
     //noinspection OptionalGetWithoutIsPresent
     return ResponseEntity.ok(checkService.getCheck(id).get());
@@ -257,7 +199,7 @@ public class CheckManageEndpoint {
     }
 
     if (checkService.approveCheck(id, approved)) {
-      return ResponseEntity.ok("{}");
+      return ResponseEntity.ok(Map.of());
     }
 
     return ResponseUtil.error(HttpStatus.NOT_FOUND, "The check could not be found.");

@@ -17,8 +17,8 @@ public interface Check {
    *
    * @param file the file to check
    * @return the result of checking the file
-   * @throws CheckFailedException if the check failed and it makes more sense for the check to not
-   * directly return a result
+   * @throws CheckFailedException if the check failed and it makes more sense for the check to
+   *     not directly return a result
    */
   CheckResult check(CompiledFile file);
 
@@ -30,6 +30,15 @@ public interface Check {
    */
   default String name() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * Whether this check needs to be manually approved by an administrator.
+   *
+   * @return true if the check needs to be manually approved by an administrator
+   */
+  default boolean needsApproval() {
+    return true;
   }
 
   /**

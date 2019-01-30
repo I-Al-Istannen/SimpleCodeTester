@@ -15,7 +15,6 @@ import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningException;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
 import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
-import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.execution.MessageClient;
@@ -27,7 +26,6 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.Submission;
-import me.ialistannen.simplecodetester.util.Pair;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +59,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
    */
   public synchronized SubmissionCheckResult check(String userId, Submission submission,
       List<CodeCheck> checks) {
+    // TODO: 30.01.19 Allow running in parallel?
     if (runningChecks.containsKey(userId)) {
       throw new CheckAlreadyRunningException();
     }
@@ -69,8 +68,8 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
     RunningCheck check = new RunningCheck(semaphore);
     runningChecks.put(userId, check);
 
-    List<Pair<CheckType, String>> checksToRun = checks.stream()
-        .map(codeCheck -> new Pair<>(codeCheck.getCheckType(), codeCheck.getText()))
+    List<String> checksToRun = checks.stream()
+        .map(CodeCheck::getText)
         .collect(toList());
 
     slaveManager.runSubmission(submission, checksToRun, userId);
