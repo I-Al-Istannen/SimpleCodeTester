@@ -1,11 +1,11 @@
 <template>
   <div>
     <v-text-field label="Check name" v-model="name"></v-text-field>
-    <v-textarea class="monospace-font" label="Input. Hit enter for a new line." v-model="input"></v-textarea>
     <v-textarea
+      auto-grow
       class="monospace-font"
-      label="Expected output. Hit enter for a new line. Lines starting with '?r' will be treated as a regular expression."
-      v-model="output"
+      label="Input. Hit enter for a new line."
+      v-model="input"
     ></v-textarea>
   </div>
 </template>
@@ -19,7 +19,6 @@ import { IOCheck } from "@/components/checklist/CheckTypes";
 @Component
 export default class IOCheckComponent extends Vue {
   private input = "";
-  private output = "";
   private name = "";
 
   @Prop()
@@ -31,7 +30,6 @@ export default class IOCheckComponent extends Vue {
   @Watch("initialValue")
   onInitialValueChanged() {
     this.input = this.initialValue.input;
-    this.output = this.initialValue.output;
     this.name = this.initialValue.name;
   }
 
@@ -51,7 +49,7 @@ export default class IOCheckComponent extends Vue {
   }
 
   emit() {
-    this.$emit("input", new IOCheck(this.input, this.output, this.name));
+    this.$emit("input", new IOCheck(this.input, this.name));
   }
 }
 </script>

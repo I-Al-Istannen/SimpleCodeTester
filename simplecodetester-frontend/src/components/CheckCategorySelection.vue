@@ -1,5 +1,11 @@
 <template>
-  <v-select v-model="checkCategory" outline :items="allCheckCategories" label="Check category">
+  <v-select
+    :value="checkCategory"
+    @input="updateCategory"
+    outline
+    :items="allCheckCategories"
+    label="Check category"
+  >
     <template slot="selection" slot-scope="data">
       <span>{{ data.item.name }}</span>
     </template>
@@ -19,9 +25,8 @@ export default class CheckCategorySelection extends Vue {
   @Prop({ default: null })
   checkCategory!: CheckCategory | null;
 
-  @Watch("checkCategory")
-  updateCategory() {
-    this.$emit("input", this.checkCategory);
+  updateCategory(newCategory: CheckCategory) {
+    this.$emit("input", newCategory);
   }
 
   get allCheckCategories() {

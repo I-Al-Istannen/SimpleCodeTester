@@ -12,11 +12,6 @@
             <v-tab-item>
               <io-check v-model="ioCheck"></io-check>
             </v-tab-item>
-
-            <v-tab ripple>Paste source</v-tab>
-            <v-tab-item class="flex">
-              <highlighted-code v-model="code"></highlighted-code>
-            </v-tab-item>
           </v-tabs>
 
           <check-submit-error-dialog
@@ -27,8 +22,12 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn :disabled="uploading || !uploadPossible" color="primary" ripple @click="upload">
-            Upload {{ selectedTab == 0 ? "I/O check" : "source" }}
+          <v-btn
+            :disabled="uploading || !uploadPossible"
+            color="primary"
+            ripple
+            @click="upload"
+          >Upload I/O check
             <v-icon right dard>cloud_upload</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
@@ -70,15 +69,12 @@ export default class UploadCheck extends Vue {
   private feedbackMessageType = "error";
   private problems: Array<string> = [];
   private displayDialog: boolean = false;
-  private code = "";
   private selectedTab = 0;
 
   private ioCheck: IOCheck | null = null;
 
   get uploadPossible() {
-    const dataEntered =
-      (this.code.length > 0 && this.selectedTab === 1) ||
-      (this.selectedTab == 0 && this.ioCheck && this.ioCheck.name.length > 0);
+    const dataEntered = this.ioCheck && this.ioCheck.name.length > 0;
     return dataEntered && this.checkCategory;
   }
 
@@ -92,28 +88,19 @@ export default class UploadCheck extends Vue {
 
   upload() {
     this.uploading = true;
-    if (this.selectedTab === 1) {
-      this.uploadSource();
-    } else {
-      this.uploadIOCheck();
-    }
-  }
-
-  uploadSource() {
-    this.handleUploadResult(
-      Axios.post(`/checks/add/${this.checkCategory!.id}`, this.code, {
-        headers: { "Content-Type": "text/plain" }
-      })
-    );
+    this.uploadIOCheck();
   }
 
   uploadIOCheck() {
-    const formData = new FormData();
-    formData.append("input", this.ioCheck!.input);
-    formData.append("output", this.ioCheck!.output);
-    formData.append("name", this.ioCheck!.name);
-    formData.append("categoryId", "" + this.checkCategory!.id);
-    this.handleUploadResult(Axios.post("/checks/add-io", formData));
+    const check: any = {};
+    check["data"] = this.ioCheck!.input;
+    check["name"] = this.ioCheck!.name;
+    this.handleUploadResult(
+      Axios.post(`/checks/add/${this.checkCategory!.id}`, {
+        value: JSON.stringify(check),
+        class: "InterleavedStaticIOCheck"
+      })
+    );
   }
 
   handleUploadResult(promise: AxiosPromise<any>) {

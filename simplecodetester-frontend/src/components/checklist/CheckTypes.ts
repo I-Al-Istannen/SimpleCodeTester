@@ -9,7 +9,6 @@ export class CheckBase {
   creator: string;
   name: string;
   approved: boolean;
-  checkType: string;
   category: CheckCategory;
 
   constructor(
@@ -17,26 +16,22 @@ export class CheckBase {
     creator: string,
     name: string,
     approved: boolean,
-    checkType: string,
     category: CheckCategory
   ) {
     this.id = id;
     this.creator = creator;
     this.name = name;
     this.approved = approved;
-    this.checkType = checkType;
     this.category = category;
   }
 }
 
 export class IOCheck {
   input: string;
-  output: string;
   name: string;
 
-  constructor(input: string, output: string, name: string) {
+  constructor(input: string, name: string) {
     this.input = input;
-    this.output = output;
     this.name = name;
   }
 }
@@ -120,7 +115,6 @@ export class CheckCollection {
   async updateIoCheck(check: IOCheck, id: number): Promise<void> {
     const formData = new FormData();
     formData.append("input", check.input)
-    formData.append("output", check.output)
     formData.append("name", check.name)
     formData.append("checkId", "" + id)
 
@@ -132,7 +126,7 @@ export class CheckCollection {
     this.checkBases.sort((a, b) => {
       // compare by category descending (so higher ones in a nice format are first)
       if (a.category.name.toLowerCase() > b.category.name.toLowerCase()) return -1;
-      if(a.category.name.toLowerCase() < b.category.name.toLowerCase()) return 1;
+      if (a.category.name.toLowerCase() < b.category.name.toLowerCase()) return 1;
 
       // then by name
       if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
