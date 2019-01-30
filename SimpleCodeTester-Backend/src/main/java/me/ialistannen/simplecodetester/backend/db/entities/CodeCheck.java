@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import me.ialistannen.simplecodetester.checks.CheckType;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -55,6 +57,11 @@ public class CodeCheck {
    * Whether the check is approved and allowed to run.
    */
   private boolean approved;
+
+
+  @NotNull
+  @Enumerated
+  private CheckType checkType = CheckType.UNKNOWN;
 
   @NotEmpty
   private String name;

@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,8 @@ import javax.validation.constraints.NotEmpty;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
+import me.ialistannen.simplecodetester.backend.endpoints.checks.parsers.CheckParsers;
+import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
@@ -43,6 +47,7 @@ public class CheckManageEndpoint {
   private CodeCheckService checkService;
   private UserService userService;
   private CheckSerializer checkSerializer;
+  private CheckParsers checkParsers;
 
   public CheckManageEndpoint(CheckCategoryService checkCategoryService,
       CodeCheckService checkService, UserService userService) {
@@ -50,7 +55,9 @@ public class CheckManageEndpoint {
     this.checkService = checkService;
     this.userService = userService;
 
-    this.checkSerializer = new CheckSerializer(ConfiguredGson.createGson());
+    Gson gson = ConfiguredGson.createGson();
+    this.checkSerializer = new CheckSerializer(gson);
+    this.checkParsers = new CheckParsers(gson);
   }
 
   @GetMapping("/checks/get-all")
@@ -108,16 +115,17 @@ public class CheckManageEndpoint {
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
     try {
-      Check check = checkSerializer.fromJson(payload);
-      System.out.println(payload);
+      JsonObject jsonObject = checkSerializer.toJson(payload);
+      String checkJson = jsonObject.getAsJsonPrimitive("value").getAsString();
+      String keyword = jsonObject.getAsJsonPrimitive("class").getAsString();
+      Check check = checkParsers.parsePayload(checkJson, keyword);
 
-      System.out.println(check);
-      System.out.println(checkCategory);
-      if ("".isEmpty()) {
-        return ResponseUtil.error(HttpStatus.CONFLICT, "Hey!");
+      if (check == null) {
+        throw new CheckParseException("Could not successfully parse the check :/");
       }
+
       return ResponseEntity.ok(checkService.addCheck(check, userOptional.get(), checkCategory));
-    } catch (IllegalArgumentException e) {
+    } catch (CheckParseException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (InvalidCheckException e) {
       Map<String, Object> data = new HashMap<>();
