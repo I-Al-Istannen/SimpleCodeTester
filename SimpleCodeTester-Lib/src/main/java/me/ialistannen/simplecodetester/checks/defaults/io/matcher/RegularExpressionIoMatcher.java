@@ -1,4 +1,4 @@
-package me.ialistannen.simplecodetester.checks.defaults.io;
+package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
 /**
  * Matches a line using a regular expression.

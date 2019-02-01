@@ -8,6 +8,12 @@ public class LineResult {
   private final Type type;
   private final String content;
 
+  /**
+   * Creates a new line result.
+   *
+   * @param type the type of the line
+   * @param content the content of the line
+   */
   public LineResult(Type type, String content) {
     this.type = type;
     this.content = content;

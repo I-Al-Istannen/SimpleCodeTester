@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 
 /**

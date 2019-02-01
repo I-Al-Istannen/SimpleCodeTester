@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import edu.kit.informatik.Terminal;
 import java.util.List;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
+import me.ialistannen.simplecodetester.checks.defaults.io.parsing.InterleavedIoParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,11 +20,7 @@ class InterleavedStaticIOCheckTest {
   @Test
   void matchingOutputHasNoError() {
     InterleavedStaticIOCheck check = getCheck(
-        List.of("Hello"),
-        List.of(
-            List.of(), // nothing before first read
-            List.of(new ErrorIoMatcher())
-        )
+        "> Hello", "<e"
     );
 
     List<LineResult> result = check.getOutput(List.of(
@@ -35,13 +32,24 @@ class InterleavedStaticIOCheckTest {
   }
 
   @Test
+  void matchingOutputHasNoErrorFromParser() {
+    InterleavedStaticIOCheck check = getCheck(
+        "> hello", "You there", "How are you", "> my dear", "friend"
+    );
+    List<LineResult> result = check.getOutput(
+        List.of(
+            List.of(),
+            List.of("You there", "How are you"),
+            List.of("friend")
+        )
+    );
+    assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.OUTPUT, Type.INPUT, Type.OUTPUT);
+  }
+
+  @Test
   void matchingOutputHasWrongOutput() {
     InterleavedStaticIOCheck check = getCheck(
-        List.of("Hello"),
-        List.of(
-            List.of(), // nothing before first read
-            List.of(new ErrorIoMatcher())
-        )
+        "> Hello", "<e"
     );
 
     List<LineResult> result = check.getOutput(List.of(
@@ -54,33 +62,18 @@ class InterleavedStaticIOCheckTest {
 
   @Test
   void fusedOutput() {
-    InterleavedStaticIOCheck check = getCheck(
-        List.of("a", "b", "c"),
-        List.of(
-            List.of(
-                new RegularExpressionIoMatcher("a"),
-                new RegularExpressionIoMatcher("b"),
-                new RegularExpressionIoMatcher("c")
-            ),
-            List.of(
-                new RegularExpressionIoMatcher("a"),
-                new RegularExpressionIoMatcher("b")
-            ),
-            List.of(
-                new RegularExpressionIoMatcher("a")
-            )
-        )
+    InterleavedStaticIOCheck check1 = getCheck(
+        "a", "b", "c",
+        "> a", "a", "b",
+        "> b", "a",
+        "> c"
     );
-
-    List<LineResult> result = check.getOutput(List.of(
+    List<LineResult> result = check1.getOutput(List.of(
         List.of("a"),
         List.of("a", "b"),
         List.of("a", "b", "c")
     ));
 
-    for (LineResult lineResult : result) {
-      System.out.println(lineResult);
-    }
     assertHasOrder(
         result,
         Type.OUTPUT, Type.ERROR, Type.ERROR,
@@ -92,16 +85,14 @@ class InterleavedStaticIOCheckTest {
     );
   }
 
-  private InterleavedStaticIOCheck getCheck(List<String> input,
-      List<List<InterleavedIoMatcher>> matcher) {
-
-    return new InterleavedStaticIOCheck(input, matcher, "test");
-  }
-
   private void assertHasOrder(List<LineResult> results, LineResult.Type... expected) {
     assertThat(
         results.stream().map(LineResult::getType).toArray(LineResult.Type[]::new),
         is(expected)
     );
+  }
+
+  private InterleavedStaticIOCheck getCheck(String... lines) {
+    return new InterleavedIoParser().fromString(String.join("\n", lines), "A check");
   }
 }

@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io;
 
 import java.util.List;
+import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
 
 /**
  * A block containing {@link InterleavedIoMatcher}s.
