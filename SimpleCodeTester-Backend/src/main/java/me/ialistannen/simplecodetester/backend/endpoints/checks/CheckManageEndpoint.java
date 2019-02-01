@@ -115,14 +115,7 @@ public class CheckManageEndpoint {
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
     try {
-      JsonObject jsonObject = checkSerializer.toJson(payload);
-      String checkJson = jsonObject.getAsJsonPrimitive("value").getAsString();
-      String keyword = jsonObject.getAsJsonPrimitive("class").getAsString();
-      Check check = checkParsers.parsePayload(checkJson, keyword);
-
-      if (check == null) {
-        throw new CheckParseException("Could not successfully parse the check :/");
-      }
+      Check check = parseCheckFromJsonBlob(payload);
 
       return ResponseEntity.ok(checkService.addCheck(check, userOptional.get(), checkCategory));
     } catch (CheckParseException e) {
@@ -140,14 +133,26 @@ public class CheckManageEndpoint {
     }
   }
 
+  private Check parseCheckFromJsonBlob(String payload) {
+    JsonObject jsonObject = checkSerializer.toJson(payload);
+    String checkJson = jsonObject.getAsJsonPrimitive("value").getAsString();
+    String keyword = jsonObject.getAsJsonPrimitive("class").getAsString();
+    Check check = checkParsers.parsePayload(checkJson, keyword);
+
+    if (check == null) {
+      throw new CheckParseException("Could not successfully parse the check :/");
+    }
+    return check;
+  }
+
   /**
    * Adds a new check.
    *
    * @param payload the new check payload
    * @return true if the check was added
    */
-  @PostMapping("/checks/update")
-  public ResponseEntity<CodeCheck> updateCheck(@RequestParam long id,
+  @PostMapping("/checks/update/{checkId}")
+  public ResponseEntity<CodeCheck> updateCheck(@PathVariable("checkId") long id,
       @RequestBody @NotEmpty String payload) {
     Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
@@ -160,8 +165,8 @@ public class CheckManageEndpoint {
     assertHasPermission(user, storedCheck.get());
 
     try {
-      checkService.updateCheck(id, checkSerializer.fromJson(payload));
-    } catch (IllegalArgumentException e) {
+      checkService.updateCheck(id, parseCheckFromJsonBlob(payload));
+    } catch (CheckParseException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 

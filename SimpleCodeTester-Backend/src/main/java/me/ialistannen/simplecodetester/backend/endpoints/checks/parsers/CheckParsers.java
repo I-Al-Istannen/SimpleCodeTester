@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 import me.ialistannen.simplecodetester.checks.Check;
-import me.ialistannen.simplecodetester.checks.defaults.InterleavedStaticIOCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 
 /**
  * Contains parsers that parse some input to a proper check.

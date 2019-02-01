@@ -1,15 +1,11 @@
-package me.ialistannen.simplecodetester.checks.defaults;
+package me.ialistannen.simplecodetester.checks.defaults.io;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import edu.kit.informatik.Terminal;
 import java.util.List;
-import me.ialistannen.simplecodetester.checks.defaults.io.ErrorIoMatcher;
-import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedIoMatcher;
-import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
-import me.ialistannen.simplecodetester.checks.defaults.io.RegularExpressionIoMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -92,7 +88,7 @@ class InterleavedStaticIOCheckTest {
         Type.OUTPUT, Type.OUTPUT,
         Type.INPUT,
         Type.OUTPUT, Type.OUTPUT, Type.ERROR, Type.OUTPUT, Type.ERROR,
-        Type.INPUT, Type.ERROR
+        Type.INPUT
     );
   }
 

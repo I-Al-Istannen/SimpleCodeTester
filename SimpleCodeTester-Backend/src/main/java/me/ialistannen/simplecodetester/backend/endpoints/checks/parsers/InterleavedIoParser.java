@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
 import me.ialistannen.simplecodetester.backend.util.StringReader;
-import me.ialistannen.simplecodetester.checks.defaults.InterleavedStaticIOCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 import me.ialistannen.simplecodetester.util.Pair;
 
 /**
