@@ -2,8 +2,12 @@ package me.ialistannen.simplecodetester.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.internal.bind.TreeTypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -14,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
 
 public class ConfiguredGson {
 
@@ -32,6 +37,7 @@ public class ConfiguredGson {
     return gsonBuilder
         .registerTypeAdapter(Path.class, new PathTypeAdapter())
         .registerTypeAdapter(StaticInputOutputCheck.class, new StaticInputOutputCheckAdapter())
+        .registerTypeAdapterFactory(new InterleavedMatcherAdapterFactory())
         .create();
   }
 
@@ -92,6 +98,42 @@ public class ConfiguredGson {
       in.endObject();
 
       return new StaticInputOutputCheck(input, expectedOutput, name);
+    }
+  }
+
+  private static class InterleavedMatcherAdapterFactory implements TypeAdapterFactory {
+
+    @Override
+    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+      if (InterleavedIoMatcher.class != type.getRawType()) {
+        return null;
+      }
+      return new TreeTypeAdapter<>(
+          (src, typeOfSrc, context) -> {
+            JsonObject jsonObject = new JsonObject();
+
+            jsonObject.addProperty("class", src.getClass().getName());
+            jsonObject.add("value", context.serialize(src));
+
+            return jsonObject;
+          },
+          (json, typeOfT, context) -> {
+            JsonObject jsonObject = json.getAsJsonObject();
+            String className = jsonObject.get("class").getAsString();
+
+            Class<?> tType;
+            try {
+              tType = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+              throw new JsonSyntaxException("Unknown class " + e);
+            }
+
+            return context.deserialize(jsonObject.get("value"), tType);
+          },
+          gson,
+          type,
+          this
+      );
     }
   }
 }
