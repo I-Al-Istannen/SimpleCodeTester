@@ -14,10 +14,11 @@
           class="monospace-font"
           label="Expected output"
           :value="contentJson.expectedOutput"
+          readonly
         ></v-textarea>
       </span>
       <span v-if="contentJson.class && contentJson.class.endsWith('InterleavedStaticIOCheck')">
-        <span>{{ contentJson.text }}</span>
+        <interleaved-io :lines="interleavedLines"></interleaved-io>
       </span>
     </div>
   </div>
@@ -34,10 +35,15 @@ require("prismjs/components/prism-java.min.js");
 import Prism from "vue-prism-component";
 import { CheckBase } from "@/components/checklist/CheckTypes";
 import { Prop, Provide } from "vue-property-decorator";
+import HighlightInterleavedIo, {
+  IoLine,
+  IoLineType
+} from "@/components/highlighting/HighlightedInterleavedIo.vue";
 
 @Component({
   components: {
-    prism: Prism
+    prism: Prism,
+    "interleaved-io": HighlightInterleavedIo
   }
 })
 export default class CheckDisplay extends Vue {
@@ -51,6 +57,18 @@ export default class CheckDisplay extends Vue {
     return typeof this.content === "object"
       ? this.content
       : JSON.parse(this.content);
+  }
+
+  get interleavedLines() {
+    let lines = (this.content.text as string).split(/\n/);
+
+    return lines.map(line => {
+      if (line.startsWith("> ")) {
+        return new IoLine(IoLineType.INPUT, line);
+      } else {
+        return new IoLine(IoLineType.OUTPUT, line);
+      }
+    });
   }
 }
 </script>
