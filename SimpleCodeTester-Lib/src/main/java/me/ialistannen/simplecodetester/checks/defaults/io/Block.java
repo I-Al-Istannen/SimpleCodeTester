@@ -9,8 +9,8 @@ import java.util.List;
  */
 class Block<T> {
 
-  private List<T> data;
-  private int position;
+  private final List<T> data;
+  private transient int position;
 
   /**
    * Creates a new Block with the given data.

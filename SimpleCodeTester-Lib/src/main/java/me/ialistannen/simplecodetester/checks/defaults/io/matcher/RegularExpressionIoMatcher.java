@@ -25,4 +25,9 @@ public class RegularExpressionIoMatcher implements InterleavedIoMatcher {
   public String getError() {
     return "Expected a match for pattern '" + pattern + "'";
   }
+
+  @Override
+  public String toString() {
+    return "<r" + pattern;
+  }
 }

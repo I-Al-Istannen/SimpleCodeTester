@@ -23,4 +23,9 @@ public class ErrorIoMatcher implements InterleavedIoMatcher {
   public String getError() {
     return "Expected an error message";
   }
+
+  @Override
+  public String toString() {
+    return "<e";
+  }
 }

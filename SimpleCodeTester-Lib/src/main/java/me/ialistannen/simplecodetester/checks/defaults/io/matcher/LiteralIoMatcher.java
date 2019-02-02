@@ -25,4 +25,9 @@ public class LiteralIoMatcher implements InterleavedIoMatcher {
   public String getError() {
     return "Expected '" + literal + "'";
   }
+
+  @Override
+  public String toString() {
+    return "<l" + literal;
+  }
 }

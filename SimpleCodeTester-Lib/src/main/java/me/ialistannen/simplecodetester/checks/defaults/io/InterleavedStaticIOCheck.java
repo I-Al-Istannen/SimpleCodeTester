@@ -6,6 +6,7 @@ import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
@@ -135,9 +136,25 @@ public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
 
   @Override
   public String toString() {
-    return "InterleavedStaticIOCheck{" +
-        "input=" + input +
-        ", name='" + name + '\'' +
-        '}';
+    StringJoiner output = new StringJoiner("\n");
+
+    Block<String> inputBlock = new Block<>(input);
+    Block<MatcherBlock> matcherBlock = getMatcherBlock();
+
+    while (matcherBlock.hasNext()) {
+      if (!matcherBlock.isAtStart()) {
+        output.add("> " + inputBlock.next());
+      }
+      MatcherBlock matchers = matcherBlock.next();
+      while (matchers.hasNext()) {
+        output.add(matchers.next().toString());
+      }
+    }
+
+    while (inputBlock.hasNext()) {
+      output.add(inputBlock.next());
+    }
+
+    return output.toString();
   }
 }
