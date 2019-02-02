@@ -10,19 +10,25 @@ export class CheckBase {
   name: string;
   approved: boolean;
   category: CheckCategory;
+  className: string;
+  checkType: string | null;
 
   constructor(
     id: number,
     creator: string,
     name: string,
     approved: boolean,
-    category: CheckCategory
+    category: CheckCategory,
+    className: string,
+    checkType: string | null
   ) {
     this.id = id;
     this.creator = creator;
     this.name = name;
     this.approved = approved;
     this.category = category;
+    this.className = className;
+    this.checkType = checkType;
   }
 }
 
@@ -53,12 +59,13 @@ export class CheckCollection {
     if (this.checkContents[check.id]) {
       return Promise.resolve(this.checkContents[check.id])
     }
-    const response = await Axios.get("/checks/get", {
+    const response = await Axios.get("/checks/get-content", {
       params: {
         id: check.id
       }
     });
-    this.checkContents[check.id] = response.data.text;
+    this.checkContents[check.id] = response.data.content;
+    
     return this.checkContents[check.id];
   }
 
@@ -113,12 +120,15 @@ export class CheckCollection {
    * @param id the check id
    */
   async updateIoCheck(check: IOCheck, id: number): Promise<void> {
-    const formData = new FormData();
-    formData.append("input", check.input)
-    formData.append("name", check.name)
-    formData.append("checkId", "" + id)
+    const checkData: any = {
+      data: check.input,
+      name: check.name
+    };
 
-    const response = await Axios.post("/checks/update-io", formData);
+    const response = await Axios.post(`/checks/update/${id}`, {
+      value: JSON.stringify(check),
+      class: "InterleavedStaticIOCheck"
+    });
     this.checkContents[id] = response.data.text;
   }
 

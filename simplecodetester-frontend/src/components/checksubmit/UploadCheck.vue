@@ -92,9 +92,11 @@ export default class UploadCheck extends Vue {
   }
 
   uploadIOCheck() {
-    const check: any = {};
-    check["data"] = this.ioCheck!.input;
-    check["name"] = this.ioCheck!.name;
+    const check: any = {
+      data: this.ioCheck!.input,
+      name: this.ioCheck!.name
+    };
+
     this.handleUploadResult(
       Axios.post(`/checks/add/${this.checkCategory!.id}`, {
         value: JSON.stringify(check),

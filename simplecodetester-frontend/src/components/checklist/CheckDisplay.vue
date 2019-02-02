@@ -3,7 +3,6 @@
     <div class="label caption">Category</div>
     <v-chip class="ml-0 mb-3" disabled label color="accent" outline>{{ checkBase.category.name }}</v-chip>
     <div v-if="content">
-      <prism v-if="checkBase.checkType === 'SOURCE_CODE'" class="code" language="java">{{ content }}</prism>
       <span v-if="checkBase.checkType === 'IO'">
         <v-textarea
           class="monospace-font"
@@ -16,6 +15,9 @@
           label="Expected output"
           :value="contentJson.expectedOutput"
         ></v-textarea>
+      </span>
+      <span v-if="contentJson.class && contentJson.class.endsWith('InterleavedStaticIOCheck')">
+        <span>{{ contentJson.text }}</span>
       </span>
     </div>
   </div>
@@ -46,7 +48,9 @@ export default class CheckDisplay extends Vue {
   private content!: any;
 
   get contentJson() {
-    return JSON.parse(this.content);
+    return typeof this.content === "object"
+      ? this.content
+      : JSON.parse(this.content);
   }
 }
 </script>
