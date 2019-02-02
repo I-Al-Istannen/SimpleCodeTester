@@ -99,7 +99,7 @@ public class CheckManageEndpoint {
       Check checkInstance = checkSerializer.fromJson(codeCheck.getText());
       if (checkInstance instanceof InterleavedStaticIOCheck) {
         data = Map.of(
-            "class", checkInstance.getClass(),
+            "class", checkInstance.getClass().getSimpleName(),
             "text", checkInstance.toString()
         );
       }
