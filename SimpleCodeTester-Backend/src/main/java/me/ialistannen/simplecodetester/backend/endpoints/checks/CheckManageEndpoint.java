@@ -25,6 +25,8 @@ import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.CheckType;
+import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.springframework.http.HttpStatus;
@@ -68,6 +70,7 @@ public class CheckManageEndpoint {
               .put("id", codeCheck.getId())
               .put("name", codeCheck.getName())
               .put("creator", codeCheck.getCreator().getName())
+              .put("checkType", codeCheck.getCheckType().name())
               .put("approved", codeCheck.isApproved());
 
           ObjectNode categoryNode = objectMapper.createObjectNode();
@@ -80,15 +83,31 @@ public class CheckManageEndpoint {
         .collect(toList());
   }
 
-  @GetMapping("/checks/get")
-  public ResponseEntity<CodeCheck> getCheck(@RequestParam long id) {
+  @GetMapping("/checks/get-content")
+  public ResponseEntity<Object> getCheckContent(@RequestParam long id) {
     Optional<CodeCheck> check = checkService.getCheck(id);
 
     if (check.isEmpty()) {
       return ResponseUtil.error(HttpStatus.NOT_FOUND, "Check not found!");
     }
 
-    return ResponseEntity.ok(check.get());
+    CodeCheck codeCheck = check.get();
+
+    Object data = "N/A";
+
+    if (codeCheck.getCheckType() == CheckType.UNKNOWN) {
+      Check checkInstance = checkSerializer.fromJson(codeCheck.getText());
+      if (checkInstance instanceof InterleavedStaticIOCheck) {
+        data = Map.of(
+            "class", checkInstance.getClass(),
+            "text", checkInstance.toString()
+        );
+      }
+    } else {
+      data = codeCheck.getText();
+    }
+
+    return ResponseEntity.ok(Map.of("content", data));
   }
 
   /**
