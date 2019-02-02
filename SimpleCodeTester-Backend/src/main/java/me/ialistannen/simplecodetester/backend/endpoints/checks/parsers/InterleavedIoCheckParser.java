@@ -5,21 +5,24 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.parsing.InterleavedIoParser;
 
 /**
  * A parser for an {@link InterleavedStaticIOCheck}.
  */
-public class InterleavedIoParser implements CheckParser<InterleavedStaticIOCheck> {
+public class InterleavedIoCheckParser implements CheckParser<InterleavedStaticIOCheck> {
 
-  private Gson gson;
+  private final InterleavedIoParser interleavedIoParser;
+  private final Gson gson;
 
   /**
-   * Creates a new InterleavedIoParser.
+   * Creates a new InterleavedIoCheckParser.
    *
    * @param gson the gson instance to use
    */
-  public InterleavedIoParser(Gson gson) {
+  public InterleavedIoCheckParser(Gson gson) {
     this.gson = gson;
+    this.interleavedIoParser = new InterleavedIoParser();
   }
 
   @Override
@@ -30,10 +33,7 @@ public class InterleavedIoParser implements CheckParser<InterleavedStaticIOCheck
 
       String rawData = jsonObject.getAsJsonPrimitive("data").getAsString();
 
-      rawData.lines()
-          .map(s ->)
-
-      return new InterleavedStaticIOCheck(parserHelper.parse(), name);
+      return interleavedIoParser.fromString(rawData, name);
     } catch (JsonSyntaxException e) {
       throw new CheckParseException("Error parsing check: " + e.getMessage());
     }

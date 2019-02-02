@@ -21,7 +21,7 @@ public class CheckParsers {
   public CheckParsers(Gson gson) {
     this.parsers = new HashMap<>();
 
-    addParser(InterleavedStaticIOCheck.class, new InterleavedIoParser(gson));
+    addParser(InterleavedStaticIOCheck.class, new InterleavedIoCheckParser(gson));
   }
 
   /**
