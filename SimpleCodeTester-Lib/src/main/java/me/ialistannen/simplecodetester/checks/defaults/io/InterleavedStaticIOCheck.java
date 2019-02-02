@@ -20,6 +20,14 @@ public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
   private String name;
 
   /**
+   * Constructor for gson deserialization. Otherwise no constructor is invoked and the main
+   * predicate is never set up.
+   */
+  @SuppressWarnings("unused")
+  private InterleavedStaticIOCheck() {
+  }
+
+  /**
    * Creates a new interleaved static io check.
    *
    * @param input the input

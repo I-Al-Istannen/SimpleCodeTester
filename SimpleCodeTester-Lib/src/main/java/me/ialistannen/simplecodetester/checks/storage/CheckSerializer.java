@@ -62,11 +62,13 @@ public class CheckSerializer {
         throw new IllegalArgumentException("The check class did not extend check: " + checkClass);
       }
 
-      return gson.fromJson(jsonObject.get("value"), checkClass);
+      String value = jsonObject.get("value").getAsString();
+
+      return gson.fromJson(value, checkClass);
     } catch (ClassNotFoundException e) {
       throw new IllegalArgumentException("Check class not found", e);
-    } catch (JsonSyntaxException e) {
-      throw new IllegalArgumentException("Malformed json: " + e.getMessage());
+    } catch (JsonSyntaxException | NullPointerException e) {
+      throw new IllegalArgumentException("Malformed json: " + e.getMessage() + "\n" + json);
     }
   }
 }
