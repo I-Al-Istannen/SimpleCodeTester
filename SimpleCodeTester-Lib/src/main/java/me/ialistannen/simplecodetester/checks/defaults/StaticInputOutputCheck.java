@@ -1,7 +1,12 @@
 package me.ialistannen.simplecodetester.checks.defaults;
 
+import static java.util.stream.Collectors.toList;
+
 import edu.kit.informatik.Terminal;
+import java.util.Arrays;
 import java.util.List;
+import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
+import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 
@@ -101,6 +106,13 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
     }
 
     return "";
+  }
+
+  @Override
+  protected List<LineResult> getOutput(CompiledFile file) {
+    return Arrays.stream(Terminal.getOutput().split("\n"))
+        .map(s -> new LineResult(Type.OUTPUT, s))
+        .collect(toList());
   }
 
   @Override

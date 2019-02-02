@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
+import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 
 /**
@@ -61,7 +63,11 @@ public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
 
   @Override
   protected void assertOutputValid(CompiledFile file) {
-    getOutput(Terminal.getOutputLines());
+    List<LineResult> output = getOutput(Terminal.getOutputLines());
+
+    if (output.stream().anyMatch(lineResult -> lineResult.getType() == Type.ERROR)) {
+      throw new CheckFailedException(output);
+    }
   }
 
   List<LineResult> getOutput(List<List<String>> programOutput) {
@@ -120,6 +126,11 @@ public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
     return new Block<>(
         outputMatchers.stream().map(MatcherBlock::reset).collect(toList())
     );
+  }
+
+  @Override
+  protected List<LineResult> getOutput(CompiledFile file) {
+    return getOutput(Terminal.getOutputLines());
   }
 
   @Override
