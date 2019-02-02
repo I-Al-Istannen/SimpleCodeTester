@@ -23,7 +23,7 @@ let router = new Router({
       component: Login,
       meta: {
         title: function () {
-          return 'Login'
+          return 'Login [codetester]'
         }
       }
     },
