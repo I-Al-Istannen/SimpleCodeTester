@@ -57,12 +57,14 @@ export class FileCheckResult {
   result: CheckResultType;
   message: string;
   errorOutput: string;
+  output: Array<IoLine>
 
-  constructor(check: string, result: CheckResultType, message: string, errorOutput: string) {
+  constructor(check: string, result: CheckResultType, message: string, errorOutput: string, output: Array<IoLine>) {
     this.check = check;
     this.result = result;
     this.message = message;
     this.errorOutput = errorOutput;
+    this.output = output;
   }
 
   /**
@@ -77,6 +79,23 @@ export enum CheckResultType {
   SUCCESSFUL = "SUCCESSFUL",
   FAILED = "FAILED",
   NOT_APPLICABLE = "NOT_APPLICABLE"
+}
+
+
+export class IoLine {
+  lineType: IoLineType;
+  content: string;
+
+  constructor(lineType: IoLineType, content: string) {
+    this.lineType = lineType;
+    this.content = content;
+  }
+}
+
+export enum IoLineType {
+  ERROR = "error",
+  INPUT = "input",
+  OUTPUT = "output"
 }
 
 export class UserInfo {

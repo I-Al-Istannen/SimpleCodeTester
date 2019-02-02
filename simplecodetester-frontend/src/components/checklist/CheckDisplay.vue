@@ -18,7 +18,7 @@
         ></v-textarea>
       </span>
       <span v-if="contentJson.class && contentJson.class.endsWith('InterleavedStaticIOCheck')">
-        <interleaved-io :lines="interleavedLines"></interleaved-io>
+        <interleaved-io :lines="interleavedLines" faithfulFormat=true></interleaved-io>
       </span>
     </div>
   </div>
@@ -65,8 +65,10 @@ export default class CheckDisplay extends Vue {
     return lines.map(line => {
       if (line.startsWith("> ")) {
         return new IoLine(IoLineType.INPUT, line);
-      } else {
+      } else if (line.startsWith("<")) {
         return new IoLine(IoLineType.OUTPUT, line);
+      } else {
+        return new IoLine(IoLineType.OUTPUT, "  " + line);
       }
     });
   }

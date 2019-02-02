@@ -36,6 +36,7 @@
                         <v-card-text class="grey lighten-3">
                           <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                           <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
+                          <interleaved-io border="false" faithfulFormat="false" :lines="result.output"></interleaved-io>
                         </v-card-text>
                       </v-card>
                     </v-expansion-panel-content>
@@ -55,7 +56,10 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState, FileCheckResult, CheckResultType } from "@/store/types";
+import { RootState, FileCheckResult, CheckResultType, IoLine } from "@/store/types";
+import HighlightInterleavedIo, {
+  IoLineType
+} from "@/components/highlighting/HighlightedInterleavedIo.vue";
 
 class SingleFileResult {
   fileName: string;
@@ -73,7 +77,11 @@ class SingleFileResult {
   }
 }
 
-@Component({})
+@Component({
+  components: {
+    "interleaved-io": HighlightInterleavedIo
+  }
+})
 export default class Test extends Vue {
   private items: Array<SingleFileResult> = [];
 

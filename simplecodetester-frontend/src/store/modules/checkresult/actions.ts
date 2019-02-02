@@ -1,6 +1,6 @@
 import { ActionTree } from 'vuex';
 import axios, { AxiosPromise } from 'axios';
-import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType, CheckCategory } from '../../types';
+import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType, CheckCategory, IoLine } from '../../types';
 import { RootState } from '../../types';
 
 /**
@@ -18,12 +18,18 @@ function parseCheckResponse(json: any): CheckResult {
   const entries = new Array<Pair<string, Array<FileCheckResult>>>()
   Object.keys(json.fileResults).forEach(fileName => {
     const checkResults = json.fileResults[fileName].map((json: any) => {
-      return new FileCheckResult(json.check, json.result, json.message, json.errorOutput)
+      return new FileCheckResult(json.check, json.result, json.message, json.errorOutput, parseLines(json.output))
     })
     entries.push(new Pair(fileName, checkResults));
   })
 
   return new CheckResult(entries)
+}
+
+function parseLines(lines: Array<any>): Array<IoLine> {
+  return lines.map(line => {
+    return new IoLine(line.type.toLowerCase(), line.content);
+  })
 }
 
 /**
@@ -38,13 +44,13 @@ function parseCompilationOutput(json: any): CheckResult {
   Object.keys(json.diagnostics).forEach(fileName => {
     const diagnostics = json.diagnostics[fileName] as Array<string>
     const convertedToCheckResults = diagnostics
-      .map(diagString => new FileCheckResult("Compilation", CheckResultType.FAILED, diagString, ""))
+      .map(diagString => new FileCheckResult("Compilation", CheckResultType.FAILED, diagString, "", []))
 
     entries.push(new Pair(fileName, convertedToCheckResults));
   })
 
   if (json.output && json.output !== "") {
-    const checkResult = new FileCheckResult("Compilation", CheckResultType.FAILED, json.output, "");
+    const checkResult = new FileCheckResult("Compilation", CheckResultType.FAILED, json.output, "", []);
     entries.push(new Pair("N/A", [checkResult]));
   }
 
