@@ -123,7 +123,9 @@ public class CodeCheckService {
       return false;
     }
     check.get().setApproved(approved);
-    return checkRepository.save(check.get()).isApproved();
+    checkRepository.save(check.get()).isApproved();
+
+    return true;
   }
 
   /**
