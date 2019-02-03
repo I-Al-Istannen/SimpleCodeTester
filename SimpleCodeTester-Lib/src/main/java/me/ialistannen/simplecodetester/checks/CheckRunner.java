@@ -65,7 +65,6 @@ public class CheckRunner {
       Terminal.reset();
       return check.check(file);
     } catch (CheckFailedException e) {
-      e.printStackTrace(System.out);
       return ImmutableCheckResult.builder()
           .message(findRootCause(e).getMessage() == null ? "" : findRootCause(e).getMessage())
           .check(check.name())

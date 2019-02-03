@@ -58,7 +58,6 @@ public class StaticInputOutputCheck implements Check {
         .from(CheckResult.emptySuccess(this))
         .message(Terminal.getOutput())
         .build();
-
   }
 
   @Override
