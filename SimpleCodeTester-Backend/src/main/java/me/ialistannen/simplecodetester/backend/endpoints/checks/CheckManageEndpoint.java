@@ -100,7 +100,8 @@ public class CheckManageEndpoint {
       if (checkInstance instanceof InterleavedStaticIOCheck) {
         data = Map.of(
             "class", checkInstance.getClass().getSimpleName(),
-            "text", checkInstance.toString()
+            "text", checkInstance.toString(),
+            "name", checkInstance.name()
         );
       }
     } else {

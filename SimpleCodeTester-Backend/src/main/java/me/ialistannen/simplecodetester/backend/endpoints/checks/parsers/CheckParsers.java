@@ -49,7 +49,6 @@ public class CheckParsers {
     // actually safe, as we store it correctl
     @SuppressWarnings("unchecked")
     CheckParser<T> checkParser = (CheckParser<T>) parsers.get(checkKeyword);
-
     return checkParser.parse(payload);
   }
 }
