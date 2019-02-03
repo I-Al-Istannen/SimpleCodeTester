@@ -93,7 +93,7 @@ export default class UploadCheck extends Vue {
 
   uploadIOCheck() {
     const check: any = {
-      data: this.ioCheck!.input,
+      data: this.ioCheck,
       name: this.ioCheck!.name
     };
 
