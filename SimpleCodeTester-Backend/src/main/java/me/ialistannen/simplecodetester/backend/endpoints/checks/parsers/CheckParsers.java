@@ -3,7 +3,9 @@ package me.ialistannen.simplecodetester.backend.endpoints.checks.parsers;
 import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
+import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
 import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 
 /**
@@ -22,6 +24,7 @@ public class CheckParsers {
     this.parsers = new HashMap<>();
 
     addParser(InterleavedStaticIOCheck.class, new InterleavedIoCheckParser(gson));
+    addParser(StaticInputOutputCheck.class, new StaticInputOutputCheckParser(gson));
   }
 
   /**
@@ -49,6 +52,9 @@ public class CheckParsers {
     // actually safe, as we store it correctl
     @SuppressWarnings("unchecked")
     CheckParser<T> checkParser = (CheckParser<T>) parsers.get(checkKeyword);
+    if (checkParser == null) {
+      throw new CheckParseException("No parser found for " + checkKeyword);
+    }
     return checkParser.parse(payload);
   }
 }

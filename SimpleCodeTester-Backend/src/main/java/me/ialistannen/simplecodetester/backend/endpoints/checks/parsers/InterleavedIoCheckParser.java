@@ -1,7 +1,6 @@
 package me.ialistannen.simplecodetester.backend.endpoints.checks.parsers;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
@@ -28,15 +27,22 @@ public class InterleavedIoCheckParser implements CheckParser<InterleavedStaticIO
   @Override
   public InterleavedStaticIOCheck parse(String payload) {
     try {
-      JsonObject jsonObject = gson.fromJson(payload, JsonObject.class);
-      String name = jsonObject.getAsJsonPrimitive("name").getAsString();
+      ResponseBase responseBase = gson.fromJson(payload, ResponseBase.class);
 
-      String rawData = jsonObject.getAsJsonPrimitive("data").getAsString();
-
-      return interleavedIoParser.fromString(rawData, name);
+      return interleavedIoParser.fromString(responseBase.data.input, responseBase.name);
     } catch (JsonSyntaxException e) {
       throw new CheckParseException("Error parsing check: " + e.getMessage());
     }
   }
 
+  private static class ResponseBase {
+
+    String name;
+    CheckRepresentation data;
+  }
+
+  private static class CheckRepresentation {
+
+    String input;
+  }
 }
