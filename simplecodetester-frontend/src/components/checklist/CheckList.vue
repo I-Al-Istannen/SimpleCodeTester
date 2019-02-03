@@ -26,7 +26,7 @@
             :filter="filterValueHandleApproved"
           >
             <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
-              <v-expansion-panel expand>
+              <v-expansion-panel expand :key="props.item.id">
                 <v-expansion-panel-content @input="fetchCheckText(props.item)">
                   <div slot="header" class="monospaced subheading d-flex check-header">
                     <span>Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>
