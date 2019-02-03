@@ -66,6 +66,7 @@ export default class HighlightInterleavedIo extends Vue {
         object["prepend-input-label"] = true;
       }
     }
+    object["faithful-line"] = this.faithfulFormat === "true";
 
     return object;
   }
@@ -106,15 +107,12 @@ export default class HighlightInterleavedIo extends Vue {
 .line.error {
   background-color: transparent !important;
 }
-.prepend-input-label::before {
-  content: "> ";
-}
 
 .line.input {
   color: royalblue;
 }
 .line.output {
-  color: gray;
+  color: #455a64;
 }
 .line.error > .rest {
   color: tomato;
@@ -123,5 +121,23 @@ export default class HighlightInterleavedIo extends Vue {
   font-weight: bold;
   padding-right: 2px;
   color: lightgray;
+}
+
+.faithful-line > .prefix:empty {
+  padding-right: 1px;
+}
+.faithful-line > .prefix:empty::before {
+  content: " ";
+  white-space: pre-wrap;
+}
+
+/* Offset the input label */
+.line:not(.faithful-line):not(.input)::before {
+  content: "  ";
+  white-space: pre;
+}
+
+.line.input:not(.faithful-line)::before {
+  content: "> ";
 }
 </style>
