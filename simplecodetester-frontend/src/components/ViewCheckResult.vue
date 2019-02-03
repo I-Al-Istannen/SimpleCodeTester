@@ -84,7 +84,21 @@ class SingleFileResult {
     this.results = results;
     this.successful = successful;
 
-    this.results.sort((a, b) => a.check.localeCompare(b.check));
+    // Pull up failed checks, sort alphabetically inside the groups
+    this.results.sort((a, b) => {
+      if (
+        a.result !== CheckResultType.FAILED &&
+        b.result === CheckResultType.FAILED
+      ) {
+        return 1;
+      } else if (
+        a.result === CheckResultType.FAILED &&
+        b.result !== CheckResultType.FAILED
+      ) {
+        return -1;
+      }
+      return a.check.localeCompare(b.check);
+    });
   }
 }
 
@@ -128,7 +142,15 @@ export default class Test extends Vue {
       this.items.push(new SingleFileResult(key, value.slice(), allSuccessful));
     });
 
-    this.items.sort((a, b) => a.fileName.localeCompare(b.fileName));
+    // Pull up failed checks, sort alphabetically inside the groups
+    this.items.sort((a, b) => {
+      if (a.successful && !b.successful) {
+        return 1;
+      } else if (!a.successful && b.successful) {
+        return -1;
+      }
+      return a.fileName.localeCompare(b.fileName);
+    });
   }
 }
 </script>
