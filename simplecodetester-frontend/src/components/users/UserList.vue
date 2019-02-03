@@ -1,6 +1,6 @@
 <template>
   <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md6>
+    <v-flex xs12 sm10 md8>
       <v-card class="elevation-12">
         <v-toolbar dark color="primary">
           <v-toolbar-title>Manage Users</v-toolbar-title>

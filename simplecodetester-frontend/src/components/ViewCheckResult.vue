@@ -1,6 +1,6 @@
 <template>
   <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md6>
+    <v-flex xs12 sm10 md8>
       <v-card class="elevation-12 pb-2">
         <v-toolbar dark :color="allPassed && items.length > 0 ? 'primary' : '#ff6347'">
           <v-toolbar-title>
