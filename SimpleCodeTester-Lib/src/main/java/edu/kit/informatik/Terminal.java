@@ -1,11 +1,14 @@
 package edu.kit.informatik;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -107,7 +110,9 @@ public final class Terminal {
    * @return the written input
    */
   public static String getOutput() {
-    return output.toString();
+    return output.stream()
+        .flatMap(Collection::stream)
+        .collect(joining("\n"));
   }
 
   /**
