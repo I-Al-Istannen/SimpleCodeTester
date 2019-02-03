@@ -25,7 +25,7 @@ import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.checks.Check;
-import me.ialistannen.simplecodetester.checks.CheckType;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
@@ -93,14 +93,30 @@ public class CheckManageEndpoint {
 
     CodeCheck codeCheck = check.get();
 
+    return serializeCheckContent(codeCheck);
+  }
+
+  private ResponseEntity<Object> serializeCheckContent(CodeCheck codeCheck) {
     Object data = "N/A";
 
-    if (codeCheck.getCheckType() == CheckType.UNKNOWN) {
+    JsonObject checkJson = checkSerializer.toJson(codeCheck.getText());
+
+    if (checkJson.has("class")) {
       Check checkInstance = checkSerializer.fromJson(codeCheck.getText());
+
+      // Yes, this could be solved with yet another abstraction layer
+      // No, probably not worth it for two tests
       if (checkInstance instanceof InterleavedStaticIOCheck) {
         data = Map.of(
             "class", checkInstance.getClass().getSimpleName(),
             "text", checkInstance.toString(),
+            "name", checkInstance.name()
+        );
+      } else if (checkInstance instanceof StaticInputOutputCheck) {
+        data = Map.of(
+            "class", checkInstance.getClass().getSimpleName(),
+            "input", ((StaticInputOutputCheck) checkInstance).getInput(),
+            "output", ((StaticInputOutputCheck) checkInstance).getExpectedOutput(),
             "name", checkInstance.name()
         );
       }
@@ -172,7 +188,7 @@ public class CheckManageEndpoint {
    * @return true if the check was added
    */
   @PostMapping("/checks/update/{checkId}")
-  public ResponseEntity<CodeCheck> updateCheck(@PathVariable("checkId") long id,
+  public ResponseEntity<Object> updateCheck(@PathVariable("checkId") long id,
       @RequestBody @NotEmpty String payload) {
     Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
@@ -191,7 +207,7 @@ public class CheckManageEndpoint {
     }
 
     //noinspection OptionalGetWithoutIsPresent
-    return ResponseEntity.ok(checkService.getCheck(id).get());
+    return serializeCheckContent(checkService.getCheck(id).get());
   }
 
   /**
