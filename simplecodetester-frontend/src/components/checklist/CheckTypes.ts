@@ -126,7 +126,7 @@ export class CheckCollection {
     };
 
     const response = await Axios.post(`/checks/update/${id}`, {
-      value: JSON.stringify(check),
+      value: JSON.stringify(checkData),
       class: "InterleavedStaticIOCheck"
     });
     this.checkContents[id] = response.data.text;

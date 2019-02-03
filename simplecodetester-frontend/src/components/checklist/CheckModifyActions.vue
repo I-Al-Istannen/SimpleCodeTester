@@ -103,16 +103,12 @@ export default class ModifyActions extends Vue {
       return;
     }
     this.checks.fetchContent(this.myCheck).then(content => {
-      content = JSON.parse(content);
-
-      let data;
-      if (content.value) {
-        data = JSON.parse(content.value);
+      if (content.text) {
+        this.checkContent = new IOCheck(content.text, content.name);
       } else {
-        data = content;
+        let parsed = JSON.parse(content);
+        this.checkContent = new IOCheck(parsed.input.join("\n"), content.name);
       }
-
-      this.checkContent = new IOCheck(data.input.join("\n"), content.name);
     });
   }
 
