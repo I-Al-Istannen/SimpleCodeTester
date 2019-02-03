@@ -51,7 +51,9 @@ public class SubmissionClassLoader extends URLClassLoader {
   protected Class<?> findClass(String name) throws ClassNotFoundException {
     if (compiledClasses.containsKey(name)) {
       byte[] bytes = compiledClasses.get(name);
-      return defineClass(name, bytes, 0, bytes.length);
+      Class<?> defineClass = defineClass(name, bytes, 0, bytes.length);
+      loadedSubmissionClasses.add(defineClass);
+      return defineClass;
     }
     return super.findClass(name);
   }
