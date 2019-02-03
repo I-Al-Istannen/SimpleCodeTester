@@ -25,6 +25,7 @@ public class InterleavedIoParser {
     this.parsers.add(new LiteralParser());
     this.parsers.add(new ErrorParser());
     this.parsers.add(new RegexParser());
+    this.parsers.add(new VerbatimParser());
   }
 
   /**
