@@ -36,7 +36,11 @@
                         <v-card-text class="grey lighten-3">
                           <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                           <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
-                          <interleaved-io border="false" faithfulFormat="false" :lines="result.output"></interleaved-io>
+                          <interleaved-io
+                            border="false"
+                            faithfulFormat="false"
+                            :lines="result.output"
+                          ></interleaved-io>
                         </v-card-text>
                       </v-card>
                     </v-expansion-panel-content>
@@ -56,7 +60,12 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState, FileCheckResult, CheckResultType, IoLine } from "@/store/types";
+import {
+  RootState,
+  FileCheckResult,
+  CheckResultType,
+  IoLine
+} from "@/store/types";
 import HighlightInterleavedIo, {
   IoLineType
 } from "@/components/highlighting/HighlightedInterleavedIo.vue";
@@ -74,6 +83,8 @@ class SingleFileResult {
     this.fileName = fileName;
     this.results = results;
     this.successful = successful;
+
+    this.results.sort((a, b) => a.check.localeCompare(b.check));
   }
 }
 
@@ -116,6 +127,8 @@ export default class Test extends Vue {
 
       this.items.push(new SingleFileResult(key, value.slice(), allSuccessful));
     });
+
+    this.items.sort((a, b) => a.fileName.localeCompare(b.fileName));
   }
 }
 </script>
