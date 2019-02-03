@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.constraints.NotEmpty;
+import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
@@ -43,6 +44,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class CheckManageEndpoint {
 
   private CheckCategoryService checkCategoryService;
@@ -153,7 +155,12 @@ public class CheckManageEndpoint {
     try {
       Check check = parseCheckFromJsonBlob(payload);
 
-      return ResponseEntity.ok(checkService.addCheck(check, userOptional.get(), checkCategory));
+      ResponseEntity<Object> responseEntity = ResponseEntity
+          .ok(checkService.addCheck(check, userOptional.get(), checkCategory));
+
+      log.info("User {} added a new check with the name {}", user.getUsername(), check.name());
+
+      return responseEntity;
     } catch (CheckParseException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (InvalidCheckException e) {
@@ -202,6 +209,9 @@ public class CheckManageEndpoint {
 
     try {
       checkService.updateCheck(id, parseCheckFromJsonBlob(payload));
+      log.info("User {} updated a check with the name {}",
+          user.getName(), storedCheck.get().getName()
+      );
     } catch (CheckParseException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
@@ -229,6 +239,9 @@ public class CheckManageEndpoint {
     assertHasPermission(authentication, check.get());
 
     checkService.removeCheck(id);
+    log.info("User {} deleted a check with the name {}",
+        authentication.getName(), check.get().getName()
+    );
 
     return ResponseEntity.ok("{}");
   }
