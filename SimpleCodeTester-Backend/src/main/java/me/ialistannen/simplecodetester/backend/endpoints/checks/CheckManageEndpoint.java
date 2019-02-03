@@ -1,21 +1,23 @@
-package me.ialistannen.simplecodetester.backend.endpoints;
+package me.ialistannen.simplecodetester.backend.endpoints.checks;
 
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.security.Principal;
-import java.util.Arrays;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
+import me.ialistannen.simplecodetester.backend.endpoints.checks.parsers.CheckParsers;
+import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
 import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
@@ -23,7 +25,11 @@ import me.ialistannen.simplecodetester.backend.services.checks.CheckCategoryServ
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
-import me.ialistannen.simplecodetester.checks.CheckType;
+import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
+import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
+import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
+import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -38,17 +44,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class CheckManageEndpoint {
 
   private CheckCategoryService checkCategoryService;
   private CodeCheckService checkService;
   private UserService userService;
+  private CheckSerializer checkSerializer;
+  private CheckParsers checkParsers;
 
   public CheckManageEndpoint(CheckCategoryService checkCategoryService,
       CodeCheckService checkService, UserService userService) {
     this.checkCategoryService = checkCategoryService;
     this.checkService = checkService;
     this.userService = userService;
+
+    Gson gson = ConfiguredGson.createGson();
+    this.checkSerializer = new CheckSerializer(gson);
+    this.checkParsers = new CheckParsers(gson);
   }
 
   @GetMapping("/checks/get-all")
@@ -59,8 +72,8 @@ public class CheckManageEndpoint {
               .put("id", codeCheck.getId())
               .put("name", codeCheck.getName())
               .put("creator", codeCheck.getCreator().getName())
-              .put("approved", codeCheck.isApproved())
-              .put("checkType", codeCheck.getCheckType().name());
+              .put("checkType", codeCheck.getCheckType().name())
+              .put("approved", codeCheck.isApproved());
 
           ObjectNode categoryNode = objectMapper.createObjectNode();
           categoryNode.put("id", codeCheck.getCategory().getId());
@@ -72,27 +85,60 @@ public class CheckManageEndpoint {
         .collect(toList());
   }
 
-  @GetMapping("/checks/get")
-  public ResponseEntity<CodeCheck> getCheck(@RequestParam long id) {
+  @GetMapping("/checks/get-content")
+  public ResponseEntity<Object> getCheckContent(@RequestParam long id) {
     Optional<CodeCheck> check = checkService.getCheck(id);
 
     if (check.isEmpty()) {
       return ResponseUtil.error(HttpStatus.NOT_FOUND, "Check not found!");
     }
 
-    return ResponseEntity.ok(check.get());
+    CodeCheck codeCheck = check.get();
+
+    return serializeCheckContent(codeCheck);
+  }
+
+  private ResponseEntity<Object> serializeCheckContent(CodeCheck codeCheck) {
+    Object data = "N/A";
+
+    JsonObject checkJson = checkSerializer.toJson(codeCheck.getText());
+
+    if (checkJson.has("class")) {
+      Check checkInstance = checkSerializer.fromJson(codeCheck.getText());
+
+      // Yes, this could be solved with yet another abstraction layer
+      // No, probably not worth it for two tests
+      if (checkInstance instanceof InterleavedStaticIOCheck) {
+        data = Map.of(
+            "class", checkInstance.getClass().getSimpleName(),
+            "text", checkInstance.toString(),
+            "name", checkInstance.name()
+        );
+      } else if (checkInstance instanceof StaticInputOutputCheck) {
+        data = Map.of(
+            "class", checkInstance.getClass().getSimpleName(),
+            "input", ((StaticInputOutputCheck) checkInstance).getInput(),
+            "output", ((StaticInputOutputCheck) checkInstance).getExpectedOutput(),
+            "name", checkInstance.name()
+        );
+      }
+    } else {
+      data = codeCheck.getText();
+    }
+
+    return ResponseEntity.ok(Map.of("content", data));
   }
 
   /**
    * Adds a new check.
    *
    * @param categoryId the id of the category
-   * @param text the text of the check
+   * @param payload the json payload
    * @return true if the check was added
    */
   @PostMapping("/checks/add/{categoryId}")
   public ResponseEntity<Object> addNew(@PathVariable("categoryId") long categoryId,
-      @RequestBody @NotEmpty String text) {
+      @RequestBody @NotEmpty String payload) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -106,15 +152,17 @@ public class CheckManageEndpoint {
     CheckCategory checkCategory = checkCategoryService.getById(categoryId)
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
-    CodeCheck codeCheck = new CodeCheck(
-        text,
-        CheckType.SOURCE_CODE,
-        userOptional.get(),
-        checkCategory
-    );
-
     try {
-      return ResponseEntity.ok(checkService.addCheck(codeCheck));
+      Check check = parseCheckFromJsonBlob(payload);
+
+      ResponseEntity<Object> responseEntity = ResponseEntity
+          .ok(checkService.addCheck(check, userOptional.get(), checkCategory));
+
+      log.info("User {} added a new check with the name {}", user.getUsername(), check.name());
+
+      return responseEntity;
+    } catch (CheckParseException e) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (InvalidCheckException e) {
       Map<String, Object> data = new HashMap<>();
 
@@ -128,81 +176,27 @@ public class CheckManageEndpoint {
     }
   }
 
-  @PostMapping("/checks/add-io")
-  public ResponseEntity<Object> addInputOutputCheck(@RequestParam @NotNull String input,
-      @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
-      @RequestParam long categoryId, Principal principal) {
+  private Check parseCheckFromJsonBlob(String payload) {
+    JsonObject jsonObject = checkSerializer.toJson(payload);
+    String checkJson = jsonObject.getAsJsonPrimitive("value").getAsString();
+    String keyword = jsonObject.getAsJsonPrimitive("class").getAsString();
+    Check check = checkParsers.parsePayload(checkJson, keyword);
 
-    CheckCategory checkCategory = checkCategoryService.getById(categoryId)
-        .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
-
-    String slightlySanerInput = sanitizeIOInput(input);
-    String slightlySanerOutput = sanitizeIOInput(output);
-    // PrintLine always adds a newline
-    if (!slightlySanerOutput.endsWith("\n")) {
-      slightlySanerOutput = slightlySanerOutput + "\n";
+    if (check == null) {
+      throw new CheckParseException("Could not successfully parse the check :/");
     }
-
-    // User logged in, so they very likely still exist
-    User user = userService.getUser(principal.getName()).orElseThrow();
-
-    return ResponseEntity.ok(checkService.addIOCheck(
-        Arrays.asList(slightlySanerInput.split("\n")),
-        slightlySanerOutput,
-        name,
-        user,
-        checkCategory
-    ));
-  }
-
-  private String sanitizeIOInput(String input) {
-    return input.replace("\r\n", "\n");
-  }
-
-  @PostMapping("/checks/update-io")
-  public ResponseEntity<Object> updateInputOutputCheck(@RequestParam @NotNull String input,
-      @RequestParam @NotNull String output, @RequestParam @NotEmpty String name,
-      @RequestParam long checkId) {
-
-    String slightlySanerInput = sanitizeIOInput(input);
-    String slightlySanerOutput = sanitizeIOInput(output);
-    // PrintLine always adds a newline
-    if (!slightlySanerOutput.endsWith("\n")) {
-      slightlySanerOutput = slightlySanerOutput + "\n";
-    }
-
-    Optional<CodeCheck> check = checkService.getCheck(checkId);
-    if (check.isEmpty()) {
-      return ResponseUtil.error(HttpStatus.NOT_FOUND, "Check not found");
-    }
-    if (check.get().getCheckType() != CheckType.IO) {
-      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "Check is no IO check!");
-    }
-
-    assertHasPermission(SecurityContextHolder.getContext().getAuthentication(), check.get());
-
-    boolean successfullyUpdated = checkService.updateIOCheck(
-        checkId,
-        Arrays.asList(slightlySanerInput.split("\n")),
-        slightlySanerOutput,
-        name
-    );
-
-    if (successfullyUpdated) {
-      return ResponseEntity.ok(checkService.getCheck(checkId).orElseThrow());
-    }
-    return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown error");
+    return check;
   }
 
   /**
    * Adds a new check.
    *
-   * @param text the text of the check
+   * @param payload the new check payload
    * @return true if the check was added
    */
-  @PostMapping("/checks/update")
-  public ResponseEntity<CodeCheck> updateCheck(@RequestParam long id,
-      @RequestBody @NotEmpty String text) {
+  @PostMapping("/checks/update/{checkId}")
+  public ResponseEntity<Object> updateCheck(@PathVariable("checkId") long id,
+      @RequestBody @NotEmpty String payload) {
     Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
     Optional<CodeCheck> storedCheck = checkService.getCheck(id);
@@ -213,10 +207,17 @@ public class CheckManageEndpoint {
 
     assertHasPermission(user, storedCheck.get());
 
-    checkService.updateCheck(id, check -> check.setText(text));
+    try {
+      checkService.updateCheck(id, parseCheckFromJsonBlob(payload));
+      log.info("User {} updated a check with the name {}",
+          user.getName(), storedCheck.get().getName()
+      );
+    } catch (CheckParseException e) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
 
     //noinspection OptionalGetWithoutIsPresent
-    return ResponseEntity.ok(checkService.getCheck(id).get());
+    return serializeCheckContent(checkService.getCheck(id).get());
   }
 
   /**
@@ -238,6 +239,9 @@ public class CheckManageEndpoint {
     assertHasPermission(authentication, check.get());
 
     checkService.removeCheck(id);
+    log.info("User {} deleted a check with the name {}",
+        authentication.getName(), check.get().getName()
+    );
 
     return ResponseEntity.ok("{}");
   }
@@ -257,7 +261,7 @@ public class CheckManageEndpoint {
     }
 
     if (checkService.approveCheck(id, approved)) {
-      return ResponseEntity.ok("{}");
+      return ResponseEntity.ok(Map.of());
     }
 
     return ResponseUtil.error(HttpStatus.NOT_FOUND, "The check could not be found.");

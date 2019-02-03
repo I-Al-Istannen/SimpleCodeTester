@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
+import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ReflectionHelper;
@@ -19,7 +20,7 @@ import org.joor.Reflect;
  */
 public abstract class MainClassRunnerCheck implements Check {
 
-  private Predicate<CompiledFile> mainClassPredicate;
+  private transient Predicate<CompiledFile> mainClassPredicate;
 
   /**
    * Creates a new MainClassRunnerCheck running every file that has a main method.
@@ -56,7 +57,7 @@ public abstract class MainClassRunnerCheck implements Check {
 
     return ImmutableCheckResult.builder()
         .from(CheckResult.emptySuccess(this))
-        .message(Terminal.getOutput())
+        .output(getOutput(file))
         .build();
   }
 
@@ -75,4 +76,12 @@ public abstract class MainClassRunnerCheck implements Check {
    * @throws CheckFailedException if the check failed
    */
   protected abstract void assertOutputValid(CompiledFile file);
+
+  /**
+   * Returns the in and output for the file.
+   *
+   * @param file the file being checked
+   * @return the in and output for the file
+   */
+  protected abstract List<LineResult> getOutput(CompiledFile file);
 }

@@ -1,5 +1,5 @@
-import Axios, { AxiosPromise } from 'axios';
-import { CheckCategory } from '@/store/types';
+import Axios from 'axios';
+import {CheckCategory} from '@/store/types';
 
 /**
  * The base of a check, containing all metadata but no content.
@@ -9,35 +9,35 @@ export class CheckBase {
   creator: string;
   name: string;
   approved: boolean;
-  checkType: string;
   category: CheckCategory;
+  checkType: string | null;
 
   constructor(
     id: number,
     creator: string,
     name: string,
     approved: boolean,
-    checkType: string,
-    category: CheckCategory
+    category: CheckCategory,
+    checkType: string | null
   ) {
     this.id = id;
     this.creator = creator;
     this.name = name;
     this.approved = approved;
-    this.checkType = checkType;
     this.category = category;
+    this.checkType = checkType;
   }
 }
 
 export class IOCheck {
   input: string;
-  output: string;
+  output: string | null;
   name: string;
 
-  constructor(input: string, output: string, name: string) {
+  constructor(input: string, output: string | null, name: string) {
     this.input = input;
-    this.output = output;
     this.name = name;
+    this.output = output;
   }
 }
 
@@ -58,13 +58,50 @@ export class CheckCollection {
     if (this.checkContents[check.id]) {
       return Promise.resolve(this.checkContents[check.id])
     }
-    const response = await Axios.get("/checks/get", {
+    const response = await Axios.get("/checks/get-content", {
       params: {
         id: check.id
       }
     });
-    this.checkContents[check.id] = response.data.text;
+    let content = response.data.content;
+
+    this.checkContents[check.id] = this.parseCheckResponse(content)
+
     return this.checkContents[check.id];
+  }
+
+  private parseCheckResponse(content: any) {
+    let ioCheck: IOCheck;
+    let checkClass: string;
+
+    if (typeof content === "object") {
+      if (content.class === "StaticInputOutputCheck") {
+        checkClass = content.class;
+        ioCheck = new IOCheck(
+            content.input.join("\n"),
+            content.output,
+            content.name
+        );
+      } else if (content.class === "InterleavedStaticIOCheck") {
+        checkClass = content.class;
+        ioCheck = new IOCheck(content.text, null, content.name);
+      } else {
+        console.log("Unknown check received: ");
+        console.log(content);
+
+        return;
+      }
+    } else {
+      let parsed = JSON.parse(content);
+      checkClass = "StaticInputOutputCheck";
+      ioCheck = new IOCheck(
+          parsed.input.join("\n"),
+          parsed.expectedOutput,
+          parsed.name
+      );
+    }
+
+    return {class: checkClass, check: ioCheck};
   }
 
   /**
@@ -116,23 +153,27 @@ export class CheckCollection {
    * 
    * @param check the check data
    * @param id the check id
+   * @param checkClass the class of the check
    */
-  async updateIoCheck(check: IOCheck, id: number): Promise<void> {
-    const formData = new FormData();
-    formData.append("input", check.input)
-    formData.append("output", check.output)
-    formData.append("name", check.name)
-    formData.append("checkId", "" + id)
+  async updateIoCheck(check: IOCheck, id: number, checkClass: string): Promise<void> {
+    const checkData: any = {
+      data: check,
+      name: check.name
+    };
 
-    const response = await Axios.post("/checks/update-io", formData);
-    this.checkContents[id] = response.data.text;
+    const response = await Axios.post(`/checks/update/${id}`, {
+      value: JSON.stringify(checkData),
+      class: checkClass
+    });
+
+    this.checkContents[id] = this.parseCheckResponse(response.data.content);
   }
 
   private sort() {
     this.checkBases.sort((a, b) => {
       // compare by category descending (so higher ones in a nice format are first)
       if (a.category.name.toLowerCase() > b.category.name.toLowerCase()) return -1;
-      if(a.category.name.toLowerCase() < b.category.name.toLowerCase()) return 1;
+      if (a.category.name.toLowerCase() < b.category.name.toLowerCase()) return 1;
 
       // then by name
       if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;

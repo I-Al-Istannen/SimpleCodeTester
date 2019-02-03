@@ -1,6 +1,6 @@
 <template>
   <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md6>
+    <v-flex xs12 sm10 md8>
       <v-card class="elevation-12 pb-2">
         <v-toolbar dark :color="allPassed && items.length > 0 ? 'primary' : '#ff6347'">
           <v-toolbar-title>
@@ -36,6 +36,11 @@
                         <v-card-text class="grey lighten-3">
                           <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                           <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
+                          <interleaved-io
+                            border="false"
+                            faithfulFormat="false"
+                            :lines="result.output"
+                          ></interleaved-io>
                         </v-card-text>
                       </v-card>
                     </v-expansion-panel-content>
@@ -55,7 +60,15 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState, FileCheckResult, CheckResultType } from "@/store/types";
+import {
+  RootState,
+  FileCheckResult,
+  CheckResultType,
+  IoLine
+} from "@/store/types";
+import HighlightInterleavedIo, {
+  IoLineType
+} from "@/components/highlighting/HighlightedInterleavedIo.vue";
 
 class SingleFileResult {
   fileName: string;
@@ -70,10 +83,30 @@ class SingleFileResult {
     this.fileName = fileName;
     this.results = results;
     this.successful = successful;
+
+    // Pull up failed checks, sort alphabetically inside the groups
+    this.results.sort((a, b) => {
+      if (
+        a.result !== CheckResultType.FAILED &&
+        b.result === CheckResultType.FAILED
+      ) {
+        return 1;
+      } else if (
+        a.result === CheckResultType.FAILED &&
+        b.result !== CheckResultType.FAILED
+      ) {
+        return -1;
+      }
+      return a.check.localeCompare(b.check);
+    });
   }
 }
 
-@Component({})
+@Component({
+  components: {
+    "interleaved-io": HighlightInterleavedIo
+  }
+})
 export default class Test extends Vue {
   private items: Array<SingleFileResult> = [];
 
@@ -107,6 +140,16 @@ export default class Test extends Vue {
       );
 
       this.items.push(new SingleFileResult(key, value.slice(), allSuccessful));
+    });
+
+    // Pull up failed checks, sort alphabetically inside the groups
+    this.items.sort((a, b) => {
+      if (a.successful && !b.successful) {
+        return 1;
+      } else if (!a.successful && b.successful) {
+        return -1;
+      }
+      return a.fileName.localeCompare(b.fileName);
     });
   }
 }

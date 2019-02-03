@@ -12,5 +12,9 @@ public enum CheckType {
   /**
    * A check that just verifies the imports.
    */
-  IMPORT
+  IMPORT,
+  /**
+   * An unknown check type.
+   */
+  UNKNOWN
 }

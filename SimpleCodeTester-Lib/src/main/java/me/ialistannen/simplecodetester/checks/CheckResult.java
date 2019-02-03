@@ -1,6 +1,8 @@
 package me.ialistannen.simplecodetester.checks;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.List;
+import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
@@ -32,6 +34,13 @@ public abstract class CheckResult {
    * @return associated message, if any. An empty string if none
    */
   public abstract String message();
+
+  /**
+   * Returns the in and output of of the check, maybe with error messages interleaved.
+   *
+   * @return the in and output of of the check, maybe with error messages interleaved.
+   */
+  public abstract List<LineResult> output();
 
   /**
    * The {@link System#err} output.

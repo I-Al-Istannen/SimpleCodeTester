@@ -14,11 +14,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class UserManageEndpoint {
 
   private UserService userService;
@@ -62,6 +65,9 @@ public class UserManageEndpoint {
     if (!userService.removeUser(userId)) {
       return ResponseEntity.notFound().build();
     }
+    log.info("{} deleted user {}",
+        SecurityContextHolder.getContext().getAuthentication().getName(), userId
+    );
     return ResponseEntity.ok(Map.of());
   }
 
@@ -87,6 +93,11 @@ public class UserManageEndpoint {
             true,
             addUserBase.roles
         )
+    );
+
+    log.info("{} added the user {}",
+        SecurityContextHolder.getContext().getAuthentication().getName(),
+        addUserBase.id
     );
 
     return ResponseEntity.ok(Map.of());
@@ -141,6 +152,11 @@ public class UserManageEndpoint {
         editable.setPasswordHash(passwordEncoder.encode(user.get("password").asText()));
       }
     });
+
+    log.info("User {} updated user {}",
+        SecurityContextHolder.getContext().getAuthentication().getName(),
+        id
+    );
 
     return ResponseEntity.ok(Map.of());
   }

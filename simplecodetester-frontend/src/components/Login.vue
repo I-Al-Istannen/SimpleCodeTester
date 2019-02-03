@@ -28,7 +28,7 @@
           </v-form>
           <p class="error-message" :display="error.length !== 0">{{ error }}</p>
 
-          <a class="email" @click="sendMail">Send me a message :)</a>
+          <a class="email" @click="sendMail">Send me a message :=)<br>In general or if you want an account</a>
         </v-card-text>
         <v-card-actions class="pr-3 pb-3">
           <v-spacer></v-spacer>

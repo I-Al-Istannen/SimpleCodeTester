@@ -1,6 +1,6 @@
 <template>
   <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md6>
+    <v-flex xs12 sm10 md8>
       <v-card class="elevation-12">
         <v-toolbar dark color="primary">
           <v-toolbar-title>All checks</v-toolbar-title>
@@ -26,7 +26,7 @@
             :filter="filterValueHandleApproved"
           >
             <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
-              <v-expansion-panel expand>
+              <v-expansion-panel expand :key="props.item.id">
                 <v-expansion-panel-content @input="fetchCheckText(props.item)">
                   <div slot="header" class="monospaced subheading d-flex check-header">
                     <span>Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>

@@ -58,9 +58,10 @@ public class CodeCheck {
    */
   private boolean approved;
 
+
   @NotNull
   @Enumerated
-  private CheckType checkType;
+  private CheckType checkType = CheckType.UNKNOWN;
 
   @NotEmpty
   private String name;
@@ -75,14 +76,11 @@ public class CodeCheck {
    * entity.</strong></p>
    *
    * @param text the text
-   * @param checkType the {@link CheckType}
    * @param creator the creator
    * @param category the {@link CheckCategory}
    */
-  public CodeCheck(@NotEmpty String text, CheckType checkType, User creator,
-      CheckCategory category) {
+  public CodeCheck(@NotEmpty String text, User creator, CheckCategory category) {
     this.text = text;
-    this.checkType = checkType;
     this.creator = creator;
     this.category = category;
   }

@@ -1,21 +1,25 @@
 package edu.kit.informatik;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * A shim of the "Terminal" class from the Praktomat.
  */
 public final class Terminal {
 
-  private static StringBuilder output = new StringBuilder();
+  private static List<List<String>> output = new ArrayList<>();
   private static List<String> input = Collections.emptyList();
   private static int inputIndex;
 
@@ -45,8 +49,10 @@ public final class Terminal {
    * @param object the object to turn to a string and print. Handles nulls gracefully
    */
   public static void printLine(final Object object) {
-    output.append(object)
-        .append("\n");
+    if (output.isEmpty()) {
+      output.add(new ArrayList<>());
+    }
+    output.get(output.size() - 1).add(Objects.toString(object));
   }
 
   /**
@@ -67,6 +73,10 @@ public final class Terminal {
     if (inputIndex >= input.size()) {
       throw new NoSuchElementException("No more input present, but you tried to read!");
     }
+    if (output.isEmpty()) {
+      output.add(new ArrayList<>());
+    }
+    output.add(new ArrayList<>());
     return input.get(inputIndex++);
   }
 
@@ -100,7 +110,18 @@ public final class Terminal {
    * @return the written input
    */
   public static String getOutput() {
-    return output.toString();
+    return output.stream()
+        .flatMap(Collection::stream)
+        .collect(joining("\n"));
+  }
+
+  /**
+   * Returns the output that was written in the terminal class.
+   *
+   * @return the output
+   */
+  public static List<List<String>> getOutputLines() {
+    return output;
   }
 
   /**
@@ -108,6 +129,6 @@ public final class Terminal {
    */
   public static void reset() {
     inputIndex = 0;
-    output.setLength(0);
+    output = new ArrayList<>();
   }
 }

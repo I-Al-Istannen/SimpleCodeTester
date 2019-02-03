@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
+import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.util.ErrorLogCapture;
@@ -63,6 +64,14 @@ public class CheckRunner {
       capture.startCapture();
       Terminal.reset();
       return check.check(file);
+    } catch (CheckFailedException e) {
+      return ImmutableCheckResult.builder()
+          .message(findRootCause(e).getMessage() == null ? "" : findRootCause(e).getMessage())
+          .check(check.name())
+          .result(ResultType.FAILED)
+          .errorOutput(capture.getCaptured())
+          .output(e.getOutputLines())
+          .build();
     } catch (Throwable e) { // user checks should not crash everything
       e.printStackTrace(System.out);
       return ImmutableCheckResult.builder()

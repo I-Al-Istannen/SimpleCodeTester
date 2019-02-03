@@ -2,7 +2,19 @@
   <nav>
     <v-toolbar dark color="primary darken-1">
       <v-toolbar-side-icon v-if="!actionsHidden" @click="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-title>{{title}}</v-toolbar-title>
+      <v-toolbar-title class="d-flex flex-centered">
+        {{ title }}
+        <a
+          v-if="!actionsHidden"
+          href="https://github.com/I-Al-Istannen/SimpleCodeTester"
+          class="pl-4 py-0"
+          style="line-height: 0px;"
+          target="_blank"
+          rel="noopener"
+        >
+          <img :src="require('@/assets/Github_Mark.png')" width="32" height="32">
+        </a>
+      </v-toolbar-title>
 
       <v-spacer></v-spacer>
       <div v-if="!actionsHidden" class="hidden-sm-and-down">
@@ -176,5 +188,9 @@ export default class NavigationBar extends Vue {
 <style>
 .v-list__tile {
   font-size: 15px !important;
+}
+.flex-centered {
+  justify-content: center;
+  align-items: center;
 }
 </style>

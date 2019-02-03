@@ -1,15 +1,15 @@
 package me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import me.ialistannen.simplecodetester.checks.CheckType;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 import me.ialistannen.simplecodetester.submission.Submission;
-import me.ialistannen.simplecodetester.util.Pair;
 
 public class CompileAndCheckSubmission extends ProtocolMessage {
 
   private Submission submission;
-  private List<Pair<CheckType, String>> checks;
+  private List<String> checks;
 
   /**
    * Creates a new message.
@@ -18,11 +18,10 @@ public class CompileAndCheckSubmission extends ProtocolMessage {
    * @param submission the submission to compile and check
    * @param checks a list with all checks to run
    */
-  public CompileAndCheckSubmission(String uid, Submission submission,
-      List<Pair<CheckType, String>> checks) {
+  public CompileAndCheckSubmission(String uid, Submission submission, List<String> checks) {
     super(uid);
     this.submission = submission;
-    this.checks = checks;
+    this.checks = new ArrayList<>(checks);
   }
 
   /**
@@ -39,8 +38,8 @@ public class CompileAndCheckSubmission extends ProtocolMessage {
    *
    * @return a list with the checks to run
    */
-  public List<Pair<CheckType, String>> getChecks() {
-    return checks;
+  public List<String> getChecks() {
+    return Collections.unmodifiableList(checks);
   }
 
   @Override
