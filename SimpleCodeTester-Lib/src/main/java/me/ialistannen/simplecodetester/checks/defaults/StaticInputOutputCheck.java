@@ -1,14 +1,16 @@
 package me.ialistannen.simplecodetester.checks.defaults;
 
-import static java.util.stream.Collectors.toList;
-
 import edu.kit.informatik.Terminal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
-import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
+import java.util.function.Predicate;
+import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
+import me.ialistannen.simplecodetester.util.ReflectionHelper;
+import org.joor.Reflect;
 
 /**
  * A MainClassRunnerCheck that executes all classes with a main method by default and verifies that
@@ -16,9 +18,11 @@ import me.ialistannen.simplecodetester.submission.CompiledFile;
  *
  * The output and input are static, not changing and supplied in the constructor.
  */
-public class StaticInputOutputCheck extends MainClassRunnerCheck {
+public class StaticInputOutputCheck implements Check {
 
   private static final String REGEX_MARKER = "?r";
+  private static final Predicate<CompiledFile> mainClassPredicate = file -> ReflectionHelper
+      .hasMainMethod(file.asClass());
 
   private List<String> input;
   private String expectedOutput;
@@ -31,13 +35,35 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
   }
 
   @Override
-  protected List<String> getInput(CompiledFile file) {
-    return input;
+  public String name() {
+    return name;
   }
 
   @Override
-  public String name() {
-    return name;
+  public CheckResult check(CompiledFile file) {
+    if (!mainClassPredicate.test(file)) {
+      return CheckResult.notApplicable(this);
+    }
+
+    Terminal.setInput(Collections.unmodifiableList(input));
+
+    Class<?> clazz = file.asClass();
+
+    Reflect.on(clazz)
+        .call("main", (Object) new String[0]);
+
+    assertOutputValid();
+
+    return ImmutableCheckResult.builder()
+        .from(CheckResult.emptySuccess(this))
+        .message(Terminal.getOutput())
+        .build();
+
+  }
+
+  @Override
+  public boolean needsApproval() {
+    return false;
   }
 
   /**
@@ -58,8 +84,8 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
     return expectedOutput;
   }
 
-  @Override
-  protected void assertOutputValid(CompiledFile file) {
+
+  private void assertOutputValid() {
     String actualOutput = Terminal.getOutput();
 
     String[] outputLines = stripTrailingNewlines(actualOutput).split("\n");
@@ -108,12 +134,6 @@ public class StaticInputOutputCheck extends MainClassRunnerCheck {
     return "";
   }
 
-  @Override
-  protected List<LineResult> getOutput(CompiledFile file) {
-    return Arrays.stream(Terminal.getOutput().split("\n"))
-        .map(s -> new LineResult(Type.OUTPUT, s))
-        .collect(toList());
-  }
 
   @Override
   public String toString() {
