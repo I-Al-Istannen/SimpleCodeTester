@@ -13,7 +13,8 @@
       </v-btn>
       <v-card>
         <v-card-text>
-          <io-check-component v-if="isIoCheck" :initialValue="checkContent" @input="setCheck"></io-check-component>
+          <io-check-component v-if="isIoCheck" :initialValue="ioCheck"
+                              @input="setCheck"></io-check-component>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -53,28 +54,24 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import {
-  CheckBase,
-  CheckCollection,
-  IOCheck
-} from "@/components/checklist/CheckTypes";
-import { Prop, Watch } from "vue-property-decorator";
-import { UserState } from "@/store/types";
-import Axios from "axios";
-import { extractErrorMessage } from "@/util/requests";
-import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
+  import Vue from "vue";
+  import Component from "vue-class-component";
+  import {CheckBase, CheckCollection, IOCheck} from "@/components/checklist/CheckTypes";
+  import {Prop, Watch} from "vue-property-decorator";
+  import {UserState} from "@/store/types";
+  import {extractErrorMessage} from "@/util/requests";
+  import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 
-@Component({
+  @Component({
   components: {
     "io-check-component": IOCheckComponent
   }
 })
 export default class ModifyActions extends Vue {
   private check: any = null;
-  private checkContent: any = null;
+    private ioCheck: IOCheck | null = null;
   private editDialogOpened = false;
+    private checkClass: string | null = null;
 
   @Prop()
   private userState!: UserState;
@@ -103,12 +100,9 @@ export default class ModifyActions extends Vue {
       return;
     }
     this.checks.fetchContent(this.myCheck).then(content => {
-      if (content.text) {
-        this.checkContent = new IOCheck(content.text, content.name);
-      } else {
-        let parsed = JSON.parse(content);
-        this.checkContent = new IOCheck(parsed.input.join("\n"), content.name);
-      }
+      let check = content.check as IOCheck;
+      this.ioCheck = new IOCheck(check.input, check.output, check.name);
+      this.checkClass = content.class;
     });
   }
 
@@ -157,7 +151,7 @@ export default class ModifyActions extends Vue {
       return;
     }
     this.checks
-      .updateIoCheck(this.check as IOCheck, this.myCheck.id)
+    .updateIoCheck(this.check as IOCheck, this.myCheck.id, this.checkClass!)
       .then(() => {
         this.emitError("");
         this.editDialogOpened = false;

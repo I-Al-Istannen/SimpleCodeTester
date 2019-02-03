@@ -7,19 +7,27 @@
       label="Input. Hit enter for a new line."
       v-model="input"
     ></v-textarea>
+    <v-textarea
+        v-if="output !== null"
+        auto-grow
+        class="monospace-font"
+        label="Output. Hit enter for a new line."
+        v-model="output"
+    ></v-textarea>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import { Prop, Watch } from "vue-property-decorator";
-import { IOCheck } from "@/components/checklist/CheckTypes";
+  import Vue from "vue";
+  import Component from "vue-class-component";
+  import {Prop, Watch} from "vue-property-decorator";
+  import {IOCheck} from "@/components/checklist/CheckTypes";
 
-@Component
+  @Component
 export default class IOCheckComponent extends Vue {
   private input = "";
   private name = "";
+    private output: string | null = null;
 
   @Prop()
   initialValue!: IOCheck;
@@ -30,6 +38,7 @@ export default class IOCheckComponent extends Vue {
   @Watch("initialValue")
   onInitialValueChanged() {
     this.input = this.initialValue.input;
+    this.output = this.initialValue.output;
     this.name = this.initialValue.name;
   }
 
@@ -49,7 +58,7 @@ export default class IOCheckComponent extends Vue {
   }
 
   emit() {
-    this.$emit("input", new IOCheck(this.input, this.name));
+    this.$emit("input", new IOCheck(this.input, this.output, this.name));
   }
 }
 </script>

@@ -3,22 +3,22 @@
     <div class="label caption">Category</div>
     <v-chip class="ml-0 mb-3" disabled label color="accent" outline>{{ checkBase.category.name }}</v-chip>
     <div v-if="content">
-      <span v-if="checkBase.checkType === 'IO'">
+      <span v-if="content.class === 'StaticInputOutputCheck'">
         <v-textarea
-          class="monospace-font"
-          label="Input"
-          :value="contentJson.input.join('\n')"
-          readonly
+            class="monospace-font"
+            label="Input"
+            :value="content.check.input"
+            readonly
         ></v-textarea>
         <v-textarea
-          class="monospace-font"
-          label="Expected output"
-          :value="contentJson.expectedOutput"
-          readonly
+            class="monospace-font"
+            label="Expected output"
+            :value="content.check.output"
+            readonly
         ></v-textarea>
       </span>
-      <span v-if="contentJson.class && contentJson.class.endsWith('InterleavedStaticIOCheck')">
-        <interleaved-io :lines="interleavedLines" faithfulFormat=true></interleaved-io>
+      <span v-if="content.class === 'InterleavedStaticIOCheck'">
+        <interleaved-io :lines="interleavedLines" faithfulFormat="true"></interleaved-io>
       </span>
     </div>
   </div>
@@ -31,14 +31,15 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import "prismjs";
 import "prismjs/themes/prism.css";
-require("prismjs/components/prism-java.min.js");
 import Prism from "vue-prism-component";
-import { CheckBase } from "@/components/checklist/CheckTypes";
-import { Prop, Provide } from "vue-property-decorator";
+import {CheckBase} from "@/components/checklist/CheckTypes";
+import {Prop} from "vue-property-decorator";
 import HighlightInterleavedIo, {
   IoLine,
   IoLineType
 } from "@/components/highlighting/HighlightedInterleavedIo.vue";
+
+require("prismjs/components/prism-java.min.js");
 
 @Component({
   components: {
@@ -53,14 +54,8 @@ export default class CheckDisplay extends Vue {
   @Prop()
   private content!: any;
 
-  get contentJson() {
-    return typeof this.content === "object"
-      ? this.content
-      : JSON.parse(this.content);
-  }
-
   get interleavedLines() {
-    let lines = (this.content.text as string).split(/\n/);
+    let lines = (this.content.check.input as string).split(/\n/);
 
     return lines.map(line => {
       if (line.startsWith("> ")) {

@@ -1,5 +1,5 @@
-import Axios, { AxiosPromise } from 'axios';
-import { CheckCategory } from '@/store/types';
+import Axios from 'axios';
+import {CheckCategory} from '@/store/types';
 
 /**
  * The base of a check, containing all metadata but no content.
@@ -10,7 +10,6 @@ export class CheckBase {
   name: string;
   approved: boolean;
   category: CheckCategory;
-  className: string;
   checkType: string | null;
 
   constructor(
@@ -19,7 +18,6 @@ export class CheckBase {
     name: string,
     approved: boolean,
     category: CheckCategory,
-    className: string,
     checkType: string | null
   ) {
     this.id = id;
@@ -27,18 +25,19 @@ export class CheckBase {
     this.name = name;
     this.approved = approved;
     this.category = category;
-    this.className = className;
     this.checkType = checkType;
   }
 }
 
 export class IOCheck {
   input: string;
+  output: string | null;
   name: string;
 
-  constructor(input: string, name: string) {
+  constructor(input: string, output: string | null, name: string) {
     this.input = input;
     this.name = name;
+    this.output = output;
   }
 }
 
@@ -64,9 +63,45 @@ export class CheckCollection {
         id: check.id
       }
     });
-    this.checkContents[check.id] = response.data.content;
-    
+    let content = response.data.content;
+
+    this.checkContents[check.id] = this.parseCheckResponse(content)
+
     return this.checkContents[check.id];
+  }
+
+  private parseCheckResponse(content: any) {
+    let ioCheck: IOCheck;
+    let checkClass: string;
+
+    if (typeof content === "object") {
+      if (content.class === "StaticInputOutputCheck") {
+        checkClass = content.class;
+        ioCheck = new IOCheck(
+            content.input.join("\n"),
+            content.output,
+            content.name
+        );
+      } else if (content.class === "InterleavedStaticIOCheck") {
+        checkClass = content.class;
+        ioCheck = new IOCheck(content.text, null, content.name);
+      } else {
+        console.log("Unknown check received: ");
+        console.log(content);
+
+        return;
+      }
+    } else {
+      let parsed = JSON.parse(content);
+      checkClass = "StaticInputOutputCheck";
+      ioCheck = new IOCheck(
+          parsed.input.join("\n"),
+          parsed.expectedOutput,
+          parsed.name
+      );
+    }
+
+    return {class: checkClass, check: ioCheck};
   }
 
   /**
@@ -118,18 +153,20 @@ export class CheckCollection {
    * 
    * @param check the check data
    * @param id the check id
+   * @param checkClass the class of the check
    */
-  async updateIoCheck(check: IOCheck, id: number): Promise<void> {
+  async updateIoCheck(check: IOCheck, id: number, checkClass: string): Promise<void> {
     const checkData: any = {
-      data: check.input,
+      data: check,
       name: check.name
     };
 
     const response = await Axios.post(`/checks/update/${id}`, {
       value: JSON.stringify(checkData),
-      class: "InterleavedStaticIOCheck"
+      class: checkClass
     });
-    this.checkContents[id] = response.data.text;
+
+    this.checkContents[id] = this.parseCheckResponse(response.data.content);
   }
 
   private sort() {
