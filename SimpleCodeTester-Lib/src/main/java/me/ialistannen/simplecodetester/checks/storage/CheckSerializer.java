@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 
 /**
  * A class that can (de-)serialize checks to/from json.
@@ -54,6 +55,12 @@ public class CheckSerializer {
   public Check fromJson(String json) {
     try {
       JsonObject jsonObject = toJson(json);
+
+      if (!jsonObject.has("class")) {
+        // assume old check storage format
+        return gson.fromJson(jsonObject, StaticInputOutputCheck.class);
+      }
+
       @SuppressWarnings("unchecked")
       Class<Check> checkClass = (Class<Check>) Class
           .forName(jsonObject.getAsJsonPrimitive("class").getAsString());
