@@ -28,7 +28,9 @@
           </v-form>
           <p class="error-message" :display="error.length !== 0">{{ error }}</p>
 
-          <a class="email" @click="sendMail">Send me a message :=)<br>In general or if you want an account</a>
+          <a class="email" @click="sendMail">Send me a message :=)
+            <br>In general or if you want an account
+          </a>
         </v-card-text>
         <v-card-actions class="pr-3 pb-3">
           <v-spacer></v-spacer>
@@ -69,8 +71,16 @@ export default class Login extends Vue {
   }
 
   sendMail() {
+    let body = `Username (used to log in):
+    <username>
+    
+    Display name (displayed to other users):
+    <display name>
+    `;
+
     // and even those knowing JS, unless they click themselves
-    window.location.href = "mailto:" + this.email;
+    window.location.href =
+      "mailto:" + this.email + "?body=" + encodeURIComponent(body);
   }
 
   /**
