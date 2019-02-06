@@ -92,7 +92,7 @@ export default class UserModifyActions extends Vue {
       this.user.id,
       this.user.displayName,
       this.user.roles,
-      ""
+      password
     );
     this.$emit("updated", userToAdd);
 
