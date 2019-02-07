@@ -57,18 +57,18 @@ export default class HighlightInterleavedIo extends Vue {
   }
 
   lineStyle(line: IoLine) {
-    let object: any = { line: true };
+    let cssClasses: any = { line: true };
 
-    object[line.lineType] = true;
+    cssClasses[line.lineType] = true;
 
     if (this.faithfulFormat === "false") {
       if (line.lineType === IoLineType.INPUT) {
-        object["prepend-input-label"] = true;
+        cssClasses["prepend-input-label"] = true;
       }
     }
-    object["faithful-line"] = this.faithfulFormat === "true";
+    cssClasses["faithful-line"] = this.faithfulFormat === "true";
 
-    return object;
+    return cssClasses;
   }
 
   getPrefix(line: IoLine) {
@@ -80,10 +80,22 @@ export default class HighlightInterleavedIo extends Vue {
   }
 
   getRest(line: IoLine) {
+    let content: string;
     if (this.getPrefix(line) !== "") {
-      return line.content.substring(2);
+      content = line.content.substring(2);
+    } else {
+      content = line.content;
     }
-    return line.content;
+
+    if (line.lineType == IoLineType.INPUT) {
+      return this.replaceSpacesWithSpecialChar(content);
+    }
+
+    return content;
+  }
+
+  private replaceSpacesWithSpecialChar(input: string) {
+    return input.replace(/ /g, "␣");
   }
 
   mounted() {
@@ -103,6 +115,7 @@ export default class HighlightInterleavedIo extends Vue {
 .line {
   display: block;
   font-family: monospace;
+  white-space: pre-wrap;
 }
 .line.error {
   background-color: transparent !important;
@@ -125,10 +138,6 @@ export default class HighlightInterleavedIo extends Vue {
 
 .faithful-line > .prefix:empty {
   padding-right: 1px;
-}
-.faithful-line > .prefix:empty::before {
-  content: " ";
-  white-space: pre-wrap;
 }
 
 /* Offset the input label */

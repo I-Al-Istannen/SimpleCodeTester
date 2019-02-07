@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import {CheckCategory} from '@/store/types';
+import { CheckCategory } from '@/store/types';
 
 /**
  * The base of a check, containing all metadata but no content.
@@ -78,15 +78,17 @@ export class CheckCollection {
       if (content.class === "StaticInputOutputCheck") {
         checkClass = content.class;
         ioCheck = new IOCheck(
-            content.input.join("\n"),
-            content.output,
-            content.name
+          content.input.join("\n"),
+          content.output,
+          content.name
         );
       } else if (content.class === "InterleavedStaticIOCheck") {
         checkClass = content.class;
         ioCheck = new IOCheck(content.text, null, content.name);
       } else {
+        // eslint-disable-next-line
         console.log("Unknown check received: ");
+        // eslint-disable-next-line
         console.log(content);
 
         return;
@@ -95,13 +97,13 @@ export class CheckCollection {
       let parsed = JSON.parse(content);
       checkClass = "StaticInputOutputCheck";
       ioCheck = new IOCheck(
-          parsed.input.join("\n"),
-          parsed.expectedOutput,
-          parsed.name
+        parsed.input.join("\n"),
+        parsed.expectedOutput,
+        parsed.name
       );
     }
 
-    return {class: checkClass, check: ioCheck};
+    return { class: checkClass, check: ioCheck };
   }
 
   /**

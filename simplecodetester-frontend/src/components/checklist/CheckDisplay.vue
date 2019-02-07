@@ -4,17 +4,12 @@
     <v-chip class="ml-0 mb-3" disabled label color="accent" outline>{{ checkBase.category.name }}</v-chip>
     <div v-if="content">
       <span v-if="content.class === 'StaticInputOutputCheck'">
+        <v-textarea class="monospace-font" label="Input" :value="content.check.input" readonly></v-textarea>
         <v-textarea
-            class="monospace-font"
-            label="Input"
-            :value="content.check.input"
-            readonly
-        ></v-textarea>
-        <v-textarea
-            class="monospace-font"
-            label="Expected output"
-            :value="content.check.output"
-            readonly
+          class="monospace-font"
+          label="Expected output"
+          :value="content.check.output"
+          readonly
         ></v-textarea>
       </span>
       <span v-if="content.class === 'InterleavedStaticIOCheck'">
@@ -32,8 +27,8 @@ import Component from "vue-class-component";
 import "prismjs";
 import "prismjs/themes/prism.css";
 import Prism from "vue-prism-component";
-import {CheckBase} from "@/components/checklist/CheckTypes";
-import {Prop} from "vue-property-decorator";
+import { CheckBase } from "@/components/checklist/CheckTypes";
+import { Prop } from "vue-property-decorator";
 import HighlightInterleavedIo, {
   IoLine,
   IoLineType
