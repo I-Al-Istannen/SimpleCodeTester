@@ -6,7 +6,7 @@
       v-model="editDialogOpened"
       v-if="isIoCheck && canModifyCheck(myCheck.creator)"
       class="aside"
-      max-width="500"
+      max-width="900"
     >
       <v-btn slot="activator" icon class="ma-0">
         <v-icon>edit</v-icon>
