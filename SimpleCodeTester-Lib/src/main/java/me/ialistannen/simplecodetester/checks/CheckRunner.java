@@ -6,7 +6,6 @@ import static me.ialistannen.simplecodetester.util.ExceptionUtil.findRootCause;
 import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
@@ -76,7 +75,7 @@ public class CheckRunner {
     } catch (Throwable e) { // user checks should not crash everything
       e.printStackTrace(System.out);
       return ImmutableCheckResult.builder()
-          .message(Objects.toString(findRootCause(e).getMessage()))
+          .message(getRootCauseMessage(findRootCause(e)))
           .check(check.name())
           .result(ResultType.FAILED)
           .errorOutput(capture.getCaptured())
@@ -84,6 +83,12 @@ public class CheckRunner {
     } finally {
       capture.stopCapture();
     }
+  }
+
+  private String getRootCauseMessage(Throwable rootCause) {
+    return rootCause.getMessage() == null
+        ? rootCause.getClass().getSimpleName()
+        : rootCause.getMessage();
   }
 
 }
