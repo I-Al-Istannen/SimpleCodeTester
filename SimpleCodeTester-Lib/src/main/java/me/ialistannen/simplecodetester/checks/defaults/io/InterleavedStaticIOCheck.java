@@ -14,7 +14,6 @@ import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
-import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ExceptionUtil;
 import me.ialistannen.simplecodetester.util.ReflectionHelper;
@@ -76,28 +75,25 @@ public class InterleavedStaticIOCheck implements Check {
 
     Terminal.setInput(Collections.unmodifiableList(input));
 
-    List<LineResult> results = new ArrayList<>();
+    List<LineResult> output;
 
     try {
       Reflect.on(file.asClass())
           .call("main", (Object) new String[0]);
+
+      output = getOutput(Terminal.getOutputLines(), true);
     } catch (ReflectException e) {
-      Throwable rootCause = ExceptionUtil.findRootCause(e);
-      if (rootCause instanceof ReadMoreLinesThanProvidedException) {
-        results.add(new LineResult(Type.ERROR, rootCause.getMessage()));
-      } else {
-        throw e;
-      }
+      output = new ArrayList<>(getOutput(Terminal.getOutputLines(), false));
+      ExceptionUtil.getRelevantStackTraceAndMessage(e).stream()
+          .map(s -> new LineResult(Type.ERROR, s))
+          .forEach(output::add);
     }
 
-    List<LineResult> output = getOutput(Terminal.getOutputLines());
-    results.addAll(0, output);
-
-    assertOutputValid(results);
+    assertOutputValid(output);
 
     return ImmutableCheckResult.builder()
         .from(CheckResult.emptySuccess(this))
-        .output(results)
+        .output(output)
         .build();
   }
 
@@ -116,9 +112,12 @@ public class InterleavedStaticIOCheck implements Check {
    * Returns the output interleaved with error messages, input and matcher results.
    *
    * @param programOutput the program output
+   * @param interleaveFullExpected whether to also interleave the full expected output and input
+   *     blocks, even if the program did not consume all of it. This can be due to a crash leading
+   *     to input being left over or something else.
    * @return an interleaved version of the output, combined with input and error messages
    */
-  List<LineResult> getOutput(List<List<String>> programOutput) {
+  List<LineResult> getOutput(List<List<String>> programOutput, boolean interleaveFullExpected) {
     Block<Block<String>> outputBlocks = new Block<>(
         programOutput.stream()
             .map(Block::new)
@@ -150,6 +149,11 @@ public class InterleavedStaticIOCheck implements Check {
         resultBlock.addOutput(outputBlock.next());
         resultBlock.addError("Expected no output!");
       }
+    }
+
+    // early exit here, do not pop leftover in/output
+    if (!interleaveFullExpected) {
+      return resultBlock.getResults();
     }
 
     // pop leftover matchers. Will not enter if the loop above ran
