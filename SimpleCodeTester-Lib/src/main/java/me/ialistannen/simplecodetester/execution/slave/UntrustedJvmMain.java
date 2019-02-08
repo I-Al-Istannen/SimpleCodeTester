@@ -29,7 +29,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.Comp
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
-import me.ialistannen.simplecodetester.util.Stacktrace;
+import me.ialistannen.simplecodetester.util.ExceptionUtil;
 
 /**
  * The main class of the untrusted slave vm.
@@ -102,7 +102,7 @@ public class UntrustedJvmMain {
       client.queueMessage(new CompilationFailed(e.getOutput(), uid));
     } catch (Throwable e) {
       e.printStackTrace();
-      client.queueMessage(new SlaveDiedWithUnknownError(uid, Stacktrace.getStacktrace(e)));
+      client.queueMessage(new SlaveDiedWithUnknownError(uid, ExceptionUtil.getStacktrace(e)));
     } finally {
       shutdown();
     }

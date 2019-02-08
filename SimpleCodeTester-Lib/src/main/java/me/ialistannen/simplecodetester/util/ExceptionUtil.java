@@ -3,9 +3,9 @@ package me.ialistannen.simplecodetester.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public final class Stacktrace {
+public final class ExceptionUtil {
 
-  private Stacktrace() {
+  private ExceptionUtil() {
     throw new UnsupportedOperationException("No instantiation");
   }
 
@@ -21,5 +21,18 @@ public final class Stacktrace {
     e.printStackTrace(printWriter);
 
     return stringWriter.getBuffer().toString();
+  }
+
+  /**
+   * Finds the root cause of an exception.
+   *
+   * @param throwable the exception
+   * @return the root cause
+   */
+  public static Throwable findRootCause(Throwable throwable) {
+    if (throwable.getCause() != null) {
+      return findRootCause(throwable.getCause());
+    }
+    return throwable;
   }
 }

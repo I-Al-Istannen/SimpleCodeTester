@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
+import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 
 /**
  * A shim of the "Terminal" class from the Praktomat.
@@ -89,7 +89,7 @@ public final class Terminal {
    */
   public static String readLine() {
     if (inputIndex >= input.size()) {
-      throw new NoSuchElementException("No more input present, but you tried to read!");
+      throw new ReadMoreLinesThanProvidedException();
     }
     if (output.isEmpty()) {
       output.add(new ArrayList<>());

@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.checks;
 
 import static java.util.stream.Collectors.toList;
+import static me.ialistannen.simplecodetester.util.ExceptionUtil.findRootCause;
 
 import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
@@ -85,10 +86,4 @@ public class CheckRunner {
     }
   }
 
-  private Throwable findRootCause(Throwable throwable) {
-    if (throwable.getCause() != null) {
-      return findRootCause(throwable.getCause());
-    }
-    return throwable;
-  }
 }

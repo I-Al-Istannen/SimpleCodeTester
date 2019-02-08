@@ -21,8 +21,8 @@ import org.joor.Reflect;
 public class StaticInputOutputCheck implements Check {
 
   private static final String REGEX_MARKER = "?r";
-  private static final Predicate<CompiledFile> mainClassPredicate = file -> ReflectionHelper
-      .hasMainMethod(file.asClass());
+  private static final Predicate<CompiledFile> mainClassPredicate = ReflectionHelper
+      .hasMain(CompiledFile::asClass);
 
   private List<String> input;
   private String expectedOutput;

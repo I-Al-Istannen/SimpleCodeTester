@@ -7,20 +7,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
-import me.ialistannen.simplecodetester.checks.defaults.MainClassRunnerCheck;
+import java.util.function.Predicate;
+import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
+import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
+import me.ialistannen.simplecodetester.util.ExceptionUtil;
+import me.ialistannen.simplecodetester.util.ReflectionHelper;
+import org.joor.Reflect;
+import org.joor.ReflectException;
 
 /**
  * A check that executes the code but correlates input to output lines.
  */
-public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
+public class InterleavedStaticIOCheck implements Check {
 
   private List<String> input;
   private List<MatcherBlock> outputMatchers;
   private String name;
+  private static final Predicate<CompiledFile> isMain = ReflectionHelper
+      .hasMain(CompiledFile::asClass);
+
 
   /**
    * Constructor for gson deserialization. Otherwise no constructor is invoked and the main
@@ -58,19 +69,55 @@ public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
   }
 
   @Override
-  protected List<String> getInput(CompiledFile file) {
-    return Collections.unmodifiableList(input);
+  public CheckResult check(CompiledFile file) {
+    if (!isMain.test(file)) {
+      return CheckResult.notApplicable(this);
+    }
+
+    Terminal.setInput(Collections.unmodifiableList(input));
+
+    List<LineResult> results = new ArrayList<>();
+
+    try {
+      Reflect.on(file.asClass())
+          .call("main", (Object) new String[0]);
+    } catch (ReflectException e) {
+      Throwable rootCause = ExceptionUtil.findRootCause(e);
+      if (rootCause instanceof ReadMoreLinesThanProvidedException) {
+        results.add(new LineResult(Type.ERROR, rootCause.getMessage()));
+      } else {
+        throw e;
+      }
+    }
+
+    List<LineResult> output = getOutput(Terminal.getOutputLines());
+    results.addAll(0, output);
+
+    assertOutputValid(results);
+
+    return ImmutableCheckResult.builder()
+        .from(CheckResult.emptySuccess(this))
+        .output(results)
+        .build();
   }
 
-  @Override
-  protected void assertOutputValid(CompiledFile file) {
-    List<LineResult> output = getOutput(Terminal.getOutputLines());
-
+  /**
+   * Asserts that the output is valid. If not throws an appropriate {@link CheckFailedException}.
+   *
+   * @throws CheckFailedException if the check failed
+   */
+  private void assertOutputValid(List<LineResult> output) {
     if (output.stream().anyMatch(lineResult -> lineResult.getType() == Type.ERROR)) {
       throw new CheckFailedException(output);
     }
   }
 
+  /**
+   * Returns the output interleaved with error messages, input and matcher results.
+   *
+   * @param programOutput the program output
+   * @return an interleaved version of the output, combined with input and error messages
+   */
   List<LineResult> getOutput(List<List<String>> programOutput) {
     Block<Block<String>> outputBlocks = new Block<>(
         programOutput.stream()
@@ -127,11 +174,6 @@ public class InterleavedStaticIOCheck extends MainClassRunnerCheck {
     return new Block<>(
         outputMatchers.stream().map(MatcherBlock::reset).collect(toList())
     );
-  }
-
-  @Override
-  protected List<LineResult> getOutput(CompiledFile file) {
-    return getOutput(Terminal.getOutputLines());
   }
 
   @Override

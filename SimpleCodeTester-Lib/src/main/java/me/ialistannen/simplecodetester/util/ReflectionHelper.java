@@ -2,6 +2,8 @@ package me.ialistannen.simplecodetester.util;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * A small helper class for dealing with reflection.
@@ -12,6 +14,16 @@ public final class ReflectionHelper {
     throw new UnsupportedOperationException("No instantiation");
   }
 
+  /**
+   * Returns a predicate matching whether a class has a main class.
+   *
+   * @param extractor the extractor to convert the given object to a class
+   * @param <T> the type of the object
+   * @return a predicate checking {@link #hasMainMethod(Class)}
+   */
+  public static <T> Predicate<T> hasMain(Function<T, Class<?>> extractor) {
+    return t -> hasMainMethod(extractor.apply(t));
+  }
 
   /**
    * Checks if the given class has a JVM main method.
