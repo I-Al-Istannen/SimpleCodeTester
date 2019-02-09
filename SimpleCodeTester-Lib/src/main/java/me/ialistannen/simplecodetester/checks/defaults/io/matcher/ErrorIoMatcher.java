@@ -11,7 +11,7 @@ public class ErrorIoMatcher implements InterleavedIoMatcher {
    * Creates a new error io matcher.
    */
   public ErrorIoMatcher() {
-    this.matcher = new RegularExpressionIoMatcher("Error.*");
+    this.matcher = new RegularExpressionIoMatcher("Error, .*");
   }
 
   @Override
