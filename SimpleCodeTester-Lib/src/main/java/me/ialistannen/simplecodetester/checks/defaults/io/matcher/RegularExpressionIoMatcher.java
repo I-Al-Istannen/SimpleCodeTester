@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
+import java.util.Objects;
+
 /**
  * Matches a line using a regular expression.
  */
@@ -24,6 +26,23 @@ public class RegularExpressionIoMatcher implements InterleavedIoMatcher {
   @Override
   public String getError() {
     return "Expected a match for pattern '" + pattern + "'";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RegularExpressionIoMatcher that = (RegularExpressionIoMatcher) o;
+    return Objects.equals(pattern, that.pattern);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(pattern);
   }
 
   @Override

@@ -4,15 +4,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import lombok.experimental.UtilityClass;
 
 /**
  * A small helper class for dealing with reflection.
  */
-public final class ReflectionHelper {
-
-  private ReflectionHelper() {
-    throw new UnsupportedOperationException("No instantiation");
-  }
+@UtilityClass
+public class ReflectionHelper {
 
   /**
    * Returns a predicate matching whether a class has a main class.

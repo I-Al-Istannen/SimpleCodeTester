@@ -17,9 +17,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import lombok.experimental.UtilityClass;
 import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
 
+/**
+ * A helper to create a configured {@link Gson} instance.
+ */
+@UtilityClass
 public class ConfiguredGson {
 
   /**

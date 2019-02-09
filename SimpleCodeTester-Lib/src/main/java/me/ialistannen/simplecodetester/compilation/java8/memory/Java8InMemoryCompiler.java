@@ -27,6 +27,9 @@ import me.ialistannen.simplecodetester.submission.ImmutableCompiledFile;
 import me.ialistannen.simplecodetester.submission.ImmutableCompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 
+/**
+ * A java 8 compiler that works in-memory.
+ */
 public class Java8InMemoryCompiler implements Compiler {
 
   @Override

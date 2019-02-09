@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io;
 
+import java.util.Objects;
+
 /**
  * A single line in the output.
  */
@@ -37,6 +39,23 @@ public class LineResult {
     return content;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    LineResult that = (LineResult) o;
+    return type == that.type &&
+        Objects.equals(content, that.content);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, content);
+  }
 
   @Override
   public String toString() {

@@ -56,7 +56,7 @@ public class SlaveManager {
 
     this.gson = ConfiguredGson.createGson();
     this.executorService = Executors
-        .newCachedThreadPool(ThreadHelper.deamonThreadFactory(Thread::new));
+        .newCachedThreadPool(ThreadHelper.daemonThreadFactory(Thread::new));
     this.untrustedCodeJvmStarter = new UntrustedCodeJvmStarter();
     this.pendingSubmissions = new ConcurrentHashMap<>();
     this.watchdogService = Executors.newSingleThreadScheduledExecutor();

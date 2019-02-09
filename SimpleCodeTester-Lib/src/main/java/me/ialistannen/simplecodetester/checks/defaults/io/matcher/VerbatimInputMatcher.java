@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
+import java.util.Objects;
+
 /**
  * A matcher that just matches against the input with no prefix or other functionality.
  */
@@ -24,6 +26,23 @@ public class VerbatimInputMatcher implements InterleavedIoMatcher {
   @Override
   public String getError() {
     return "Expected '" + content + "'";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    VerbatimInputMatcher that = (VerbatimInputMatcher) o;
+    return Objects.equals(content, that.content);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(content);
   }
 
   @Override

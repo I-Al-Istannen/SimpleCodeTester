@@ -7,13 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.experimental.UtilityClass;
 import org.joor.ReflectException;
 
-public final class ExceptionUtil {
-
-  private ExceptionUtil() {
-    throw new UnsupportedOperationException("No instantiation");
-  }
+@UtilityClass
+public class ExceptionUtil {
 
   /**
    * Returns the stacktrace of a {@link Throwable} as a string.

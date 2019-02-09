@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
+import java.util.Objects;
+
 /**
  * An {@link InterleavedIoMatcher} that matches a given literal
  */
@@ -24,6 +26,23 @@ public class LiteralIoMatcher implements InterleavedIoMatcher {
   @Override
   public String getError() {
     return "Expected '" + literal + "'";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    LiteralIoMatcher that = (LiteralIoMatcher) o;
+    return Objects.equals(literal, that.literal);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(literal);
   }
 
   @Override

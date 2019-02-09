@@ -3,6 +3,7 @@ package me.ialistannen.simplecodetester.checks.defaults;
 import edu.kit.informatik.Terminal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
@@ -133,6 +134,24 @@ public class StaticInputOutputCheck implements Check {
     return "";
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    StaticInputOutputCheck that = (StaticInputOutputCheck) o;
+    return Objects.equals(input, that.input) &&
+        Objects.equals(expectedOutput, that.expectedOutput) &&
+        Objects.equals(name, that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(input, expectedOutput, name);
+  }
 
   @Override
   public String toString() {

@@ -142,12 +142,14 @@ public class InterleavedStaticIOCheck implements Check {
 
     // pop leftover output. Will not run if only matchers are left
     while (outputBlocks.hasNext()) {
-      resultBlock.addInput(inputBlock.next());
+      if (inputBlock.hasNext()) {
+        resultBlock.addInput(inputBlock.next());
+      }
       Block<String> outputBlock = outputBlocks.next();
 
       while (outputBlock.hasNext()) {
         resultBlock.addOutput(outputBlock.next());
-        resultBlock.addError("Expected no output!");
+        resultBlock.addError("Did not expect any output.");
       }
     }
 
@@ -158,7 +160,9 @@ public class InterleavedStaticIOCheck implements Check {
 
     // pop leftover matchers. Will not enter if the loop above ran
     while (matcherBlocks.hasNext()) {
-      resultBlock.addInput(inputBlock.next());
+      if (inputBlock.hasNext()) {
+        resultBlock.addInput(inputBlock.next());
+      }
       MatcherBlock matcherBlock = matcherBlocks.next();
 
       while (matcherBlock.hasNext()) {
@@ -198,7 +202,7 @@ public class InterleavedStaticIOCheck implements Check {
     }
 
     while (inputBlock.hasNext()) {
-      output.add(inputBlock.next());
+      output.add("> " + inputBlock.next());
     }
 
     return output.toString();
