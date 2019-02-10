@@ -99,6 +99,15 @@ export default class NavigationBar extends Vue {
       predicatePath: "checkCode"
     },
     {
+      icon: "history",
+      title: "View last check result",
+      route: "/view-check-result",
+      predicatePath: "viewCheckResult",
+      statefulIf: function(state: RootState): boolean {
+        return state.checkresult.checkResult !== null;
+      }
+    },
+    {
       icon: "add_circle_outline",
       title: "Submit check",
       route: "/submit-check",
@@ -145,9 +154,17 @@ export default class NavigationBar extends Vue {
   }
 
   get applicableItems(): Array<any> {
-    return this.navigationItems.filter(
-      it => !it.admin || (it.admin && this.isAdmin)
-    );
+    return this.navigationItems.filter(it => {
+      // only for admins and you are none
+      if (it.admin && (it.admin && !this.isAdmin)) {
+        return false;
+      }
+      // does not have further restrictions
+      if (!it.statefulIf) {
+        return true;
+      }
+      return it.statefulIf(this.$store.state);
+    });
   }
 
   get isAdmin(): boolean {
