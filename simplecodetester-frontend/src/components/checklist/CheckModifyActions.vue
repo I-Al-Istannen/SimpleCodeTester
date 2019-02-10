@@ -13,10 +13,9 @@
       </v-btn>
       <v-card>
         <v-card-text>
-          <io-check-component v-if="isIoCheck" :initialValue="ioCheck"
-                              @input="setCheck"></io-check-component>
+          <io-check-component v-if="isIoCheck" :initialValue="ioCheck" @input="setCheck"></io-check-component>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="sticky-bottom">
           <v-spacer></v-spacer>
           <v-btn :disabled="!canUploadEdit" color="primary" @click="changeCheck">Submit change</v-btn>
           <v-spacer></v-spacer>
@@ -54,24 +53,28 @@
 </template>
 
 <script lang="ts">
-  import Vue from "vue";
-  import Component from "vue-class-component";
-  import {CheckBase, CheckCollection, IOCheck} from "@/components/checklist/CheckTypes";
-  import {Prop, Watch} from "vue-property-decorator";
-  import {UserState} from "@/store/types";
-  import {extractErrorMessage} from "@/util/requests";
-  import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
+import Vue from "vue";
+import Component from "vue-class-component";
+import {
+  CheckBase,
+  CheckCollection,
+  IOCheck
+} from "@/components/checklist/CheckTypes";
+import { Prop, Watch } from "vue-property-decorator";
+import { UserState } from "@/store/types";
+import { extractErrorMessage } from "@/util/requests";
+import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 
-  @Component({
+@Component({
   components: {
     "io-check-component": IOCheckComponent
   }
 })
 export default class ModifyActions extends Vue {
   private check: any = null;
-    private ioCheck: IOCheck | null = null;
+  private ioCheck: IOCheck | null = null;
   private editDialogOpened = false;
-    private checkClass: string | null = null;
+  private checkClass: string | null = null;
 
   @Prop()
   private userState!: UserState;
@@ -151,7 +154,7 @@ export default class ModifyActions extends Vue {
       return;
     }
     this.checks
-    .updateIoCheck(this.check as IOCheck, this.myCheck.id, this.checkClass!)
+      .updateIoCheck(this.check as IOCheck, this.myCheck.id, this.checkClass!)
       .then(() => {
         this.emitError("");
         this.editDialogOpened = false;
@@ -173,5 +176,10 @@ export default class ModifyActions extends Vue {
 
 .unapproved {
   color: tomato;
+}
+
+.sticky-bottom {
+  position: sticky;
+  bottom: 0px;
 }
 </style>
