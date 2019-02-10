@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Starts the slave vms running untrusted code.
+ */
 public class UntrustedCodeJvmStarter {
 
   /**
@@ -12,11 +15,12 @@ public class UntrustedCodeJvmStarter {
    * @param port the port the master listens on
    * @param uid the uid of the client
    * @param classPath the class path to use. Should at least contain the class file of your own
+   * @return the created {@link Process}
    */
-  public void startSlave(int port, String uid, String... classPath) {
+  public Process startSlave(int port, String uid, String... classPath) {
     try {
       List<String> command = buildArguments(port, uid, classPath);
-      new ProcessBuilder(command).start();
+      return new ProcessBuilder(command).start();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
