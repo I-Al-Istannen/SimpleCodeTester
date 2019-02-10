@@ -180,7 +180,8 @@ public class TestRunEndpoint {
       for (Entry<String, List<MultipartFile>> entry : fileMap.entrySet()) {
         for (MultipartFile file : entry.getValue()) {
           String source = new String(file.getBytes());
-          String packageName = ClassParsingUtil.getPackage(source).map(s -> s + ".")
+          String packageName = ClassParsingUtil.getPackage(source)
+              .map(s -> s + "/")
               .orElse("");
 
           files.put(packageName + file.getName(), source);
