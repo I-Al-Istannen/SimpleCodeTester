@@ -19,7 +19,7 @@
             </v-tab-item>
           </v-tabs>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="sticky-bottom">
           <v-spacer></v-spacer>
           <v-btn :disabled="uploading || !uploadPossible" color="primary" ripple @click="upload">
             Upload {{ selectedTab == 0 ? "files" : "source" }}
@@ -137,4 +137,8 @@ export default class CheckCode extends Vue {
 </script>
 
 <style scoped>
+.sticky-bottom {
+  position: sticky;
+  bottom: 0px;
+}
 </style>
