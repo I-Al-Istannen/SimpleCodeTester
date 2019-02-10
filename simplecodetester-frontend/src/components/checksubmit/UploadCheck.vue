@@ -78,7 +78,7 @@
             :displayed="displayDialog"
           ></check-submit-error-dialog>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="sticky-bottom">
           <v-spacer></v-spacer>
           <v-btn
             :disabled="uploading || !uploadPossible"
@@ -211,5 +211,9 @@ export default class UploadCheck extends Vue {
 }
 .example {
   white-space: pre-line;
+}
+.sticky-bottom {
+  position: sticky;
+  bottom: 0px;
 }
 </style>
