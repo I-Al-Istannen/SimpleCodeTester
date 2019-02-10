@@ -2,7 +2,7 @@
   <v-layout align-center justify-center>
     <v-flex xs12>
       <div class="ma-2">
-        <label for="file-upload" class="custom-file-upload">Click me to select file(s)</label>
+        <label for="file-upload" class="custom-file-upload">Click me to select file(s). I can also handle source zips :)</label>
         <input accept=".java, .zip" multiple @input="fileSelected" id="file-upload" type="file">
       </div>
       <v-list>
