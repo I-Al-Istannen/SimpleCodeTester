@@ -45,6 +45,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @RestController
 public class TestRunEndpoint {
 
+  // * 1024 -> KB
+  // * 1024 -> MB
+  // So allow 10 megabytes
+  private static final int MAX_ZIP_CONTENT_SIZE = 1024 * 1024 * 10;
+
   private CheckRunnerService checkRunnerService;
   private CodeCheckService codeCheckService;
 
@@ -122,6 +127,8 @@ public class TestRunEndpoint {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No file given!");
     }
 
+    long uncompressedSize = 0;
+
     try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
       ZipEntry entry;
       while ((entry = zipInputStream.getNextEntry()) != null) {
@@ -139,6 +146,15 @@ public class TestRunEndpoint {
         byte[] buffer = new byte[1024 * 6];
         int readLength;
         while ((readLength = zipInputStream.read(buffer)) >= 0) {
+          uncompressedSize += readLength;
+
+          if (uncompressedSize > MAX_ZIP_CONTENT_SIZE) {
+            return ResponseUtil.error(
+                HttpStatus.BAD_REQUEST,
+                "Zip file too large!"
+            );
+          }
+
           stringOutputStream.write(buffer, 0, readLength);
         }
 
