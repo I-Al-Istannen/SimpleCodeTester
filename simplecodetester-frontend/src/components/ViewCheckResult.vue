@@ -27,28 +27,32 @@
                   <!-- Inner panel -->
                   <v-expansion-panel expand class="elevation-4">
                     <v-expansion-panel-content v-for="(result, i) in item.results" :key="i">
-                      <div slot="header" class="monospaced d-flex flex-container">
-                        <span class="flex-container">
-                          <v-icon v-if="!result.failed()" color="green">check_circle_outline</v-icon>
-                          <v-icon v-else color="#ff6347">highlight_off</v-icon>
-                          <span class="ml-2">Check '{{ result.check }}'</span>
-                        </span>
-                        <span class="aside">
-                          <v-btn
-                            icon
-                            @click.stop="copyInput(result, $event.srcElement)"
-                            class="pa-0 ma-0"
-                          >
-                            <v-icon>content_copy</v-icon>
-                          </v-btn>
-                        </span>
+                      <div slot="header" class="monospaced">
+                        <v-icon v-if="!result.failed()" color="green">check_circle_outline</v-icon>
+                        <v-icon v-else color="#ff6347">highlight_off</v-icon>
+                        Check '{{ result.check }}'
                       </div>
                       <v-card>
                         <v-card-text class="grey lighten-3">
+                          <div>
+                            <v-btn
+                              outline
+                              class="elevation-1 mb-4 ml-0"
+                              color="#4169e1"
+                              @click="copyFullInput(result, $event.srcElement)"
+                            >Copy full input</v-btn>
+                            <v-btn
+                              v-if="result.failed()"
+                              outline
+                              class="elevation-1 mb-4"
+                              color="#4169e1"
+                              @click="copyInputUntilError(result, $event.srcElement)"
+                            >Copy input until error</v-btn>
+                          </div>
                           <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                           <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
                           <interleaved-io
-                            border="false"
+                            border="true"
                             faithfulFormat="false"
                             :lines="result.output"
                           ></interleaved-io>
@@ -138,8 +142,27 @@ export default class Test extends Vue {
   // We just ignore it, as we  don't need it
   set failureBooleanArray(array: Array<boolean>) {}
 
-  copyInput(result: FileCheckResult, element: HTMLElement) {
+  copyFullInput(result: FileCheckResult, element: HTMLElement) {
     let input = result.output
+      .filter(line => line.lineType === IoLineType.INPUT)
+      .map(line => line.content)
+      .join("\n");
+    this.copyText(input, element);
+  }
+
+  copyInputUntilError(result: FileCheckResult, element: HTMLElement) {
+    let linesUntilError: Array<IoLine> = [];
+
+    for (let i = 0; i < result.output.length; i++) {
+      if (result.output[i].lineType === IoLineType.ERROR) {
+        break;
+      }
+      linesUntilError.push(result.output[i]);
+    }
+    // do not include the output producing the error
+    linesUntilError.pop();
+
+    let input = linesUntilError
       .filter(line => line.lineType === IoLineType.INPUT)
       .map(line => line.content)
       .join("\n");
@@ -206,20 +229,5 @@ export default class Test extends Vue {
   height: 70vh;
   overflow-y: auto;
   margin-top: 8px;
-}
-
-.flex-container {
-  justify-content: space-between;
-  align-items: center;
-}
-.aside {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.flash-green {
-  background-color: var(--primary);
-  opacity: 0.6;
-  transition: 1ms ease-in-out opacity;
 }
 </style>
