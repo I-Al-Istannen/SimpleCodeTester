@@ -27,10 +27,21 @@
                   <!-- Inner panel -->
                   <v-expansion-panel expand class="elevation-4">
                     <v-expansion-panel-content v-for="(result, i) in item.results" :key="i">
-                      <div slot="header" class="monospaced">
-                        <v-icon v-if="!result.failed()" color="green">check_circle_outline</v-icon>
-                        <v-icon v-else color="#ff6347">highlight_off</v-icon>
-                        Check '{{ result.check }}'
+                      <div slot="header" class="monospaced d-flex flex-container">
+                        <span class="flex-container">
+                          <v-icon v-if="!result.failed()" color="green">check_circle_outline</v-icon>
+                          <v-icon v-else color="#ff6347">highlight_off</v-icon>
+                          <span class="ml-2">Check '{{ result.check }}'</span>
+                        </span>
+                        <span class="aside">
+                          <v-btn
+                            icon
+                            @click.stop="copyInput(result, $event.srcElement)"
+                            class="pa-0 ma-0"
+                          >
+                            <v-icon>content_copy</v-icon>
+                          </v-btn>
+                        </span>
                       </div>
                       <v-card>
                         <v-card-text class="grey lighten-3">
@@ -64,7 +75,8 @@ import {
   RootState,
   FileCheckResult,
   CheckResultType,
-  IoLine
+  IoLine,
+  CheckResult
 } from "@/store/types";
 import HighlightInterleavedIo, {
   IoLineType
@@ -126,6 +138,34 @@ export default class Test extends Vue {
   // We just ignore it, as we  don't need it
   set failureBooleanArray(array: Array<boolean>) {}
 
+  copyInput(result: FileCheckResult, element: HTMLElement) {
+    let input = result.output
+      .filter(line => line.lineType === IoLineType.INPUT)
+      .map(line => line.content)
+      .join("\n");
+    this.copyText(input, element);
+  }
+
+  private copyText(text: string, element: HTMLElement) {
+    let textArea = document.createElement("textarea") as HTMLTextAreaElement;
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      let successful = document.execCommand("copy");
+      if (successful) {
+        element.classList.add("flash-green");
+        setTimeout(() => {
+          element.classList.remove("flash-green");
+        }, 400);
+      }
+    } finally {
+      document.body.removeChild(textArea);
+    }
+  }
+
   mounted() {
     const checkResult = (this.$store as Store<RootState>).state.checkresult
       .checkResult;
@@ -166,5 +206,20 @@ export default class Test extends Vue {
   height: 70vh;
   overflow-y: auto;
   margin-top: 8px;
+}
+
+.flex-container {
+  justify-content: space-between;
+  align-items: center;
+}
+.aside {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.flash-green {
+  background-color: var(--primary);
+  opacity: 0.6;
+  transition: 1ms ease-in-out opacity;
 }
 </style>
