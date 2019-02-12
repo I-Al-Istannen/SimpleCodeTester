@@ -81,12 +81,12 @@ public class InterleavedStaticIOCheck implements Check {
       Reflect.on(file.asClass())
           .call("main", (Object) new String[0]);
 
-      output = getOutput(Terminal.getOutputLines(), true);
+      output = getOutput(Terminal.getOutputLines());
     } catch (ReflectException e) {
-      output = new ArrayList<>(getOutput(Terminal.getOutputLines(), false));
-      ExceptionUtil.getRelevantStackTraceAndMessage(e).stream()
+      List<LineResult> toInterject = ExceptionUtil.getRelevantStackTraceAndMessage(e).stream()
           .map(s -> new LineResult(Type.ERROR, s))
-          .forEach(output::add);
+          .collect(toList());
+      output = new ArrayList<>(getOutput(Terminal.getOutputLines(), toInterject));
     }
 
     assertOutputValid(output);
@@ -112,12 +112,22 @@ public class InterleavedStaticIOCheck implements Check {
    * Returns the output interleaved with error messages, input and matcher results.
    *
    * @param programOutput the program output
-   * @param interleaveFullExpected whether to also interleave the full expected output and input
-   *     blocks, even if the program did not consume all of it. This can be due to a crash leading
-   *     to input being left over or something else.
    * @return an interleaved version of the output, combined with input and error messages
    */
-  List<LineResult> getOutput(List<List<String>> programOutput, boolean interleaveFullExpected) {
+  List<LineResult> getOutput(List<List<String>> programOutput) {
+    return getOutput(programOutput, Collections.emptyList());
+  }
+
+  /**
+   * Returns the output interleaved with error messages, input and matcher results.
+   *
+   * @param programOutput the program output
+   * @param interjectBeforeLeftovers the lines to interject before leftover matchers or input.
+   *     This can be due to a crash leading to input being left over or something else.
+   * @return an interleaved version of the output, combined with input and error messages
+   */
+  private List<LineResult> getOutput(List<List<String>> programOutput,
+      Iterable<LineResult> interjectBeforeLeftovers) {
     Block<Block<String>> outputBlocks = new Block<>(
         programOutput.stream()
             .map(Block::new)
@@ -153,10 +163,7 @@ public class InterleavedStaticIOCheck implements Check {
       }
     }
 
-    // early exit here, do not pop leftover in/output
-    if (!interleaveFullExpected) {
-      return resultBlock.getResults();
-    }
+    interjectBeforeLeftovers.forEach(resultBlock::add);
 
     // pop leftover matchers. Will not enter if the loop above ran
     while (matcherBlocks.hasNext()) {

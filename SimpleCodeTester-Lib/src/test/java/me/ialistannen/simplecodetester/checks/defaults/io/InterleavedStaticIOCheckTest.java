@@ -29,7 +29,7 @@ class InterleavedStaticIOCheckTest {
     List<LineResult> result = check.getOutput(List.of(
         List.of(), // nothing before first read
         List.of("Error, wrong input")
-    ), true);
+    ));
 
     assertHasOrder(result, Type.INPUT, Type.OUTPUT);
   }
@@ -44,8 +44,7 @@ class InterleavedStaticIOCheckTest {
             List.of(),
             List.of("You there", "How are you"),
             List.of("friend")
-        ),
-        true
+        )
     );
     assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.OUTPUT, Type.INPUT, Type.OUTPUT);
   }
@@ -59,7 +58,7 @@ class InterleavedStaticIOCheckTest {
     List<LineResult> result = check.getOutput(List.of(
         List.of(), // nothing before first read
         List.of("Correct input")
-    ), true);
+    ));
 
     assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.ERROR);
   }
@@ -76,7 +75,7 @@ class InterleavedStaticIOCheckTest {
         List.of("a"),
         List.of("a", "b"),
         List.of("a", "b", "c")
-    ), true);
+    ));
 
     assertHasOrder(
         result,
@@ -126,7 +125,7 @@ class InterleavedStaticIOCheckTest {
         List.of(),
         List.of("World", "And stuff"),
         List.of("More leftover")
-    ), true);
+    ));
 
     assertEquals(
         List.of(
@@ -151,7 +150,7 @@ class InterleavedStaticIOCheckTest {
         List.of(),
         List.of("World", "And stuff"),
         List.of("More leftover")
-    ), true);
+    ));
 
     assertEquals(
         List.of(
@@ -178,7 +177,7 @@ class InterleavedStaticIOCheckTest {
 
     List<LineResult> output = check.getOutput(List.of(
         List.of()
-    ), true);
+    ));
 
     assertEquals(
         List.of(
@@ -197,7 +196,7 @@ class InterleavedStaticIOCheckTest {
 
     List<LineResult> output = check.getOutput(List.of(
         List.of()
-    ), true);
+    ));
 
     assertEquals(
         List.of(

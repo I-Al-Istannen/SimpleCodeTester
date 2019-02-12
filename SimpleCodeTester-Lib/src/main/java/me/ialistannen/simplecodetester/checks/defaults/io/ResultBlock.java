@@ -29,6 +29,15 @@ class ResultBlock {
   }
 
   /**
+   * Adds the given line.
+   *
+   * @param result the result to add
+   */
+  void add(LineResult result) {
+    results.add(result);
+  }
+
+  /**
    * Adds an output line.
    *
    * @param output the output to add
