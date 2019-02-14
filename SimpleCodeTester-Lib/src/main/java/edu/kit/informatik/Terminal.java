@@ -55,22 +55,9 @@ public final class Terminal {
     List<String> outputBlock = output.get(output.size() - 1);
 
     String asString = Objects.toString(object);
-    List<String> lines = new ArrayList<>();
-    Collections.addAll(lines, asString.split("\n"));
 
-    // split skips trailing newlines (or just an newline). This means
-    // "\n" becomes {} and "hey\n\n" becomes {hey}, but
-    // "hey\n\nyou" becomes {hey,,you} (which is correct) and
-    // "\nhey" also becomes {,hey} (which is correct)
-    // So we need to append at the end until we match the expected line count at the end
-    int expectedLines = (int) asString.chars().filter(value -> value == '\n').count();
-
-    while (lines.size() <= expectedLines) {
-      // an empty newline
-      lines.add("");
-    }
-
-    outputBlock.addAll(lines);
+    // -1 causes trailing newlines to be kept
+    Collections.addAll(outputBlock, asString.split("\n", -1));
   }
 
   /**
