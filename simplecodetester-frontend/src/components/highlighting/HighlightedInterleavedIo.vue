@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="container accent pa-2">
+  <div v-show="lines.length > 0" ref="container" class="container accent pa-2">
     <span v-for="(line, index) in lines" :key="index" :class="lineStyle(line)">
       <span class="prefix">{{ getPrefix(line) }}</span>
       <span class="rest">{{ getRest(line) }}</span>

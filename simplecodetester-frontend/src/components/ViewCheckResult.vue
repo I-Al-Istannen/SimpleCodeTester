@@ -36,13 +36,14 @@
                         <v-card-text class="grey lighten-3">
                           <div>
                             <v-btn
+                              v-if="result.output.length > 0"
                               outline
                               class="elevation-1 mb-4 ml-0"
                               color="#4169e1"
                               @click="copyFullInput(result, $event.srcElement)"
                             >Copy full input</v-btn>
                             <v-btn
-                              v-if="result.failed()"
+                              v-if="result.failed() && result.output.length > 0"
                               outline
                               class="elevation-1 mb-4"
                               color="#4169e1"
