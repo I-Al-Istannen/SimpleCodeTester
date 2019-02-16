@@ -30,7 +30,7 @@ import Prism from "vue-prism-component";
 import { CheckBase } from "@/components/checklist/CheckTypes";
 import { Prop } from "vue-property-decorator";
 import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
-import { IoLine, IoLineType } from '@/store/types';
+import { IoLine, IoLineType } from "@/store/types";
 
 require("prismjs/components/prism-java.min.js");
 
@@ -55,6 +55,8 @@ export default class CheckDisplay extends Vue {
         return new IoLine(IoLineType.INPUT, line);
       } else if (line.startsWith("<")) {
         return new IoLine(IoLineType.OUTPUT, line);
+      } else if (line.startsWith("#")) {
+        return new IoLine(IoLineType.OTHER, "  " + line);
       } else {
         return new IoLine(IoLineType.OUTPUT, "  " + line);
       }
