@@ -81,11 +81,10 @@ import {
   FileCheckResult,
   CheckResultType,
   IoLine,
-  CheckResult
-} from "@/store/types";
-import HighlightInterleavedIo, {
+  CheckResult,
   IoLineType
-} from "@/components/highlighting/HighlightedInterleavedIo.vue";
+} from "@/store/types";
+import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
 
 class SingleFileResult {
   fileName: string;
