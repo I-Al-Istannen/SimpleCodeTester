@@ -129,7 +129,7 @@ export default class HighlightInterleavedIo extends Vue {
 }
 
 /* Offset the input label */
-.line:not(.faithful-line):not(.input)::before {
+.line.output::before {
   content: "  ";
   white-space: pre;
 }

@@ -56,9 +56,9 @@ export default class CheckDisplay extends Vue {
       } else if (line.startsWith("<")) {
         return new IoLine(IoLineType.OUTPUT, line);
       } else if (line.startsWith("#")) {
-        return new IoLine(IoLineType.OTHER, "  " + line);
+        return new IoLine(IoLineType.OTHER, line);
       } else {
-        return new IoLine(IoLineType.OUTPUT, "  " + line);
+        return new IoLine(IoLineType.OUTPUT, line);
       }
     });
   }
