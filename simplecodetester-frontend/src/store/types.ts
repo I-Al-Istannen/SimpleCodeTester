@@ -95,7 +95,8 @@ export class IoLine {
 export enum IoLineType {
   ERROR = "error",
   INPUT = "input",
-  OUTPUT = "output"
+  OUTPUT = "output",
+  OTHER = "other"
 }
 
 export class UserInfo {

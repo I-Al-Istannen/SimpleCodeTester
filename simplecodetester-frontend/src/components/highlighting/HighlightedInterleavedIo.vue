@@ -11,22 +11,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-
-export class IoLine {
-  lineType: IoLineType;
-  content: string;
-
-  constructor(lineType: IoLineType, content: string) {
-    this.lineType = lineType;
-    this.content = content;
-  }
-}
-
-export enum IoLineType {
-  ERROR = "error",
-  INPUT = "input",
-  OUTPUT = "output"
-}
+import { IoLineType, IoLine } from "@/store/types";
 
 @Component
 export default class HighlightInterleavedIo extends Vue {
@@ -72,7 +57,7 @@ export default class HighlightInterleavedIo extends Vue {
   }
 
   getPrefix(line: IoLine) {
-    if (line.content.startsWith("> ") || line.content.startsWith("<")) {
+    if (/^(> |<|# ).+$/.test(line.content)) {
       return line.content.substring(0, 2);
     }
 
@@ -130,7 +115,10 @@ export default class HighlightInterleavedIo extends Vue {
 .line.error > .rest {
   color: tomato;
 }
-.line > .prefix {
+.line.other {
+  color: green;
+}
+.line:not(.other) > .prefix {
   font-weight: bold;
   padding-right: 2px;
   color: lightgray;
