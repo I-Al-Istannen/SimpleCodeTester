@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
 import java.util.Objects;
+import me.ialistannen.simplecodetester.checks.defaults.io.Block;
 
 /**
  * A matcher that just matches against the input with no prefix or other functionality.
@@ -19,8 +20,8 @@ public class VerbatimInputMatcher implements InterleavedIoMatcher {
   }
 
   @Override
-  public boolean match(String line) {
-    return line.equals(content);
+  public boolean match(Block<String> output) {
+    return output.next().equals(content);
   }
 
   @Override

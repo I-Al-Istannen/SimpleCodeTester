@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
 import java.util.Objects;
+import me.ialistannen.simplecodetester.checks.defaults.io.Block;
 
 /**
  * An {@link InterleavedIoMatcher} that matches a given literal
@@ -19,8 +20,8 @@ public class LiteralIoMatcher implements InterleavedIoMatcher {
   }
 
   @Override
-  public boolean match(String line) {
-    return literal.equals(line);
+  public boolean match(Block<String> output) {
+    return literal.equals(output.next());
   }
 
   @Override

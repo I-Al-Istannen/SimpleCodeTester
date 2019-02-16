@@ -34,12 +34,14 @@ class MatcherBlock {
 
     while (matcherBlock.hasNext() && outputBlock.hasNext()) {
       InterleavedIoMatcher matcher = matcherBlock.next();
-      String output = outputBlock.next();
 
-      block.addOutput(output);
+      outputBlock.mark();
 
-      if (!matcher.match(output)) {
+      if (!matcher.match(outputBlock)) {
+        outputBlock.getFromLastMark().forEach(block::addOutput);
         block.addError(matcher.getError());
+      } else {
+        outputBlock.getFromLastMark().forEach(block::addOutput);
       }
     }
 

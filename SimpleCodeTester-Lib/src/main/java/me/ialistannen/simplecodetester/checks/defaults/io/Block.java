@@ -1,24 +1,28 @@
 package me.ialistannen.simplecodetester.checks.defaults.io;
 
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * A grouped collection of some type that allows iteration.
  *
  * @param <T> th type of the collection
  */
-class Block<T> {
+public class Block<T> {
 
   private final List<T> data;
   private transient int position;
+  private transient Queue<Integer> markedPositions;
 
   /**
    * Creates a new Block with the given data.
    *
    * @param data the data
    */
-  Block(List<T> data) {
+  public Block(List<T> data) {
     this.data = data;
+    this.markedPositions = new ArrayDeque<>();
   }
 
   /**
@@ -26,7 +30,7 @@ class Block<T> {
    *
    * @return true if there is any data left in the block
    */
-  boolean hasNext() {
+  public boolean hasNext() {
     return position < data.size();
   }
 
@@ -36,7 +40,7 @@ class Block<T> {
    * @return the next element
    * @throws IndexOutOfBoundsException if {@link #hasNext()} is not true
    */
-  T next() {
+  public T next() {
     T output = data.get(position);
 
     if (hasNext()) {
@@ -61,6 +65,24 @@ class Block<T> {
    */
   Block<T> copyFromStart() {
     return new Block<>(data);
+  }
+
+  /**
+   * Marks the position so later calls to
+   */
+  void mark() {
+    markedPositions.offer(position);
+  }
+
+  /**
+   * Returns all data since the last mark, removing the mark in the process.
+   *
+   * @return all data since the last mark
+   */
+  List<T> getFromLastMark() {
+    int oldPosition = markedPositions.remove();
+
+    return data.subList(oldPosition, position);
   }
 
   @Override

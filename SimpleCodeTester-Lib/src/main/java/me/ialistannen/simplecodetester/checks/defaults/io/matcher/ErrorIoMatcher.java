@@ -1,5 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
+import me.ialistannen.simplecodetester.checks.defaults.io.Block;
+
 /**
  * A matcher matching error messages.
  */
@@ -15,8 +17,8 @@ public class ErrorIoMatcher implements InterleavedIoMatcher {
   }
 
   @Override
-  public boolean match(String line) {
-    return matcher.match(line);
+  public boolean match(Block<String> output) {
+    return matcher.match(output);
   }
 
   @Override

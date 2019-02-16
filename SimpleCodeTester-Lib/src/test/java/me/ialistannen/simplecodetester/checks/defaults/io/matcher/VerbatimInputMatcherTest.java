@@ -2,6 +2,8 @@ package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Collections;
+import me.ialistannen.simplecodetester.checks.defaults.io.Block;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -19,7 +21,7 @@ class VerbatimInputMatcherTest {
 
     assertEquals(
         match,
-        matcher.match(input)
+        matcher.match(new Block<>(Collections.singletonList(input)))
     );
   }
 

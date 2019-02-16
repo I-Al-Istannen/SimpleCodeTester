@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.checks.defaults.io.matcher;
 
 import java.util.Objects;
+import me.ialistannen.simplecodetester.checks.defaults.io.Block;
 
 /**
  * Matches a line using a regular expression.
@@ -19,8 +20,8 @@ public class RegularExpressionIoMatcher implements InterleavedIoMatcher {
   }
 
   @Override
-  public boolean match(String line) {
-    return line.matches(pattern);
+  public boolean match(Block<String> output) {
+    return output.next().matches(pattern);
   }
 
   @Override
