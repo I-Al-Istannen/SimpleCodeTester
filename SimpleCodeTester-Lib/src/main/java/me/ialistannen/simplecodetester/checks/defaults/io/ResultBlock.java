@@ -47,6 +47,15 @@ class ResultBlock {
   }
 
   /**
+   * Adds a line of undefined type.
+   *
+   * @param line the line to add
+   */
+  void addOther(String line) {
+    results.add(new LineResult(Type.OTHER, line));
+  }
+
+  /**
    * Adds an input line
    *
    * @param input the input

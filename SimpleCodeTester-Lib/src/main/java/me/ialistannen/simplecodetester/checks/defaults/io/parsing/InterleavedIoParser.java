@@ -23,8 +23,10 @@ public class InterleavedIoParser {
     this.parsers = new ArrayList<>();
 
     this.parsers.add(new LiteralParser());
+    this.parsers.add(new CommentParser());
     this.parsers.add(new ErrorParser());
     this.parsers.add(new RegexParser());
+    // verbatim is the catch all and *must be last*
     this.parsers.add(new VerbatimParser());
   }
 

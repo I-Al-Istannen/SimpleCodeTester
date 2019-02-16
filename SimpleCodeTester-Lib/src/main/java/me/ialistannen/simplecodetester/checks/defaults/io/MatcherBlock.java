@@ -47,7 +47,11 @@ class MatcherBlock {
 
     while (matcherBlock.hasNext()) {
       InterleavedIoMatcher matcher = matcherBlock.next();
-      block.addError(matcher.getError());
+      if (matcher.getError() != null) {
+        block.addError(matcher.getError());
+      } else {
+        block.addOther(matcher.toString());
+      }
     }
 
     while (outputBlock.hasNext()) {

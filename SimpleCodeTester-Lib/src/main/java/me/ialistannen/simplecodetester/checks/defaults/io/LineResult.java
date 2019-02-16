@@ -68,6 +68,7 @@ public class LineResult {
   public enum Type {
     ERROR,
     INPUT,
-    OUTPUT
+    OUTPUT,
+    OTHER
   }
 }
