@@ -23,7 +23,7 @@ class InterleavedStaticIOCheckTest {
   @Test
   void matchingOutputHasNoError() {
     InterleavedStaticIOCheck check = getCheck(
-        "> Hello", "<e"
+        "> Hello", "<e", "> quit"
     );
 
     List<LineResult> result = check.getOutput(List.of(
@@ -31,13 +31,13 @@ class InterleavedStaticIOCheckTest {
         List.of("Error, wrong input")
     ));
 
-    assertHasOrder(result, Type.INPUT, Type.OUTPUT);
+    assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.INPUT);
   }
 
   @Test
   void matchingOutputHasNoErrorFromParser() {
     InterleavedStaticIOCheck check = getCheck(
-        "> hello", "You there", "How are you", "> my dear", "friend"
+        "> hello", "You there", "How are you", "> my dear", "friend", "> quit"
     );
     List<LineResult> result = check.getOutput(
         List.of(
@@ -46,13 +46,15 @@ class InterleavedStaticIOCheckTest {
             List.of("friend")
         )
     );
-    assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.OUTPUT, Type.INPUT, Type.OUTPUT);
+    assertHasOrder(
+        result, Type.INPUT, Type.OUTPUT, Type.OUTPUT, Type.INPUT, Type.OUTPUT, Type.INPUT
+    );
   }
 
   @Test
   void matchingOutputHasWrongOutput() {
     InterleavedStaticIOCheck check = getCheck(
-        "> Hello", "<e"
+        "> Hello", "<e", "> quit"
     );
 
     List<LineResult> result = check.getOutput(List.of(
@@ -60,7 +62,7 @@ class InterleavedStaticIOCheckTest {
         List.of("Correct input")
     ));
 
-    assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.ERROR);
+    assertHasOrder(result, Type.INPUT, Type.OUTPUT, Type.ERROR, Type.INPUT);
   }
 
   @Test
@@ -84,7 +86,8 @@ class InterleavedStaticIOCheckTest {
         Type.OUTPUT, Type.OUTPUT,
         Type.INPUT,
         Type.OUTPUT, Type.OUTPUT, Type.ERROR, Type.OUTPUT, Type.ERROR,
-        Type.INPUT
+        Type.INPUT,
+        Type.INPUT // quit appended
     );
   }
 
@@ -98,7 +101,7 @@ class InterleavedStaticIOCheckTest {
     );
 
     assertEquals(
-        "> Hello\nWorld\n> Foo\nBar\n> Regex\n<r.+\n> Error\n<e",
+        "> Hello\nWorld\n> Foo\nBar\n> Regex\n<r.+\n> Error\n<e\n> quit",
         check.toString()
     );
   }
@@ -118,7 +121,7 @@ class InterleavedStaticIOCheckTest {
   @Test
   void tooMuchOutput() {
     InterleavedStaticIOCheck check = getCheck(
-        "> Hello", "World"
+        "> Hello", "World", "> quit"
     );
 
     List<LineResult> output = check.getOutput(List.of(
@@ -133,6 +136,7 @@ class InterleavedStaticIOCheckTest {
             new LineResult(Type.OUTPUT, "World"),
             new LineResult(Type.OUTPUT, "And stuff"),
             new LineResult(Type.ERROR, "Did not expect any output."),
+            new LineResult(Type.INPUT, "quit"),
             new LineResult(Type.OUTPUT, "More leftover"),
             new LineResult(Type.ERROR, "Did not expect any output.")
         ),
@@ -143,7 +147,7 @@ class InterleavedStaticIOCheckTest {
   @Test
   void outputWhereNotExpected() {
     InterleavedStaticIOCheck check = getCheck(
-        "> Hello", "> You there"
+        "> Hello", "> You there", "> quit"
     );
 
     List<LineResult> output = check.getOutput(List.of(
@@ -161,7 +165,8 @@ class InterleavedStaticIOCheckTest {
             new LineResult(Type.ERROR, "Did not expect any output."),
             new LineResult(Type.INPUT, "You there"),
             new LineResult(Type.OUTPUT, "More leftover"),
-            new LineResult(Type.ERROR, "Did not expect any output.")
+            new LineResult(Type.ERROR, "Did not expect any output."),
+            new LineResult(Type.INPUT, "quit")
         ),
         output
     );
@@ -215,6 +220,7 @@ class InterleavedStaticIOCheckTest {
   }
 
   private InterleavedStaticIOCheck getCheck(String... lines) {
-    return new InterleavedIoParser().fromString(String.join("\n", lines), "A check");
+    return new InterleavedIoParser("quit", 2)
+        .fromString(String.join("\n", lines), "A check");
   }
 }

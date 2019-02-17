@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
+import me.ialistannen.simplecodetester.backend.services.config.ParsingConfig;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
@@ -19,11 +20,12 @@ public class CheckParsers {
    * Creates a new collection of check parsers.
    *
    * @param gson the gson instance to use
+   * @param parsingConfig the parser config
    */
-  public CheckParsers(Gson gson) {
+  public CheckParsers(Gson gson, ParsingConfig parsingConfig) {
     this.parsers = new HashMap<>();
 
-    addParser(InterleavedStaticIOCheck.class, new InterleavedIoCheckParser(gson));
+    addParser(InterleavedStaticIOCheck.class, new InterleavedIoCheckParser(gson, parsingConfig));
     addParser(StaticInputOutputCheck.class, new StaticInputOutputCheckParser(gson));
   }
 

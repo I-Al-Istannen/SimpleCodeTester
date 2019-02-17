@@ -15,11 +15,18 @@ import me.ialistannen.simplecodetester.checks.defaults.io.matcher.LiteralIoMatch
 public class InterleavedIoParser {
 
   private List<Parser> parsers;
+  private String quitCommand;
+  private int minInputLength;
 
   /**
    * Creates a new interleaved io matcher parser.
+   *
+   * @param quitCommand the quit command every check needs to have
+   * @param minInputLength the minimum input length
    */
-  public InterleavedIoParser() {
+  public InterleavedIoParser(String quitCommand, int minInputLength) {
+    this.quitCommand = quitCommand;
+    this.minInputLength = minInputLength;
     this.parsers = new ArrayList<>();
 
     this.parsers.add(new LiteralParser());
@@ -35,6 +42,7 @@ public class InterleavedIoParser {
    *
    * @param input the input to parse
    * @return the check
+   * @throws IllegalArgumentException if there is not enough input given
    */
   public InterleavedStaticIOCheck fromString(String input, String name) {
     return fromLines(toLines(input), name);
@@ -62,7 +70,21 @@ public class InterleavedIoParser {
       }
     }
 
+    if (!containsQuitCommand(lines)) {
+      input.add(quitCommand);
+    }
+
+    if (input.size() < minInputLength) {
+      throw new IllegalArgumentException("Expected at least " + minInputLength + " input lines!");
+    }
+
     return new InterleavedStaticIOCheck(input, matchers, name);
+  }
+
+  private boolean containsQuitCommand(List<Line> lines) {
+    return lines.stream()
+        .filter(line -> line.type == LineType.INPUT)
+        .anyMatch(line -> line.value.equals(quitCommand));
   }
 
   /**

@@ -4,6 +4,10 @@ runner:
   classpath: "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Lib/target/SimpleCodeTester-Lib.jar"
   max-computation-time-seconds: 30
 
+parsing:
+  minCommands: 2
+  quitCommand: "quit"
+
 cors:
   allowedOrigins:
     - "http://localhost:8080"

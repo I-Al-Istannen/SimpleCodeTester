@@ -94,7 +94,7 @@ public class LoginEndpoint {
       );
     } catch (JoseException | MalformedClaimException | InvalidJwtException e) {
       log.info("Got invalid refresh attempt for {}", refreshToken, e);
-      return ResponseUtil.error(HttpStatus.UNAUTHORIZED, "Invalid JWT");
+      return ResponseUtil.error(HttpStatus.UNAUTHORIZED, "Invalid JWT. Try refreshing the page");
     }
   }
 

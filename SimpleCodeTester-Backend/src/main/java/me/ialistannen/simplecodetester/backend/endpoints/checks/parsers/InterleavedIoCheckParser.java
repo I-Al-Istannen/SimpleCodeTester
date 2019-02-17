@@ -3,6 +3,7 @@ package me.ialistannen.simplecodetester.backend.endpoints.checks.parsers;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
+import me.ialistannen.simplecodetester.backend.services.config.ParsingConfig;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.parsing.InterleavedIoParser;
 
@@ -18,10 +19,14 @@ public class InterleavedIoCheckParser implements CheckParser<InterleavedStaticIO
    * Creates a new InterleavedIoCheckParser.
    *
    * @param gson the gson instance to use
+   * @param parsingConfig the parsing config
    */
-  public InterleavedIoCheckParser(Gson gson) {
+  public InterleavedIoCheckParser(Gson gson, ParsingConfig parsingConfig) {
     this.gson = gson;
-    this.interleavedIoParser = new InterleavedIoParser();
+    this.interleavedIoParser = new InterleavedIoParser(
+        parsingConfig.getQuitCommand(),
+        parsingConfig.getMinCommands()
+    );
   }
 
   @Override
@@ -30,7 +35,7 @@ public class InterleavedIoCheckParser implements CheckParser<InterleavedStaticIO
       ResponseBase responseBase = gson.fromJson(payload, ResponseBase.class);
 
       return interleavedIoParser.fromString(responseBase.data.input, responseBase.name);
-    } catch (JsonSyntaxException e) {
+    } catch (JsonSyntaxException | IllegalArgumentException e) {
       throw new CheckParseException("Error parsing check: " + e.getMessage());
     }
   }

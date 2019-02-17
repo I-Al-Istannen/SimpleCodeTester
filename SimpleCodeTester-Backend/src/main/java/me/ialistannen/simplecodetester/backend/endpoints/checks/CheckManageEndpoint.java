@@ -23,6 +23,7 @@ import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
 import me.ialistannen.simplecodetester.backend.services.checks.CheckCategoryService;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
+import me.ialistannen.simplecodetester.backend.services.config.ConfigurationService;
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.checks.Check;
@@ -54,14 +55,15 @@ public class CheckManageEndpoint {
   private CheckParsers checkParsers;
 
   public CheckManageEndpoint(CheckCategoryService checkCategoryService,
-      CodeCheckService checkService, UserService userService) {
+      CodeCheckService checkService, UserService userService,
+      ConfigurationService configurationService) {
     this.checkCategoryService = checkCategoryService;
     this.checkService = checkService;
     this.userService = userService;
 
     Gson gson = ConfiguredGson.createGson();
     this.checkSerializer = new CheckSerializer(gson);
-    this.checkParsers = new CheckParsers(gson);
+    this.checkParsers = new CheckParsers(gson, configurationService.getParsingConfig());
   }
 
   @GetMapping("/checks/get-all")
