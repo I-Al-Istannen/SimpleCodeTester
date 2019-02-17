@@ -46,11 +46,13 @@
                               is after the <span class="literal">&lt;l</span> literally.
                               <br>You can use them if the program needs to output <span class="literal">&lt;e</span>, for example.
                             </li>
+                            <li>Comments (prefixed with <span class="literal">#</span>) that are ignored, but help organize it.</li>
                           </ul>
                           <span class="body-2">Example:</span><br>
                           <pre class="example">
                             > start
                             OK
+                            # Can not start an already started game
                             > start
                             &lt;e
                             > abort

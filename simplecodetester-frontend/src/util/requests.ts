@@ -9,7 +9,7 @@ import { AxiosError } from 'axios';
 export function extractErrorMessage(axiosObject: AxiosError): string {
   if (axiosObject.response) {
     if(axiosObject.response.status == 502) {
-      return "Server's down but the frontend is still going strong... Try again in a minute please"
+      return "The Server's down but the frontend is still going strong... Try again in about 20 seconds please."
     }
     return axiosObject.response.data['error'] || 'Got an unknown error (' + axiosObject.response.status + ')'
   } else if (axiosObject.request) {
