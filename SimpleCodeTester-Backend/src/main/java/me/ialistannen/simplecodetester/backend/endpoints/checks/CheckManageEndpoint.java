@@ -160,7 +160,7 @@ public class CheckManageEndpoint {
       ResponseEntity<Object> responseEntity = ResponseEntity
           .ok(checkService.addCheck(check, userOptional.get(), checkCategory));
 
-      log.info("User {} added a new check with the name {}", user.getUsername(), check.name());
+      log.info("User {} added a new check with the name '{}'", user.getUsername(), check.name());
 
       return responseEntity;
     } catch (CheckParseException e) {
@@ -211,7 +211,7 @@ public class CheckManageEndpoint {
 
     try {
       checkService.updateCheck(id, parseCheckFromJsonBlob(payload));
-      log.info("User {} updated a check with the name {}",
+      log.info("User {} updated a check with the name '{}'",
           user.getName(), storedCheck.get().getName()
       );
     } catch (CheckParseException e) {
@@ -241,7 +241,7 @@ public class CheckManageEndpoint {
     assertHasPermission(authentication, check.get());
 
     checkService.removeCheck(id);
-    log.info("User {} deleted a check with the name {}",
+    log.info("User {} deleted a check with the name '{}'",
         authentication.getName(), check.get().getName()
     );
 
@@ -263,6 +263,12 @@ public class CheckManageEndpoint {
     }
 
     if (checkService.approveCheck(id, approved)) {
+      log.info("User {} set the check approval status of {} to {}",
+          authentication.getName(),
+          id,
+          approved
+      );
+
       return ResponseEntity.ok(Map.of());
     }
 

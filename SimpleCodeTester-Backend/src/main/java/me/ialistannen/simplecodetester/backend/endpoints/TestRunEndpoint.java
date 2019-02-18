@@ -68,6 +68,7 @@ public class TestRunEndpoint {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No class declaration found!");
     }
 
+    log.info("{} initiated a single file test.", id);
     return test(id, fileToSubmission(source), categoryId);
   }
 
@@ -167,6 +168,7 @@ public class TestRunEndpoint {
         files.put(packageName + fileName, source);
       }
 
+      log.info("Testing a zip file for {}", user.getName());
       return testMultipleFiles(files, user.getName(), categoryId);
     } catch (IOException e) {
       log.info("Error extracting file for user '{}'", user.getName(), e);
@@ -204,6 +206,7 @@ public class TestRunEndpoint {
         }
       }
 
+      log.info("Testing multiple uploaded files for {}", user.getName());
       return testMultipleFiles(files, user.getName(), categoryId);
     } catch (IOException e) {
       log.warn("Error fetching files", e);

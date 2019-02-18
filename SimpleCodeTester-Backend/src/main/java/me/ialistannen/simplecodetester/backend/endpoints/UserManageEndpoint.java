@@ -65,7 +65,7 @@ public class UserManageEndpoint {
     if (!userService.removeUser(userId)) {
       return ResponseEntity.notFound().build();
     }
-    log.info("{} deleted user {}",
+    log.info("{} deleted user '{}'",
         SecurityContextHolder.getContext().getAuthentication().getName(), userId
     );
     return ResponseEntity.ok(Map.of());
@@ -95,7 +95,7 @@ public class UserManageEndpoint {
         )
     );
 
-    log.info("{} added the user {}",
+    log.info("{} added the user '{}'",
         SecurityContextHolder.getContext().getAuthentication().getName(),
         addUserBase.id
     );
@@ -116,6 +116,11 @@ public class UserManageEndpoint {
     if (!userService.updateUser(userId, user -> user.setAuthorities(roles))) {
       return ResponseEntity.notFound().build();
     }
+    log.info("{} set roles for {} to {}",
+        SecurityContextHolder.getContext().getAuthentication().getName(),
+        userId,
+        String.join(", ", roles)
+    );
     return ResponseEntity.ok(Map.of());
   }
 
@@ -153,7 +158,7 @@ public class UserManageEndpoint {
       }
     });
 
-    log.info("User {} updated user {}",
+    log.info("User {} updated user '{}'",
         SecurityContextHolder.getContext().getAuthentication().getName(),
         id
     );
@@ -176,6 +181,13 @@ public class UserManageEndpoint {
       return ResponseEntity.notFound().build();
     }
     userService.updateUser(userId, user -> user.setEnabled(enabled));
+
+    log.info("User {} enabled user '{}': {}",
+        SecurityContextHolder.getContext().getAuthentication().getName(),
+        userId,
+        enabled
+    );
+
     return ResponseEntity.ok(enabled);
   }
 
@@ -194,6 +206,12 @@ public class UserManageEndpoint {
     }
     userService
         .updateUser(userId, user -> user.setPasswordHash(passwordEncoder.encode(newPassword)));
+
+    log.info("User {} changed the password of {}",
+        SecurityContextHolder.getContext().getAuthentication().getName(),
+        userId
+    );
+
     return ResponseEntity.ok("{}");
   }
 
@@ -209,6 +227,11 @@ public class UserManageEndpoint {
     userService.updateUser(
         principal.getName(),
         user -> user.setPasswordHash(passwordEncoder.encode(newPassword))
+    );
+
+    log.info("User {} updated his password",
+        SecurityContextHolder.getContext().getAuthentication().getName(),
+        principal.getName()
     );
 
     return ResponseEntity.ok("{}");

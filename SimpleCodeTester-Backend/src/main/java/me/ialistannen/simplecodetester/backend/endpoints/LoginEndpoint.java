@@ -61,6 +61,7 @@ public class LoginEndpoint {
 
     JsonWebSignature signature = jwtGenerator.getSignature(claims);
     try {
+      log.info("Logged in id {} ({})", user.getId(), user.getName());
       return ResponseEntity.ok(Map.of("token", signature.getCompactSerialization()));
     } catch (JoseException e) {
       log.warn("Error building JWT", e);
@@ -83,6 +84,8 @@ public class LoginEndpoint {
       if (!user.get().getEnabled()) {
         return ResponseUtil.error(HttpStatus.FORBIDDEN, "Account locked");
       }
+
+      log.info("Refreshed token for id {} ({}).", user.get().getId(), user.get().getName());
 
       return ResponseEntity.ok(
           Map.of(

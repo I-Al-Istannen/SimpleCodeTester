@@ -56,8 +56,6 @@ public class JwtFilter extends OncePerRequestFilter {
       return;
     }
 
-    log.info("Security context did not exist, authorizing user.");
-
     try {
       JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
 
@@ -67,7 +65,6 @@ public class JwtFilter extends OncePerRequestFilter {
           authenticatedUser, null, authenticatedUser.getAuthorities()
       );
       authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-      log.info("Authorized user '{}', setting security context", authenticatedUser.getUsername());
       SecurityContextHolder.getContext().setAuthentication(authentication);
     } catch (InvalidJwtException | MalformedClaimException e) {
       log.info("JWT is no longer valid for '{}'", token);
