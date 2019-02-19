@@ -1,7 +1,8 @@
 package me.ialistannen.simplecodetester.execution.slave;
 
-import java.security.Permission;
 import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
+
+import java.security.Permission;
 
 public class SubmissionSecurityManager extends SecurityManager {
 
@@ -10,7 +11,8 @@ public class SubmissionSecurityManager extends SecurityManager {
     // CallSite needed for lambdas
     // enum set because it does a reflective invocation to get the universe
     // let's hope that is actually safe and EnumSet can not be used to invoke arbitrary code
-    if (containsClass("java.lang.invoke.CallSite", "java.util.EnumSet")) {
+    // let's hope the same for EnumMap :P
+    if (containsClass("java.lang.invoke.CallSite", "java.util.EnumSet", "java.util.EnumMap")) {
       return;
     }
 
@@ -29,10 +31,12 @@ public class SubmissionSecurityManager extends SecurityManager {
     }
   }
 
-  private boolean containsClass(String first, String second) {
+  private boolean containsClass(String... check) {
     for (Class<?> aClass : getClassContext()) {
-      if (aClass.getName().equals(first) | aClass.getName().equals(second)) {
-        return true;
+      for (String name : check) {
+        if (aClass.getName().equals(name)) {
+          return true;
+        }
       }
     }
     return false;
