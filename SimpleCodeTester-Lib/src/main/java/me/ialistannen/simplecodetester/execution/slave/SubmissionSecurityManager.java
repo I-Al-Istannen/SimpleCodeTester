@@ -7,7 +7,10 @@ public class SubmissionSecurityManager extends SecurityManager {
 
   @Override
   public void checkPermission(Permission perm) {
-    if (containsClass("java.lang.invoke.CallSite")) {
+    // CallSite needed for lambdas
+    // enum set because it does a reflective invocation to get the universe
+    // let's hope that is actually safe and EnumSet can not be used to invoke arbitrary code
+    if (containsClass("java.lang.invoke.CallSite", "java.util.EnumSet")) {
       return;
     }
 
@@ -26,9 +29,9 @@ public class SubmissionSecurityManager extends SecurityManager {
     }
   }
 
-  private boolean containsClass(String name) {
+  private boolean containsClass(String first, String second) {
     for (Class<?> aClass : getClassContext()) {
-      if (aClass.getName().equals(name)) {
+      if (aClass.getName().equals(first) | aClass.getName().equals(second)) {
         return true;
       }
     }

@@ -269,6 +269,45 @@ class SlaveManagerTestIT {
     );
   }
 
+  @Test
+  void enumSetWorks() throws InterruptedException {
+    runSubmission(
+        ImmutableSubmission.builder()
+            .putFiles("Test.java",
+                "import edu.kit.informatik.Terminal;"
+                    + "public class Test {"
+                    + "public static void main(String[] args) {"
+                    + "java.util.EnumSet.allOf(java.nio.file.StandardOpenOption.class);"
+                    + "java.util.EnumSet.of(java.nio.file.StandardOpenOption.CREATE);"
+                    + "}"
+                    + "}"
+            )
+            .build(),
+        "> hello\n> quit"
+    );
+
+    assertNotNull(result);
+    assertNull(result.compilationOutput);
+    assertNull(result.error);
+    assertEquals(1, result.result.fileResults().size());
+    assertEquals(
+        result.result.fileResults(),
+        Map.of("Test", List.of(
+            ImmutableCheckResult.builder()
+                .message("")
+                .errorOutput("")
+                .check("Test")
+                .result(ResultType.SUCCESSFUL)
+                .output(List.of(
+                    new LineResult(Type.INPUT, "hello"),
+                    new LineResult(Type.INPUT, "quit")
+                ))
+                .build()
+        ))
+    );
+  }
+
+
   private void runSubmission(Submission submission, String check) throws InterruptedException {
     slaveManager.runSubmission(
         submission,
