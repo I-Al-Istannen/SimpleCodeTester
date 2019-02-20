@@ -3,7 +3,7 @@
     <v-flex xs12>
       <div class="ma-2">
         <label for="file-upload" class="custom-file-upload">Click me to select file(s). I can also handle source zips :)</label>
-        <input accept=".java, .zip" multiple @input="fileSelected" id="file-upload" type="file">
+        <input accept=".java, .zip" multiple @change="fileSelected" id="file-upload" type="file">
       </div>
       <v-list>
         <v-list-tile v-for="file in files" :key="file.name" @click="blackhole">
