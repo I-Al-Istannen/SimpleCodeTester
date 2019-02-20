@@ -5,12 +5,16 @@ import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 
 public class SubmissionSecurityManager extends SecurityManager {
 
+  // CallSite needed for lambdas
+  // enum set/map because they do a reflective invocation to get the universe
+  // let's hope that is actually safe and EnumSet/Map can not be used to invoke arbitrary code
+  private static final String[] WHITELISTED_CLASSES = {
+      "java.lang.invoke.CallSite", "java.util.EnumSet", "java.util.EnumMap"
+  };
+
   @Override
   public void checkPermission(Permission perm) {
-    // CallSite needed for lambdas
-    // enum set because it does a reflective invocation to get the universe
-    // let's hope that is actually safe and EnumSet can not be used to invoke arbitrary code
-    if (containsClass("java.lang.invoke.CallSite", "java.util.EnumSet")) {
+    if (containsWhitelistedClass()) {
       return;
     }
 
@@ -29,10 +33,12 @@ public class SubmissionSecurityManager extends SecurityManager {
     }
   }
 
-  private boolean containsClass(String first, String second) {
+  private boolean containsWhitelistedClass() {
     for (Class<?> aClass : getClassContext()) {
-      if (aClass.getName().equals(first) | aClass.getName().equals(second)) {
-        return true;
+      for (String s : WHITELISTED_CLASSES) {
+        if (s.equals(aClass.getName())) {
+          return true;
+        }
       }
     }
     return false;
