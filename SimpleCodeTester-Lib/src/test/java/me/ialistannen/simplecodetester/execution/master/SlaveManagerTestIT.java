@@ -270,7 +270,7 @@ class SlaveManagerTestIT {
   }
 
   @Test
-  void enumSetWorks() throws InterruptedException {
+  void enumSetAndMapWork() throws InterruptedException {
     runSubmission(
         ImmutableSubmission.builder()
             .putFiles("Test.java",
@@ -279,6 +279,7 @@ class SlaveManagerTestIT {
                     + "public static void main(String[] args) {"
                     + "java.util.EnumSet.allOf(java.nio.file.StandardOpenOption.class);"
                     + "java.util.EnumSet.of(java.nio.file.StandardOpenOption.CREATE);"
+                    + "new java.util.EnumMap<>(java.nio.file.StandardOpenOption.class);"
                     + "}"
                     + "}"
             )
