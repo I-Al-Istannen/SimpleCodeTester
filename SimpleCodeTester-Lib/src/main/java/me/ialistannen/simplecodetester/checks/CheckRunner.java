@@ -4,11 +4,15 @@ import static java.util.stream.Collectors.toList;
 import static me.ialistannen.simplecodetester.util.ExceptionUtil.findRootCause;
 
 import edu.kit.informatik.Terminal;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
+import me.ialistannen.simplecodetester.exceptions.UnsupportedIoException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.util.ErrorLogCapture;
@@ -31,21 +35,14 @@ public class CheckRunner {
   }
 
   /**
-   * Adds a new {@link Check} to this runner
-   *
-   * @param check the {@link Check} to add
-   */
-  public void addCheck(Check check) {
-    checks.add(check);
-  }
-
-  /**
    * Runs all checks against the given {@link CompiledSubmission}.
    *
    * @param compiledSubmission the {@link CompiledSubmission} to test
    * @return the {@link SubmissionCheckResult}
    */
   public SubmissionCheckResult checkSubmission(CompiledSubmission compiledSubmission) {
+    disableSystemInAndOut();
+
     Builder builder = ImmutableSubmissionCheckResult.builder();
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
@@ -91,4 +88,22 @@ public class CheckRunner {
         : rootCause.getMessage();
   }
 
+  private void disableSystemInAndOut() {
+    System.setIn(new InputStream() {
+      @Override
+      public int read() {
+        throw new UnsupportedIoException(
+            "You can not read from System.in, please use the Terminal class for io!"
+        );
+      }
+    });
+    System.setOut(new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        throw new UnsupportedIoException(
+            "You can not write to System.out, please use the Terminal class for io!"
+        );
+      }
+    }));
+  }
 }

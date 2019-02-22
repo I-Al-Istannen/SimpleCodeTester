@@ -5,9 +5,11 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import me.ialistannen.simplecodetester.exceptions.SuppressStacktrace;
 import org.joor.ReflectException;
 
 @UtilityClass
@@ -51,6 +53,10 @@ public class ExceptionUtil {
 
     if (exceptionToAnalyze instanceof InvocationTargetException) {
       exceptionToAnalyze = exceptionToAnalyze.getCause();
+    }
+
+    if (exceptionToAnalyze.getClass().isAnnotationPresent(SuppressStacktrace.class)) {
+      return Collections.singletonList(exceptionToAnalyze.getMessage());
     }
 
     List<String> result = new ArrayList<>();
