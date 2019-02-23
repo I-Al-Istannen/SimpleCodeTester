@@ -53,8 +53,8 @@
                           <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                           <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
                           <interleaved-io
-                            border="true"
-                            faithfulFormat="false"
+                            :border="true"
+                            :faithfulFormat="false"
                             :lines="result.output"
                           ></interleaved-io>
                         </v-card-text>

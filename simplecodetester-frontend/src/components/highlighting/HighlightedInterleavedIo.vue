@@ -18,18 +18,18 @@ export default class HighlightInterleavedIo extends Vue {
   @Prop({ default: () => [] })
   lines!: Array<IoLine>;
 
-  @Prop({ default: "true" })
-  faithfulFormat!: string;
+  @Prop({ type: Boolean, default: true })
+  faithfulFormat!: boolean;
 
-  @Prop({ default: "true" })
-  border!: string;
+  @Prop({ type: Boolean, default: true })
+  border!: boolean;
 
   @Watch("noBorder")
   setBorderVisiblity() {
     let classes = (this.$refs["container"] as Element).classList;
     classes.remove("container-border");
 
-    if (this.border !== "false") {
+    if (this.border) {
       classes.add("container-border");
     }
   }
@@ -46,12 +46,12 @@ export default class HighlightInterleavedIo extends Vue {
 
     cssClasses[line.lineType] = true;
 
-    if (this.faithfulFormat === "false") {
+    if (!this.faithfulFormat) {
       if (line.lineType === IoLineType.INPUT) {
         cssClasses["prepend-input-label"] = true;
       }
     }
-    cssClasses["faithful-line"] = this.faithfulFormat === "true";
+    cssClasses["faithful-line"] = this.faithfulFormat;
 
     return cssClasses;
   }

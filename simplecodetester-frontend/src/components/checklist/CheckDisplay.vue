@@ -13,7 +13,7 @@
         ></v-textarea>
       </span>
       <span v-if="content.class === 'InterleavedStaticIOCheck'">
-        <interleaved-io :lines="interleavedLines" faithfulFormat="true"></interleaved-io>
+        <interleaved-io :lines="interleavedLines" :faithfulFormat="true"></interleaved-io>
       </span>
     </div>
   </div>
