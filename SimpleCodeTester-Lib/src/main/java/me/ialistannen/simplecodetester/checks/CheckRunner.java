@@ -1,6 +1,5 @@
 package me.ialistannen.simplecodetester.checks;
 
-import static java.util.stream.Collectors.toList;
 import static me.ialistannen.simplecodetester.util.ExceptionUtil.findRootCause;
 
 import edu.kit.informatik.Terminal;
@@ -9,8 +8,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
-import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult.Builder;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.exceptions.UnsupportedIoException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
@@ -38,21 +37,20 @@ public class CheckRunner {
    * Runs all checks against the given {@link CompiledSubmission}.
    *
    * @param compiledSubmission the {@link CompiledSubmission} to test
-   * @return the {@link SubmissionCheckResult}
+   * @param resultConsumer the consumer for individual file results
    */
-  public SubmissionCheckResult checkSubmission(CompiledSubmission compiledSubmission) {
-    disableSystemInAndOut();
-
-    Builder builder = ImmutableSubmissionCheckResult.builder();
+  public void checkSubmission(CompiledSubmission compiledSubmission,
+      BiConsumer<String, CheckResult> resultConsumer) {
+//    disableSystemInAndOut();
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
-      List<CheckResult> checkResults = checks.stream()
-          .map(check -> tryCheck(check, file))
-          .collect(toList());
-      builder.putFileResults(file.qualifiedName(), checkResults);
+      for (Check check : checks) {
+        CheckResult checkResult = tryCheck(check, file);
+        if (checkResult.result() != ResultType.NOT_APPLICABLE) {
+          resultConsumer.accept(file.qualifiedName(), checkResult);
+        }
+      }
     }
-
-    return builder.build();
   }
 
   private CheckResult tryCheck(Check check, CompiledFile file) {

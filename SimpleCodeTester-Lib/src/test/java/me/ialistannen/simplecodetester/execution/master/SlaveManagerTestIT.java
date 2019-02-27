@@ -1,5 +1,8 @@
 package me.ialistannen.simplecodetester.execution.master;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -7,11 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
+import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult.Type;
@@ -19,6 +26,7 @@ import me.ialistannen.simplecodetester.checks.defaults.io.parsing.InterleavedIoP
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveComputationTookTooLong;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
@@ -52,13 +60,15 @@ class SlaveManagerTestIT {
             result.error = "Slave got no master response.";
             lock.release();
           } else if (protocolMessage instanceof SubmissionResult) {
-            result.result = ((SubmissionResult) protocolMessage).getResult();
-            lock.release();
+            SubmissionResult message = (SubmissionResult) protocolMessage;
+            result.addResult(message.getFileName(), message.getResult());
           } else if (protocolMessage instanceof CompilationFailed) {
             result.compilationOutput = ((CompilationFailed) protocolMessage).getOutput();
             lock.release();
           } else if (protocolMessage instanceof SlaveComputationTookTooLong) {
             result.error = "Computation took too long!";
+            lock.release();
+          } else if (protocolMessage instanceof DyingMessage) {
             lock.release();
           }
         },
@@ -86,7 +96,10 @@ class SlaveManagerTestIT {
         ""
     );
 
-    assertNull(result.result);
+    assertThat(
+        result.toResult().fileResults(),
+        is(anEmptyMap())
+    );
     assertNotNull(result.compilationOutput);
     assertFalse(result.compilationOutput.successful(), "Compilation not successful");
     assertNotNull(result.compilationOutput.diagnostics().get("Test.java"));
@@ -112,9 +125,9 @@ class SlaveManagerTestIT {
     assertNotNull(result);
     assertNull(result.compilationOutput);
     assertNull(result.error);
-    assertEquals(1, result.result.fileResults().size());
+    assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.result.fileResults(),
+        result.toResult().fileResults(),
         Map.of("Test", List.of(
             ImmutableCheckResult.builder()
                 .message("")
@@ -151,9 +164,9 @@ class SlaveManagerTestIT {
     assertNotNull(result);
     assertNull(result.compilationOutput);
     assertNull(result.error);
-    assertEquals(1, result.result.fileResults().size());
+    assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.result.fileResults(),
+        result.toResult().fileResults(),
         Map.of("Test", List.of(
             ImmutableCheckResult.builder()
                 .message("")
@@ -189,9 +202,9 @@ class SlaveManagerTestIT {
         "> hello\nworld"
     );
 
-    assertEquals(1, result.result.fileResults().size());
+    assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.result.fileResults(),
+        result.toResult().fileResults(),
         Map.of("Test", List.of(
             ImmutableCheckResult.builder()
                 .message("")
@@ -234,9 +247,9 @@ class SlaveManagerTestIT {
 
     lock.acquire();
 
-    assertEquals(1, result.result.fileResults().size());
+    assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.result.fileResults(),
+        result.toResult().fileResults(),
         Map.of(
             "Test", List.of(
                 ImmutableCheckResult.builder()
@@ -291,9 +304,9 @@ class SlaveManagerTestIT {
     assertNotNull(result);
     assertNull(result.compilationOutput);
     assertNull(result.error);
-    assertEquals(1, result.result.fileResults().size());
+    assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.result.fileResults(),
+        result.toResult().fileResults(),
         Map.of("Test", List.of(
             ImmutableCheckResult.builder()
                 .message("")
@@ -331,14 +344,26 @@ class SlaveManagerTestIT {
 
     private String error;
     private CompilationOutput compilationOutput;
-    private SubmissionCheckResult result;
+    private Map<String, List<CheckResult>> results = new HashMap<>();
+
+    void addResult(String file, CheckResult result) {
+      List<CheckResult> list = results.getOrDefault(file, new ArrayList<>());
+      list.add(result);
+      results.put(file, list);
+    }
+
+    SubmissionCheckResult toResult() {
+      return ImmutableSubmissionCheckResult.builder()
+          .putAllFileResults(results)
+          .build();
+    }
 
     @Override
     public String toString() {
       return "SlaveResult{" +
           "error='" + error + '\'' +
           ", compilationOutput=" + compilationOutput +
-          ", result=" + result +
+          ", result=" + toResult() +
           '}';
     }
   }

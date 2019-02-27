@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound;
 
+import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 
@@ -8,10 +9,12 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage
  */
 public class SubmissionResult extends ProtocolMessage {
 
-  private SubmissionCheckResult result;
+  private String fileName;
+  private CheckResult result;
 
-  public SubmissionResult(SubmissionCheckResult result, String uid) {
+  public SubmissionResult(String fileName, CheckResult result, String uid) {
     super(uid);
+    this.fileName = fileName;
     this.result = result;
   }
 
@@ -20,14 +23,23 @@ public class SubmissionResult extends ProtocolMessage {
    *
    * @return the {@link SubmissionCheckResult}
    */
-  public SubmissionCheckResult getResult() {
+  public CheckResult getResult() {
     return result;
+  }
+
+  /**
+   * Returns the filename of the file the result belongs to.
+   *
+   * @return the filename of the file the result belongs to
+   */
+  public String getFileName() {
+    return fileName;
   }
 
   @Override
   public String toString() {
     return "SubmissionResult{" +
-        "uid=" + getUid() +
+        "fileName='" + fileName + '\'' +
         ", result=" + result +
         '}';
   }

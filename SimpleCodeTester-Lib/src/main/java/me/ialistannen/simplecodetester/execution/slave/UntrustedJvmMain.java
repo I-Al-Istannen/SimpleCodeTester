@@ -13,7 +13,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckRunner;
-import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.compilation.Compiler;
 import me.ialistannen.simplecodetester.compilation.java8.memory.Java8InMemoryCompiler;
@@ -139,9 +138,10 @@ public class UntrustedJvmMain {
         .collect(toCollection(ArrayList::new));
 
     CheckRunner checkRunner = new CheckRunner(checks);
-    SubmissionCheckResult checkResult = checkRunner.checkSubmission(compiledSubmission);
-
-    client.queueMessage(new SubmissionResult(checkResult, uid));
+    checkRunner.checkSubmission(
+        compiledSubmission,
+        (fileName, result) -> client.queueMessage(new SubmissionResult(fileName, result, uid))
+    );
   }
 
   public static void main(String[] args) throws IOException {

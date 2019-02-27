@@ -3,6 +3,8 @@ package me.ialistannen.simplecodetester.backend.services.checkrunning;
 import static java.util.stream.Collectors.toList;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,12 +17,15 @@ import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningException;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
 import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
+import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.execution.master.SlaveManager;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.ProtocolMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.DyingMessage;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveComputationTookTooLong;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
@@ -96,7 +101,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
 
     // TODO: 27.12.18 Slave killed due to timeout
 
-    return check.getResult();
+    return check.getResult().toSubmissionResult();
   }
 
 
@@ -110,13 +115,16 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
         runningCheck.setError("Slave got no master response.");
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof SubmissionResult) {
-        runningCheck.setResult(((SubmissionResult) protocolMessage).getResult());
-        runningCheck.getLock().release();
+        SubmissionResult result = (SubmissionResult) protocolMessage;
+        runningCheck.result.add(result.getFileName(), result.getResult());
+//        runningCheck.getLock().release();
       } else if (protocolMessage instanceof CompilationFailed) {
         runningCheck.setCompilationOutput(((CompilationFailed) protocolMessage).getOutput());
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof SlaveComputationTookTooLong) {
-        runningCheck.setError("Computation took too long!");
+//        runningCheck.setError("Computation took too long!");
+        runningCheck.getLock().release();
+      } else if (protocolMessage instanceof DyingMessage) {
         runningCheck.getLock().release();
       }
     };
@@ -143,11 +151,33 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
 
     private Semaphore lock;
     private String error;
-    private SubmissionCheckResult result;
+    private PartialResults result;
     private CompilationOutput compilationOutput;
 
     RunningCheck(Semaphore lock) {
       this.lock = lock;
+      result = new PartialResults();
+    }
+  }
+
+  private static class PartialResults {
+
+    private Map<String, List<CheckResult>> results;
+
+    private PartialResults() {
+      this.results = new HashMap<>();
+    }
+
+    void add(String name, CheckResult result) {
+      List<CheckResult> list = results.getOrDefault(name, new ArrayList<>());
+      list.add(result);
+      results.put(name, list);
+    }
+
+    ImmutableSubmissionCheckResult toSubmissionResult() {
+      return ImmutableSubmissionCheckResult.builder()
+          .putAllFileResults(results)
+          .build();
     }
   }
 }
