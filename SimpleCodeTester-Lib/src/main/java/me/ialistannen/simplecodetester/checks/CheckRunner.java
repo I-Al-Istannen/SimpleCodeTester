@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.exceptions.UnsupportedIoException;
@@ -38,13 +39,15 @@ public class CheckRunner {
    *
    * @param compiledSubmission the {@link CompiledSubmission} to test
    * @param resultConsumer the consumer for individual file results
+   * @param checkStartingConsumer a consumer that is notified when a check is started
    */
   public void checkSubmission(CompiledSubmission compiledSubmission,
-      BiConsumer<String, CheckResult> resultConsumer) {
+      BiConsumer<String, CheckResult> resultConsumer, Consumer<String> checkStartingConsumer) {
     disableSystemInAndOut();
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
       for (Check check : checks) {
+        checkStartingConsumer.accept("'" + check.name() + "' on '" + file.qualifiedName() + "'");
         CheckResult checkResult = tryCheck(check, file);
         if (checkResult.result() != ResultType.NOT_APPLICABLE) {
           resultConsumer.accept(file.qualifiedName(), checkResult);

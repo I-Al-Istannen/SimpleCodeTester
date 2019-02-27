@@ -23,6 +23,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Dyi
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveStarted;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.StartedCheck;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.slavebound.CompileAndCheckSubmission;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
@@ -140,7 +141,8 @@ public class UntrustedJvmMain {
     CheckRunner checkRunner = new CheckRunner(checks);
     checkRunner.checkSubmission(
         compiledSubmission,
-        (fileName, result) -> client.queueMessage(new SubmissionResult(fileName, result, uid))
+        (fileName, result) -> client.queueMessage(new SubmissionResult(fileName, result, uid)),
+        name -> client.queueMessage(new StartedCheck(uid, name))
     );
   }
 

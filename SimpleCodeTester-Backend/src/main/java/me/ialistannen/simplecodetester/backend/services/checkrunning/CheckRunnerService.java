@@ -31,6 +31,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Dyi
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveComputationTookTooLong;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveDiedWithUnknownError;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SlaveTimedOut;
+import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.StartedCheck;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.Submission;
 import org.springframework.beans.factory.DisposableBean;
@@ -101,12 +102,10 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
       throw new CheckRunningFailedException(check.getError());
     }
 
-    // TODO: 27.12.18 Slave killed due to timeout
-
     return check.getResult().toSubmissionResult();
   }
 
-
+  // yea, this method is horrible. It is localized in this class though
   private BiConsumer<MessageClient, ProtocolMessage> getMessageConsumer() {
     return (messageClient, protocolMessage) -> {
       RunningCheck runningCheck = runningChecks.get(protocolMessage.getUid());
@@ -124,11 +123,14 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof SlaveComputationTookTooLong) {
         runningCheck.result.add("All", ImmutableCheckResult.builder()
-            .check("Computation took too long!")
+            .check("Maximum computation time")
             .result(ResultType.FAILED)
             .message(
-                "Your program did not finish in time. The following checks are my *best guess*"
-                    + " what your program successfully finished."
+                "Your program did not finish in time. The following is my *best guess* at "
+                    + "what your program successfully finished.\n"
+                    + "The last check I attempted to run was "
+                    + runningCheck.result.startedCheckContext
+                    + "."
             )
             .errorOutput("")
             .build()
@@ -136,6 +138,9 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof DyingMessage) {
         runningCheck.getLock().release();
+      } else if (protocolMessage instanceof StartedCheck) {
+        runningCheck.getResult()
+            .setStartedCheckContext(((StartedCheck) protocolMessage).getCheckContext());
       }
     };
   }
@@ -170,18 +175,39 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
     }
   }
 
+  /**
+   * Contains partial results. The client reports back as soon as it enters or finishes a check.
+   * This allows showing partial results to the user as well as localizing where their program
+   * failed.
+   */
   private static class PartialResults {
 
+    private String startedCheckContext;
     private Map<String, List<CheckResult>> results;
 
     private PartialResults() {
       this.results = new HashMap<>();
     }
 
+    /**
+     * Adds the result for a single test.
+     *
+     * @param name the name of the test
+     * @param result the result
+     */
     void add(String name, CheckResult result) {
       List<CheckResult> list = results.getOrDefault(name, new ArrayList<>());
       list.add(result);
       results.put(name, list);
+    }
+
+    /**
+     * Sets the name and some context for the started check.
+     *
+     * @param context the name and some context for the started check
+     */
+    void setStartedCheckContext(String context) {
+      this.startedCheckContext = context;
     }
 
     ImmutableSubmissionCheckResult toSubmissionResult() {
