@@ -270,7 +270,7 @@ class SlaveManagerTestIT {
   }
 
   @Test
-  void enumSetAndMapWork() throws InterruptedException {
+  void exceptedClassesWork() throws InterruptedException {
     runSubmission(
         ImmutableSubmission.builder()
             .putFiles("Test.java",
@@ -280,11 +280,12 @@ class SlaveManagerTestIT {
                     + "java.util.EnumSet.allOf(java.nio.file.StandardOpenOption.class);"
                     + "java.util.EnumSet.of(java.nio.file.StandardOpenOption.CREATE);"
                     + "new java.util.EnumMap<>(java.nio.file.StandardOpenOption.class);"
+                    + "Terminal.printLine(Character.getName(':'));"
                     + "}"
                     + "}"
             )
             .build(),
-        "> hello\n> quit"
+        "COLON\n> hello\n> quit"
     );
 
     assertNotNull(result);
@@ -300,6 +301,7 @@ class SlaveManagerTestIT {
                 .check("Test")
                 .result(ResultType.SUCCESSFUL)
                 .output(List.of(
+                    new LineResult(Type.OUTPUT, "COLON"), // the getName call
                     new LineResult(Type.INPUT, "hello"),
                     new LineResult(Type.INPUT, "quit")
                 ))

@@ -5,11 +5,14 @@ import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 
 public class SubmissionSecurityManager extends SecurityManager {
 
-  // CallSite needed for lambdas
-  // enum set/map because they do a reflective invocation to get the universe
-  // let's hope that is actually safe and EnumSet/Map can not be used to invoke arbitrary code
   private static final String[] WHITELISTED_CLASSES = {
-      "java.lang.invoke.CallSite", "java.util.EnumSet", "java.util.EnumMap"
+      // CallSite is needed for lambdas
+      "java.lang.invoke.CallSite",
+      // enum set/map because they do a reflective invocation to get the universe
+      // let's hope that is actually safe and EnumSet/Map can not be used to invoke arbitrary code
+      "java.util.EnumSet", "java.util.EnumMap",
+      // Character.getName accesses a system resource (uniName.dat)
+      "java.lang.CharacterName"
   };
 
   @Override
