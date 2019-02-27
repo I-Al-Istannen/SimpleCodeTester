@@ -12,7 +12,9 @@ public class SubmissionSecurityManager extends SecurityManager {
       // let's hope that is actually safe and EnumSet/Map can not be used to invoke arbitrary code
       "java.util.EnumSet", "java.util.EnumMap",
       // Character.getName accesses a system resource (uniName.dat)
-      "java.lang.CharacterName"
+      "java.lang.CharacterName",
+      // Local specific decimal formatting
+      "java.text.DecimalFormatSymbols"
   };
 
   @Override
