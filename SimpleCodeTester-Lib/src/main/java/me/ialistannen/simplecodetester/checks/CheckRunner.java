@@ -41,7 +41,7 @@ public class CheckRunner {
    */
   public void checkSubmission(CompiledSubmission compiledSubmission,
       BiConsumer<String, CheckResult> resultConsumer) {
-//    disableSystemInAndOut();
+    disableSystemInAndOut();
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
       for (Check check : checks) {
