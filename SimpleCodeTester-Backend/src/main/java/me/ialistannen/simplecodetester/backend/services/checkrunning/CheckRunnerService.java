@@ -18,6 +18,8 @@ import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningExce
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
 import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
 import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
+import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult;
 import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
@@ -117,12 +119,20 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
       } else if (protocolMessage instanceof SubmissionResult) {
         SubmissionResult result = (SubmissionResult) protocolMessage;
         runningCheck.result.add(result.getFileName(), result.getResult());
-//        runningCheck.getLock().release();
       } else if (protocolMessage instanceof CompilationFailed) {
         runningCheck.setCompilationOutput(((CompilationFailed) protocolMessage).getOutput());
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof SlaveComputationTookTooLong) {
-//        runningCheck.setError("Computation took too long!");
+        runningCheck.result.add("All", ImmutableCheckResult.builder()
+            .check("Computation took too long!")
+            .result(ResultType.FAILED)
+            .message(
+                "Your program did not finish in time. The following checks are my *best guess*"
+                    + " what your program successfully finished."
+            )
+            .errorOutput("")
+            .build()
+        );
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof DyingMessage) {
         runningCheck.getLock().release();
