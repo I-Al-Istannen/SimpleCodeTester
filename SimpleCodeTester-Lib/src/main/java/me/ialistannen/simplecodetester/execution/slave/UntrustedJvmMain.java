@@ -91,11 +91,6 @@ public class UntrustedJvmMain {
     try {
       CompiledSubmission compiledSubmission = compile(submission);
 
-      if (!compiledSubmission.compilationOutput().successful()) {
-        shutdown();
-        return;
-      }
-
       runChecks(compiledSubmission, checks);
     } catch (CompilationException e) {
       e.printStackTrace();

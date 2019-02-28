@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningException;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
@@ -40,6 +41,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class CheckRunnerService implements DisposableBean, InitializingBean {
 
   @Value("${runner.classpath}")
@@ -109,18 +111,26 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
   private BiConsumer<MessageClient, ProtocolMessage> getMessageConsumer() {
     return (messageClient, protocolMessage) -> {
       RunningCheck runningCheck = runningChecks.get(protocolMessage.getUid());
+
+      // if you have already cleaned up after a message, ignore the rest
+      // this should not happen
+      if (runningCheck == null) {
+        log.warn(
+            "Got a message ({}) when I was already not running anything with uid '{}'",
+            protocolMessage.getClassName(), protocolMessage.getUid()
+        );
+        return;
+      }
+
       if (protocolMessage instanceof SlaveDiedWithUnknownError) {
         runningCheck.setError(((SlaveDiedWithUnknownError) protocolMessage).getMessage());
-        runningCheck.getLock().release();
       } else if (protocolMessage instanceof SlaveTimedOut) {
         runningCheck.setError("Slave got no master response.");
-        runningCheck.getLock().release();
       } else if (protocolMessage instanceof SubmissionResult) {
         SubmissionResult result = (SubmissionResult) protocolMessage;
         runningCheck.result.add(result.getFileName(), result.getResult());
       } else if (protocolMessage instanceof CompilationFailed) {
         runningCheck.setCompilationOutput(((CompilationFailed) protocolMessage).getOutput());
-        runningCheck.getLock().release();
       } else if (protocolMessage instanceof SlaveComputationTookTooLong) {
         runningCheck.result.add("All", ImmutableCheckResult.builder()
             .check("Maximum computation time")
@@ -135,6 +145,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
             .errorOutput("")
             .build()
         );
+        // Slave does not send a dying message in this case, as it can't anymore
         runningCheck.getLock().release();
       } else if (protocolMessage instanceof DyingMessage) {
         runningCheck.getLock().release();
