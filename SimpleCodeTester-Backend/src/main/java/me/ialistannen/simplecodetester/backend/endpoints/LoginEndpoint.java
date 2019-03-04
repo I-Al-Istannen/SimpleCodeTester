@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class LoginEndpoint {
 
+  private static final String CREDENTIALS_INCORRECT = "Username or password incorrect";
+
   private JwtGenerator jwtGenerator;
   private UserService userService;
   private PasswordEncoder passwordEncoder;
@@ -45,11 +47,11 @@ public class LoginEndpoint {
     User user = userService.getUser(username).orElse(null);
 
     if (user == null) {
-      return ResponseUtil.error(HttpStatus.NOT_FOUND, "Username not found");
+      return ResponseUtil.error(HttpStatus.NOT_FOUND, CREDENTIALS_INCORRECT);
     }
 
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-      return ResponseUtil.error(HttpStatus.UNAUTHORIZED, "Invalid password");
+      return ResponseUtil.error(HttpStatus.UNAUTHORIZED, CREDENTIALS_INCORRECT);
     }
 
     JwtClaims claims = new JwtClaims();
