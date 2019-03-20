@@ -39,6 +39,7 @@ public class Java8InMemoryCompiler implements Compiler {
 
     List<InMemoryFileInputObject> compilationUnits = submission.files().entrySet().stream()
         .filter(entry -> entry.getKey().endsWith(".java"))
+        .filter(entry -> !entry.getKey().endsWith("package-info.java"))
         .map(entry -> new InMemoryFileInputObject(entry.getKey(), entry.getValue()))
         .collect(Collectors.toList());
 
