@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,8 @@ public class TestRunEndpoint {
     List<CodeCheck> checks = codeCheckService.getAll().stream()
         .filter(CodeCheck::isApproved)
         .filter(codeCheck -> codeCheck.getCategory().getId() == categoryId)
+        // run longer tests later as they are more likely to time out
+        .sorted(Comparator.comparing(check -> check.getText().length(), Comparator.reverseOrder()))
         .collect(toList());
 
     if (checks.isEmpty()) {
