@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,8 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
 
     List<String> checksToRun = checks.stream()
         .map(CodeCheck::getText)
+        // run longer tests later as they are more likely to time out
+        .sorted(Comparator.comparingInt(String::length))
         .collect(toList());
 
     slaveManager.runSubmission(submission, checksToRun, userId);
