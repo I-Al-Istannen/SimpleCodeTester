@@ -33,7 +33,7 @@ public class UntrustedCodeJvmStarter {
         "10",
         ProcessHandle.current().info().command().orElseThrow(),
         // Limit heap size
-        "-Xmx20m",
+        "-Xmx30m",
         // classpath only added when it is specified
         classpath.length == 0 ? "" : "-cp",
         String.join(":", classpath),
