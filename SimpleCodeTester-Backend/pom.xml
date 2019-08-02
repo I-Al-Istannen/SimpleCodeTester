@@ -12,7 +12,7 @@
   <artifactId>SimpleCodeTester-Backend</artifactId>
 
   <properties>
-    <spring-boot.version>2.1.1.RELEASE</spring-boot.version>
+    <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -77,19 +77,19 @@
     <dependency>
       <groupId>org.bitbucket.b_c</groupId>
       <artifactId>jose4j</artifactId>
-      <version>0.6.4</version>
+      <version>0.6.5</version>
     </dependency>
 
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.4.197</version>
+      <version>1.4.199</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.6</version>
+      <version>1.7</version>
     </dependency>
 
     <dependency>
