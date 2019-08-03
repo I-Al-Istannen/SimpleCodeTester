@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import {CheckCategory} from '@/store/types';
+import { CheckCategory } from '@/store/types';
 
 /**
  * The base of a check, containing all metadata but no content.

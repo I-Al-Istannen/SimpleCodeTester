@@ -9,7 +9,7 @@
           <v-form v-model="formValid">
             <v-text-field
               @keydown.enter.prevent="login"
-              prepend-icon="person"
+              :prepend-icon="accountIcon"
               name="login"
               label="Name"
               type="text"
@@ -18,7 +18,7 @@
             ></v-text-field>
             <v-text-field
               @keydown.enter.prevent="login"
-              prepend-icon="lock"
+              :prepend-icon="lockIcon"
               name="password"
               label="Passwort"
               type="password"
@@ -28,8 +28,9 @@
           </v-form>
           <p class="error-message" :display="error.length !== 0">{{ error }}</p>
 
-          <a class="email" @click="sendMail">Send me a message :=)
-            <br>In general or if you want an account
+          <a class="email" @click="sendMail">
+            Send me a message :=)
+            <br />In general or if you want an account
           </a>
         </v-card-text>
         <v-card-actions class="pr-3 pb-3">
@@ -49,6 +50,7 @@ import { UserLoginInfo } from "@/store/types";
 import { extractErrorMessage } from "../util/requests";
 import { AxiosError } from "axios";
 import Component from "vue-class-component";
+import { mdiAccount, mdiLock } from "@mdi/js";
 
 @Component({})
 export default class Login extends Vue {
@@ -128,6 +130,10 @@ export default class Login extends Vue {
   destroyed() {
     this.$emit("hide-nav-bar-actions", false);
   }
+
+  // Icons
+  private accountIcon = mdiAccount;
+  private lockIcon = mdiLock;
 }
 </script>
 

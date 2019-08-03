@@ -9,45 +9,52 @@
           <v-text-field
             class="mx-5 mb-2"
             v-model="search"
-            append-icon="search"
+            :append-icon="searchIcon"
             label="Search..."
             single-line
           ></v-text-field>
 
           <v-data-iterator
             :items="checks.checkBases"
-            :rows-per-page-items="rowsPerPageItems"
-            :pagination.sync="pagination"
+            :footer-props="footerProps"
             :search="search"
-            content-tag="v-layout"
             column
             style="overflow-x: auto;"
             wrap
-            :filter="filterValueHandleApproved"
+            :custom-filter="filterHandlingApproved"
+            :items-per-page="rowsPerPage"
+            @update:items-per-page="setRowsPerPage"
           >
-            <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
-              <v-expansion-panel expand :key="props.item.id">
-                <v-expansion-panel-content @input="fetchCheckText(props.item)">
-                  <div slot="header" class="monospaced subheading d-flex check-header">
-                    <span>Check '{{ props.item.name }}' by '{{ props.item.creator }}' (ID: {{ props.item.id }})</span>
-                    <modify-actions
-                      :checks="checks"
-                      :userState="userState"
-                      :myCheck="props.item"
-                      @error="setError"
-                    ></modify-actions>
-                  </div>
-                  <v-card>
-                    <v-card-text class="grey lighten-3">
-                      <check-display
-                        :checkBase="props.item"
-                        :content="checks.checkContents[props.item.id]"
-                      ></check-display>
-                    </v-card-text>
-                  </v-card>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-flex>
+            <template v-slot:default="props">
+              <v-layout column>
+                <v-expansion-panels inset multiple>
+                  <v-expansion-panel
+                    v-for="item in props.items"
+                    :key="item.id"
+                    @change="fetchCheckText(item)"
+                  >
+                    <v-expansion-panel-header
+                      class="monospaced subtitle-1 d-flex check-header py-0"
+                    >
+                      <span>Check '{{ item.name }}' by '{{ item.creator }}' (ID: {{ item.id }})</span>
+                      <modify-actions
+                        :checks="checks"
+                        :userState="userState"
+                        :myCheck="item"
+                        @error="setError"
+                      ></modify-actions>
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <v-card>
+                        <v-card-text class="grey lighten-3">
+                          <check-display :checkBase="item" :content="checks.checkContents[item.id]"></check-display>
+                        </v-card-text>
+                      </v-card>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-layout>
+            </template>
           </v-data-iterator>
         </v-card-text>
         <v-alert type="error" :value="error.length > 0">{{ error }}</v-alert>
@@ -60,13 +67,13 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState, CheckCategory } from "@/store/types";
-import Axios from "axios";
+import { RootState } from "@/store/types";
 import { extractErrorMessage } from "@/util/requests";
 import ModifyActions from "@/components/checklist/CheckModifyActions.vue";
 import { CheckBase, CheckCollection } from "@/components/checklist/CheckTypes";
 import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
 import { Watch } from "vue-property-decorator";
+import { mdiMagnify } from "@mdi/js";
 
 @Component({
   components: {
@@ -78,16 +85,18 @@ export default class CheckList extends Vue {
   private checks: CheckCollection = new CheckCollection();
   private error: string = "";
   private search: string = "";
-  private rowsPerPageItems = [4, 10, 20, 50, 100];
-  private pagination = {
-    rowsPerPage: this.rowsPerPage
+  private footerProps = {
+    itemsPerPageOptions: [4, 10, 20, 50, 100],
+    pagination: {
+      rowsPerPage: this.rowsPerPage
+    }
   };
 
   get rowsPerPage(): number {
     return (this.$store.state as RootState).miscsettings.itemsPerPage;
   }
 
-  @Watch("pagination.rowsPerPage")
+  @Watch("footerProps.pagination.rowsPerPage", { deep: true })
   setRowsPerPage(rows: number) {
     this.$store.commit("miscsettings/setItemsPerPage", rows);
   }
@@ -107,22 +116,33 @@ export default class CheckList extends Vue {
       .catch(error => this.setError(extractErrorMessage(error)));
   }
 
-  filterValueHandleApproved(val: any, search: string) {
-    if (typeof val === "boolean") {
-      return (
-        (search === "approved" && val) || (search === "unapproved" && !val)
-      );
+  filterHandlingApproved(items: any[], search: string): any[] {
+    return items.filter(val => {
+      return this.checkMatchesSearch(val, search);
+    });
+  }
+
+  checkMatchesSearch(check: CheckBase, search: string) {
+    search = search.toLowerCase();
+    if ("approved".startsWith(search) && check.approved) {
+      return true;
     }
-    if (val.name) {
-      return val.name.toLowerCase().indexOf(search) !== -1;
+    if ("unapproved".startsWith(search) && !check.approved) {
+      return true;
     }
-    return (
-      val != null &&
-      val
-        .toString()
-        .toLowerCase()
-        .indexOf(search) !== -1
-    );
+    if (check.name.toLowerCase().indexOf(search) !== -1) {
+      return true;
+    }
+    if (check.creator.toLowerCase().indexOf(search) !== -1) {
+      return true;
+    }
+    if (check.category.name.toLowerCase().indexOf(search) !== -1) {
+      return true;
+    }
+    if (check.id.toString().indexOf(search) !== -1) {
+      return true;
+    }
+    return false;
   }
 
   mounted() {
@@ -131,6 +151,9 @@ export default class CheckList extends Vue {
       .then(() => this.setError(""))
       .catch(error => this.setError(extractErrorMessage(error)));
   }
+
+  // ICONS
+  private searchIcon = mdiMagnify;
 }
 </script>
 
@@ -138,5 +161,11 @@ export default class CheckList extends Vue {
 .check-header {
   justify-content: space-between;
   align-items: center;
+}
+</style>
+
+<style>
+.v-data-iterator {
+  overflow-x: never;
 }
 </style>

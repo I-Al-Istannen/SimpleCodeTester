@@ -2,21 +2,24 @@
   <v-layout align-center justify-center>
     <v-flex xs12>
       <div class="ma-2">
-        <label for="file-upload" class="custom-file-upload">Click me to select file(s). I can also handle source zips :)</label>
-        <input accept=".java, .zip" multiple @change="fileSelected" id="file-upload" type="file">
+        <label
+          for="file-upload"
+          class="custom-file-upload"
+        >Click me to select file(s). I can also handle source zips :)</label>
+        <input accept=".java, .zip" multiple @change="fileSelected" id="file-upload" type="file" />
       </div>
       <v-list>
-        <v-list-tile v-for="file in files" :key="file.name" @click="blackhole">
-          <v-list-tile-content>
-            <v-list-tile-title v-html="file.name"></v-list-tile-title>
-          </v-list-tile-content>
+        <v-list-item v-for="file in files" :key="file.name" @click="blackhole">
+          <v-list-item-content>
+            <v-list-item-title v-html="file.name"></v-list-item-title>
+          </v-list-item-content>
 
-          <v-list-tile-action>
+          <v-list-item-action>
             <v-btn icon @click="deleteFile(file)">
-              <v-icon color="#FF6347">delete</v-icon>
+              <v-icon color="#FF6347">{{ deleteIcon }}</v-icon>
             </v-btn>
-          </v-list-tile-action>
-        </v-list-tile>
+          </v-list-item-action>
+        </v-list-item>
       </v-list>
     </v-flex>
   </v-layout>
@@ -25,6 +28,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
+import { mdiDelete } from "@mdi/js";
 
 @Component({})
 export default class MultiFileSelect extends Vue {
@@ -64,6 +68,9 @@ export default class MultiFileSelect extends Vue {
    * Only there to make a nice hover background.
    */
   blackhole() {}
+
+  // ICONS
+  private deleteIcon = mdiDelete;
 }
 </script>
 

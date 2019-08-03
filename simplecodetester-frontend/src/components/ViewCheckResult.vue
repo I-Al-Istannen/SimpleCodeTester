@@ -15,57 +15,68 @@
           >No tests were run against your code. Are you sure it has a main class?</h2>
         </v-card-title>
         <v-card-text class="scrollable-container">
-          <v-expansion-panel expand v-model="failureBooleanArray">
-            <v-expansion-panel-content v-for="(item, i) in items" :key="i">
-              <div slot="header" class="monospaced">
-                <v-icon v-if="item.successful" color="green">check_circle_outline</v-icon>
-                <v-icon v-else color="#ff6347">highlight_off</v-icon>
+          <v-expansion-panels multiple accordion v-model="failureBooleanArray">
+            <v-expansion-panel v-for="(item, i) in items" :key="i">
+              <v-expansion-panel-header class="monospaced">
+                <v-icon v-if="item.successful" color="green">{{ successfulIcon }}</v-icon>
+                <v-icon v-else color="#ff6347">{{ failedIcon }}</v-icon>
                 Class '{{ item.fileName }}'
-              </div>
-              <v-card>
-                <v-card-text class="grey lighten-3">
-                  <!-- Inner panel -->
-                  <v-expansion-panel expand class="elevation-4">
-                    <v-expansion-panel-content v-for="(result, i) in item.results" :key="i">
-                      <div slot="header" class="monospaced">
-                        <v-icon v-if="!result.failed()" color="green">check_circle_outline</v-icon>
-                        <v-icon v-else color="#ff6347">highlight_off</v-icon>
-                        Check '{{ result.check }}'
-                      </div>
-                      <v-card>
-                        <v-card-text class="grey lighten-3">
-                          <div>
-                            <v-btn
-                              v-if="result.output.length > 0"
-                              outline
-                              class="elevation-1 mb-4 ml-0"
-                              color="#4169e1"
-                              @click="copyFullInput(result, $event.srcElement)"
-                            >Copy full input</v-btn>
-                            <v-btn
-                              v-if="result.failed() && result.output.length > 0"
-                              outline
-                              class="elevation-1 mb-4"
-                              color="#4169e1"
-                              @click="copyInputUntilError(result, $event.srcElement)"
-                            >Copy input until error</v-btn>
-                          </div>
-                          <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
-                          <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
-                          <interleaved-io
-                            :border="true"
-                            :faithfulFormat="false"
-                            :lines="result.output"
-                          ></interleaved-io>
-                        </v-card-text>
-                      </v-card>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                  <!-- End of inner panel -->
-                </v-card-text>
-              </v-card>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-card>
+                  <v-card-text class="grey lighten-3">
+                    <!-- Inner panel -->
+                    <v-expansion-panels multiple accordion class="elevation-4">
+                      <v-expansion-panel v-for="(result, i) in item.results" :key="i">
+                        <v-expansion-panel-header class="monospaced">
+                          <v-icon v-if="!result.failed()" color="green">{{ successfulIcon }}</v-icon>
+                          <v-icon v-else color="#ff6347">{{ failedIcon }}</v-icon>
+                          Check '{{ result.check }}'
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                          <v-card>
+                            <v-card-text class="grey lighten-3">
+                              <div>
+                                <v-btn
+                                  v-if="result.output.length > 0"
+                                  outlined
+                                  class="elevation-1 mb-4 ml-0 mr-4"
+                                  color="#4169e1"
+                                  @click="copyFullInput(result, findButtonOnCopy($event.srcElement))"
+                                >Copy full input</v-btn>
+                                <v-btn
+                                  v-if="result.failed() && result.output.length > 0"
+                                  outlined
+                                  class="elevation-1 mb-4 mr-4"
+                                  color="#4169e1"
+                                  @click="copyInputUntilError(result, findButtonOnCopy($event.srcElement))"
+                                >Copy input until error</v-btn>
+                                <v-btn
+                                  v-if="result.output.length > 0"
+                                  outlined
+                                  class="elevation-1 mb-4"
+                                  color="#4169e1"
+                                  @click="copyFullOutput(result, findButtonOnCopy($event.srcElement))"
+                                >Copy full output</v-btn>
+                              </div>
+                              <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
+                              <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
+                              <interleaved-io
+                                :border="true"
+                                :faithfulFormat="false"
+                                :lines="result.output"
+                              ></interleaved-io>
+                            </v-card-text>
+                          </v-card>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                    <!-- End of inner panel -->
+                  </v-card-text>
+                </v-card>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card-text>
       </v-card>
     </v-flex>
@@ -77,14 +88,14 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
 import {
-  RootState,
-  FileCheckResult,
   CheckResultType,
+  FileCheckResult,
   IoLine,
-  CheckResult,
-  IoLineType
+  IoLineType,
+  RootState
 } from "@/store/types";
 import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
+import { mdiCheckCircleOutline, mdiCloseCircleOutline } from "@mdi/js";
 
 class SingleFileResult {
   fileName: string;
@@ -142,6 +153,13 @@ export default class Test extends Vue {
   // We just ignore it, as we  don't need it
   set failureBooleanArray(array: Array<boolean>) {}
 
+  findButtonOnCopy(element: HTMLElement) {
+    if (element.tagName !== "BUTTON") {
+      return element.parentElement!!;
+    }
+    return element;
+  }
+
   copyFullInput(result: FileCheckResult, element: HTMLElement) {
     let input = result.output
       .filter(line => line.lineType === IoLineType.INPUT)
@@ -167,6 +185,10 @@ export default class Test extends Vue {
       .map(line => line.content)
       .join("\n");
     this.copyText(input, element);
+  }
+
+  copyFullOutput(result: FileCheckResult, element: HTMLElement) {
+    this.copyText(result.output.map(line => line.content).join("\n"), element);
   }
 
   private copyText(text: string, element: HTMLElement) {
@@ -215,6 +237,10 @@ export default class Test extends Vue {
       return a.fileName.localeCompare(b.fileName);
     });
   }
+
+  // ICONS
+  private successfulIcon = mdiCheckCircleOutline;
+  private failedIcon = mdiCloseCircleOutline;
 }
 </script>
 
@@ -223,6 +249,12 @@ export default class Test extends Vue {
 .monospaced {
   font-family: monospace;
   overflow-x: auto;
+  align-items: center;
+}
+
+.monospaced > .v-icon {
+  flex-grow: 0;
+  margin-right: 1em;
 }
 
 .scrollable-container {

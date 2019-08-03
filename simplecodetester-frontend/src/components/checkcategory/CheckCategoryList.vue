@@ -9,7 +9,7 @@
           <v-text-field
             class="mx-5 mb-2"
             v-model="search"
-            append-icon="search"
+            :append-icon="searchIcon"
             label="Search..."
             single-line
           ></v-text-field>
@@ -17,28 +17,42 @@
           <v-data-table
             :items="categories"
             :headers="headers"
-            :rows-per-page-items="rowsPerPageItems"
-            :pagination.sync="pagination"
+            :footer-props="footerProps"
             :search="search"
+            :items-per-page="rowsPerPage"
+            @update:items-per-page="setRowsPerPage"
           >
-            <template slot="headerCell" slot-scope="props">
-              <span class="title">{{ props.header.text }}</span>
+            <template v-slot:header.name="{ header }">
+              <span class="title">{{ header.text }}</span>
             </template>
-            <template slot="items" slot-scope="props">
-              <td class="subheading text-xs-center">{{ props.item.name }}</td>
-              <td class="subheading text-xs-center">{{ props.item.id }}</td>
-              <td class="subheading text-xs-center" v-if="isAdmin">
-                <v-btn icon @click="deleteCheckCategory(props.item)">
-                  <v-icon color="red">delete</v-icon>
-                </v-btn>
-              </td>
+            <template v-slot:header.id="{ header }">
+              <span class="title">{{ header.text }}</span>
+            </template>
+            <template v-slot:header.actions="{ header }">
+              <span class="title">{{ header.text }}</span>
+            </template>
+
+            <template v-slot:body="{ items }">
+              <tbody>
+                <tr v-for="item in items" :key="item.name">
+                  <td class="subtitle-1 text-center">{{ item.name }}</td>
+                  <td class="subtitle-1 text-center">{{ item.id }}</td>
+                  <td class="subtitle-1 text-center" v-if="isAdmin">
+                    <v-btn icon @click="deleteCheckCategory(item)">
+                      <v-icon color="red">{{ deleteIcon }}</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+              </tbody>
             </template>
           </v-data-table>
         </v-card-text>
         <v-card-actions v-if="isAdmin">
           <v-spacer></v-spacer>
           <v-dialog v-model="addDialogOpened" max-width="700">
-            <v-btn slot="activator" color="primary">Add category</v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" color="primary">Add category</v-btn>
+            </template>
             <v-card>
               <v-toolbar dark color="primary">
                 <v-toolbar-title>Add new check category</v-toolbar-title>
@@ -67,19 +81,20 @@ import Component from "vue-class-component";
 import { CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
 import { extractErrorMessage } from "@/util/requests";
-import { Watch } from 'vue-property-decorator';
+import { Watch } from "vue-property-decorator";
+import { mdiDelete, mdiMagnify } from "@mdi/js";
 
 @Component
 export default class CheckCategoryList extends Vue {
   private message: string = "";
   private messageType: string = "error";
   private search: string = "";
-  private rowsPerPageItems = [4, 10, 20, 50, 100];
-  private pagination = {
-    rowsPerPage: this.rowsPerPage
+  private footerProps = {
+    itemsPerPageOptions: [4, 10, 20, 50, 100]
   };
   private newCheckName = "";
   private addDialogOpened = false;
+  private ipp = 40;
 
   get headers() {
     if (this.isAdmin) {
@@ -111,7 +126,7 @@ export default class CheckCategoryList extends Vue {
     return (this.$store.state as RootState).miscsettings.itemsPerPage;
   }
 
-  @Watch("pagination.rowsPerPage")
+  @Watch("footerProps.pagination.rowsPerPage", { deep: true })
   setRowsPerPage(rows: number) {
     this.$store.commit("miscsettings/setItemsPerPage", rows);
   }
@@ -154,6 +169,10 @@ export default class CheckCategoryList extends Vue {
   mounted() {
     this.handlePromise(this.$store.dispatch("checkcategory/fetchAll"));
   }
+
+  // ICONS
+  private deleteIcon = mdiDelete;
+  private searchIcon = mdiMagnify;
 }
 </script>
 

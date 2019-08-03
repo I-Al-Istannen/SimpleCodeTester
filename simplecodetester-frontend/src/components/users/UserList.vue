@@ -9,55 +9,64 @@
           <v-text-field
             class="mx-5 mb-2"
             v-model="search"
-            append-icon="search"
+            :append-icon="searchIcon"
             label="Search..."
             single-line
           ></v-text-field>
 
           <v-data-iterator
             :items="users.users"
-            :rows-per-page-items="rowsPerPageItems"
-            :pagination.sync="pagination"
+            :footer-props="footerProps"
             :search="search"
-            content-tag="v-layout"
-            column
-            wrap
+            :items-per-page="rowsPerPage"
+            @update:items-per-page="setRowsPerPage"
           >
-            <v-flex slot="item" slot-scope="props" xs12 sm6 md4 lg3>
-              <v-expansion-panel>
-                <v-expansion-panel-content>
-                  <div slot="header" class="d-flex flex-container">
-                    <span class="subheading">
-                      <span class="font-weight-medium">{{ props.item.displayName }}</span>
-                      ({{ props.item.id }})
-                    </span>
-                    <user-modify-actions
-                      class="aside"
-                      @error="setError"
-                      :user="props.item"
-                      :users="users"
-                    ></user-modify-actions>
-                  </div>
-                  <div v-if="props.item.roles.length > 0" class="ma-2 mx-4">
-                    <v-chip
-                      v-for="role in props.item.roles"
-                      :key="role"
-                      disabled
-                      color="accent"
-                      outline
-                    >{{ role }}</v-chip>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-flex>
+            <template v-slot:default="props">
+              <v-layout column>
+                <v-expansion-panels multiple popout>
+                  <v-expansion-panel
+                    :readonly="item.roles.length === 0"
+                    v-for="item in props.items"
+                    :key="item.id"
+                  >
+                    <v-expansion-panel-header class="d-flex flex-container py-0">
+                      <span class="subtitle-1">
+                        <span class="font-weight-medium">{{ item.displayName }}</span>
+                        ({{ item.id }})
+                      </span>
+                      <user-modify-actions
+                        class="aside"
+                        @error="setError"
+                        :user="item"
+                        :users="users"
+                      ></user-modify-actions>
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <div v-if="item.roles.length > 0" class="ma-2 mx-4">
+                        <v-chip
+                          v-for="role in item.roles"
+                          :key="role"
+                          disabled
+                          color="accent"
+                          outlined
+                        >{{ role }}</v-chip>
+                      </div>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-layout>
+            </template>
           </v-data-iterator>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-dialog v-model="addDialogOpened" max-width="700">
-            <v-btn color="primary" slot="activator">Add user
-              <v-icon dark right>person_add</v-icon>
-            </v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn color="primary" v-on="on">
+                Add user
+                <v-icon dark right>{{ addPersonIcon }}</v-icon>
+              </v-btn>
+            </template>
             <new-user
               ref="addUserModification"
               :users="users"
@@ -75,13 +84,14 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Users, User, UserToAdd } from "@/components/users/Users";
+import { Users, UserToAdd } from "@/components/users/Users";
 import { extractErrorMessage } from "@/util/requests";
 import Component from "vue-class-component";
 import UserModificationComponent from "@/components/users/UserModificationComponent.vue";
 import UserModifyActions from "@/components/users/UserModifyActions.vue";
 import { Watch } from "vue-property-decorator";
 import { RootState } from "@/store/types";
+import { mdiAccountPlus, mdiMagnify } from "@mdi/js";
 
 @Component({
   components: {
@@ -93,9 +103,11 @@ export default class UserList extends Vue {
   private search: string = "";
   private error: string = "";
   private users: Users = new Users();
-  private rowsPerPageItems = [4, 10, 20, 50, 100];
-  private pagination = {
-    rowsPerPage: this.rowsPerPage
+  private footerProps = {
+    itemsPerPageOptions: [4, 10, 20, 50, 100],
+    pagination: {
+      rowsPerPage: this.rowsPerPage
+    }
   };
   private addDialogOpened = false;
 
@@ -103,7 +115,7 @@ export default class UserList extends Vue {
     return (this.$store.state as RootState).miscsettings.itemsPerPage;
   }
 
-  @Watch("pagination.rowsPerPage")
+  @Watch("footerProps.pagination.rowsPerPage", { deep: true })
   setRowsPerPage(rows: number) {
     this.$store.commit("miscsettings/setItemsPerPage", rows);
   }
@@ -125,6 +137,10 @@ export default class UserList extends Vue {
   handlePromise(promise: Promise<any>) {
     promise.catch(error => this.setError(extractErrorMessage(error)));
   }
+
+  // ICONS
+  private searchIcon = mdiMagnify;
+  private addPersonIcon = mdiAccountPlus;
 }
 </script>
 
@@ -137,6 +153,10 @@ export default class UserList extends Vue {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+
+.v-chip {
+  opacity: 1;
 }
 </style>
 

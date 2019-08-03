@@ -5,24 +5,31 @@
     :repository="users"
     :element="user"
   >
-    <span slot="preActions" v-if="!user.enabled" class="subheading disabled mr-4">(Disabled)</span>
+    <span slot="preActions" v-show="!user.enabled" class="subtitle-1 disabled mr-4">(Disabled)</span>
 
     <template slot="customMenuActions">
-      <v-list-tile @click="blackhole">
-        <v-list-tile-title v-if="!user.enabled" @click="setEnabled(user, true)">Enable user</v-list-tile-title>
-        <v-list-tile-title v-else @click="setEnabled(user,false)">Disable user</v-list-tile-title>
-      </v-list-tile>
+      <!-- Prevent clicks from triggering twice for some godforsaken reason (the click.stop) -->
+      <v-list-item @click.stop="blackhole">
+        <v-list-item-title v-if="!user.enabled" @click="setEnabled(user, true)">Enable user</v-list-item-title>
+        <v-list-item-title v-else @click="setEnabled(user,false)">Disable user</v-list-item-title>
+      </v-list-item>
 
-      <v-list-tile @click="blackhole">
-        <v-dialog v-model="changeDialogOpened" max-width="600">
-          <v-list-tile-title slot="activator">Change password</v-list-tile-title>
+      <!-- Prevent clicks from triggering twice and instantly closing the dialog (the click.stop) -->
+      <v-list-item @click.stop="blackhole">
+        <v-dialog hide-overlay v-model="changeDialogOpened" max-width="600">
+          <template v-slot:activator="{ on }">
+            <v-list-item-title v-on="on">Change password</v-list-item-title>
+          </template>
           <change-password @input="submitPasswordChange" :canSubmit="!requestPending"></change-password>
         </v-dialog>
-      </v-list-tile>
+      </v-list-item>
 
-      <v-list-tile @click="blackhole">
-        <v-dialog v-model="editDialogOpened" max-width="600">
-          <v-list-tile-title slot="activator">Edit user</v-list-tile-title>
+      <!-- Prevent clicks from triggering twice and instantly closing the dialog (the click.stop) -->
+      <v-list-item @click.stop="blackhole">
+        <v-dialog hide-overlay v-model="editDialogOpened" max-width="600">
+          <template v-slot:activator="{ on }">
+            <v-list-item-title v-on="on">Edit user</v-list-item-title>
+          </template>
           <edit-user
             @close="editDialogOpened = false"
             :users="users"
@@ -32,18 +39,17 @@
             editing="true"
           ></edit-user>
         </v-dialog>
-      </v-list-tile>
+      </v-list-item>
     </template>
   </crud-modify-actions>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { Prop, Component } from "vue-property-decorator";
-import { Users, User, UserToAdd } from "@/components/users/Users";
+import { Component, Prop } from "vue-property-decorator";
+import { User, Users, UserToAdd } from "@/components/users/Users";
 import { extractErrorMessage } from "@/util/requests";
 import ChangePassword from "@/components/users/ChangePassword.vue";
-import Axios from "axios";
 import CrudModifyActions from "@/components/crud/CrudModifyActions.vue";
 import UserModificationComponent from "@/components/users/UserModificationComponent.vue";
 

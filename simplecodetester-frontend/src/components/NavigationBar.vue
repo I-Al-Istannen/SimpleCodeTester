@@ -1,7 +1,7 @@
 <template>
   <nav>
     <v-toolbar dark color="primary darken-1">
-      <v-toolbar-side-icon v-if="!actionsHidden" @click="drawer = !drawer"></v-toolbar-side-icon>
+      <v-app-bar-nav-icon v-if="!actionsHidden" @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="d-flex flex-centered">
         {{ title }}
         <a
@@ -12,29 +12,28 @@
           target="_blank"
           rel="noopener"
         >
-          <img :src="require('@/assets/Github_Mark.png')" width="32" height="32">
+          <img :src="require('@/assets/Github_Mark.png')" width="32" height="32" />
         </a>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
       <div v-if="!actionsHidden" class="hidden-sm-and-down">
         <!-- PROFILE -->
-        <v-btn flat v-if="currentRoute.name !== 'profile'" @click="$router.push('/profile')">Profile
-          <v-icon right dark>person</v-icon>
+        <v-btn text v-if="currentRoute.name !== 'profile'" :to="{ name: 'profile' }">
+          Profile
+          <v-icon right dark>{{ profileIcon }}</v-icon>
         </v-btn>
 
         <!-- CHECK CODE -->
-        <v-btn
-          flat
-          v-if="currentRoute.name !== 'checkCode'"
-          @click="$router.push('/check-code')"
-        >Check code
-          <v-icon right dark>star_half</v-icon>
+        <v-btn text v-if="currentRoute.name !== 'checkCode'" :to="{ name: 'checkCode' }">
+          Check code
+          <v-icon right dark>{{ checkCodeIcon }}</v-icon>
         </v-btn>
 
         <!-- LOGOUT -->
-        <v-btn flat @click="logout">Logout
-          <v-icon right dark>exit_to_app</v-icon>
+        <v-btn text @click="logout">
+          Logout
+          <v-icon right dark>{{ logoutIcon }}</v-icon>
         </v-btn>
       </div>
     </v-toolbar>
@@ -43,29 +42,29 @@
     <v-navigation-drawer v-model="drawer" app temporary v-if="!actionsHidden">
       <v-toolbar dark color="primary darken-1">
         <v-list>
-          <v-list-tile>
-            <v-list-tile-title class="title">Navigation</v-list-tile-title>
-          </v-list-tile>
+          <v-list-item>
+            <v-list-item-title class="title">Navigation</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-toolbar>
 
       <v-divider></v-divider>
 
       <v-list dense class="pt-0">
-        <v-list-tile
+        <v-list-item
           v-for="item in applicableItems"
           :key="item.title"
-          @click="navigate(item)"
+          :to="item.route"
           :class="{selected: item.predicatePath === currentRoute.name, headline: true}"
         >
-          <v-list-tile-action>
+          <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
-          </v-list-tile-action>
+          </v-list-item-icon>
 
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
   </nav>
@@ -78,28 +77,50 @@ import { RootState } from "@/store/types";
 import { Route } from "vue-router";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
-import { user } from "@/store/modules/user";
+import {
+  mdiAccount,
+  mdiAccountMultiple,
+  mdiExitToApp,
+  mdiFormatListBulleted,
+  mdiHistory,
+  mdiLock,
+  mdiPlusCircleOutline,
+  mdiShape,
+  mdiStarHalf
+} from "@mdi/js";
 
 @Component({})
 export default class NavigationBar extends Vue {
   title = "Simple Code Tester";
   drawer = false;
 
+  // ================ Icons ====================
+  private addCheckIcon = mdiPlusCircleOutline;
+  private checkCodeIcon = mdiStarHalf;
+  private profileIcon = mdiAccount;
+  private lastCheckResultIcon = mdiHistory;
+  private allChecksIcon = mdiFormatListBulleted;
+  private checkCategoryIcon = mdiShape;
+  private usersIcon = mdiAccountMultiple;
+  private changePasswordIcon = mdiLock;
+  private logoutIcon = mdiExitToApp;
+  // ===========================================
+
   navigationItems = [
     {
-      icon: "person",
+      icon: this.profileIcon,
       title: "Profile",
       route: "/profile",
       predicatePath: "profile"
     },
     {
-      icon: "star_half",
+      icon: this.checkCodeIcon,
       title: "Check Code",
       route: "/check-code",
       predicatePath: "checkCode"
     },
     {
-      icon: "history",
+      icon: this.lastCheckResultIcon,
       title: "View last check result",
       route: "/view-check-result",
       predicatePath: "viewCheckResult",
@@ -108,40 +129,40 @@ export default class NavigationBar extends Vue {
       }
     },
     {
-      icon: "add_circle_outline",
+      icon: this.addCheckIcon,
       title: "Submit check",
       route: "/submit-check",
       predicatePath: "submitCheck"
     },
     {
-      icon: "list",
+      icon: this.allChecksIcon,
       title: "All checks",
       route: "/view-checks",
       predicatePath: "viewChecks"
     },
     {
-      icon: "category",
+      icon: this.checkCategoryIcon,
       title: "Manage check categories",
       route: "/view-check-categories",
       predicatePath: "viewCheckCategories"
     },
     {
-      icon: "people",
+      icon: this.usersIcon,
       title: "Manage Users",
       route: "/view-users",
       predicatePath: "viewUsers",
       admin: true
     },
     {
-      icon: "lock",
+      icon: this.changePasswordIcon,
       title: "Change password",
       route: "/change-own-password",
       predicatePath: "changePassword"
     },
     {
-      icon: "exit_to_app",
+      icon: this.logoutIcon,
       title: "Logout",
-      route: "/login",
+      route: "/logout",
       predicatePath: "login"
     }
   ];

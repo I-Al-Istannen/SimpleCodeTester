@@ -12,9 +12,11 @@
             <v-tab-item>
               <io-check v-model="ioCheck"></io-check>
               <v-dialog v-model="ioHelpOpened" max-width="700" class="help-dialog">
-                <v-btn slot="activator" icon>
-                  <v-icon color="accent" large>help_outline</v-icon>
-                </v-btn>
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" icon>
+                    <v-icon color="accent" large>{{ helpIcon }}</v-icon>
+                  </v-btn>
+                </template>
                 <v-card>
                   <v-toolbar dark color="primary">
                     <v-toolbar-title>Help</v-toolbar-title>
@@ -23,14 +25,17 @@
                     <h3 class="title pb-3">Required fields</h3>
 
                     <ul>
-                      <li><span class="body-2">Check category:</span>
-                        <br>The category of the check, typically the assignment.
+                      <li>
+                        <span class="body-2">Check category:</span>
+                        <br />The category of the check, typically the assignment.
                       </li>
-                      <li><span class="body-2">Check name:</span>
-                        <br>The name of the check
+                      <li>
+                        <span class="body-2">Check name:</span>
+                        <br />The name of the check
                       </li>
-                      <li><span class="body-2">Check data:</span>
-                        <br>The actual data of the check.
+                      <li>
+                        <span class="body-2">Check data:</span>
+                        <br/>The actual data of the check.
                         <p>It consists of a few different parts:
                           <ul class="mb-3">
                             <li>Input lines (prefixed with <span class="literal">> </span>).
@@ -82,13 +87,9 @@
         </v-card-text>
         <v-card-actions class="sticky-bottom">
           <v-spacer></v-spacer>
-          <v-btn
-            :disabled="uploading || !uploadPossible"
-            color="primary"
-            ripple
-            @click="upload"
-          >Upload I/O check
-            <v-icon right dard>cloud_upload</v-icon>
+          <v-btn :disabled="uploading || !uploadPossible" color="primary" ripple @click="upload">
+            Upload I/O check
+            <v-icon right dard>{{ uploadIcon }}</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
@@ -105,15 +106,15 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import Axios, { AxiosPromise, AxiosError } from "axios";
+import Axios, { AxiosError, AxiosPromise } from "axios";
 import { extractErrorMessage } from "@/util/requests";
 import HighlightedCode from "@/components/highlighting/HighlightedCode.vue";
 import CheckSubmitErrorDialogVue from "@/components/checksubmit/CheckSubmitErrorDialog.vue";
 import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
-import { CheckCategoryState, CheckCategory, RootState } from "@/store/types";
-import { Store } from "vuex";
+import { CheckCategory, RootState } from "@/store/types";
 import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
 import { IOCheck } from "@/components/checklist/CheckTypes";
+import { mdiCloudUpload, mdiHelpCircleOutline } from "@mdi/js";
 
 @Component({
   components: {
@@ -197,6 +198,10 @@ export default class UploadCheck extends Vue {
       })
       .finally(() => (this.uploading = false));
   }
+
+  // ICONS
+  private helpIcon = mdiHelpCircleOutline;
+  private uploadIcon = mdiCloudUpload;
 }
 </script>
 

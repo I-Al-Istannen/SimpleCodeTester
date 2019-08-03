@@ -1,7 +1,7 @@
 <template>
-  <div v-show="lines.length > 0" ref="container" class="container accent pa-2">
+  <div v-show="lines.length > 0" ref="container" class="container accent--text pa-2">
     <span v-for="(line, index) in lines" :key="index" :class="lineStyle(line)">
-      <span class="prefix">{{ getPrefix(line) }}</span>
+      <span v-if="getPrefix(line).length > 0" class="prefix">{{ getPrefix(line) }}</span>
       <span class="rest">{{ getRest(line) }}</span>
     </span>
   </div>
@@ -11,7 +11,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-import { IoLineType, IoLine } from "@/store/types";
+import { IoLine, IoLineType } from "@/store/types";
 
 @Component
 export default class HighlightInterleavedIo extends Vue {

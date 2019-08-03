@@ -3,11 +3,16 @@
     <slot name="header"></slot>
     <v-card-text>
       <v-form v-model="formValid" ref="form">
-        <v-text-field label="Password" type="password" prepend-icon="lock" v-model="password"></v-text-field>
+        <v-text-field
+          label="Password"
+          type="password"
+          :prepend-icon="passwordIcon"
+          v-model="password"
+        ></v-text-field>
         <v-text-field
           label="Confirm password"
           type="password"
-          prepend-icon="lock"
+          :prepend-icon="passwordIcon"
           v-model="confirmPassword"
           :rules="[notEmpty, passwordsMatch]"
         ></v-text-field>
@@ -29,7 +34,8 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Watch, Prop } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
+import { mdiLock } from "@mdi/js";
 
 @Component
 export default class ChangePassword extends Vue {
@@ -66,6 +72,9 @@ export default class ChangePassword extends Vue {
     }
     this.$emit("input", this.password);
   }
+
+  // ICONS
+  private passwordIcon = mdiLock;
 }
 </script>
 

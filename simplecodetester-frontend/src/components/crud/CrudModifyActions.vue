@@ -1,14 +1,17 @@
 <template>
-  <span @updated="updateElement">
+  <!-- Prevent clicks from expanding the wrapper it is in (the click.stop) -->
+  <span @click.stop="() => {}" @updated="updateElement">
     <slot name="preActions"></slot>
 
     <!-- Additional items in an edit menu -->
     <v-menu offset-y v-if="customMenuActionsSet">
-      <v-btn slot="activator" icon>
-        <slot name="menuActivator">
-          <v-icon>edit</v-icon>
-        </slot>
-      </v-btn>
+      <template v-slot:activator="{ on }">
+        <v-btn v-on="on" text>
+          <slot name="menuActivator">
+            <v-icon>{{ editIcon }}</v-icon>
+          </slot>
+        </v-btn>
+      </template>
 
       <v-list>
         <slot name="customMenuActions"></slot>
@@ -19,7 +22,7 @@
     <slot name="customActions"></slot>
 
     <v-btn class="ma-0" icon @click.stop="deleteElement">
-      <v-icon color="#FF6347">delete</v-icon>
+      <v-icon color="#FF6347">{{ deleteIcon }}</v-icon>
     </v-btn>
   </span>
 </template>
@@ -30,6 +33,7 @@ import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import { CrudRepository, Identifiable } from "@/components/crud/CrudTypes";
 import { extractErrorMessage } from "@/util/requests";
+import { mdiDelete, mdiPencil } from "@mdi/js";
 
 /**
  * Slots:
@@ -78,6 +82,10 @@ export default class CrudModifyActions<
   emitError(error: string) {
     this.$emit("error", error);
   }
+
+  // Icons
+  private deleteIcon = mdiDelete;
+  private editIcon = mdiPencil;
 }
 </script>
 

@@ -1,16 +1,19 @@
 <template>
-  <div class="d-flex" id="wrapper">
+  <!-- Prevent clicks from expanding the wrapper it is in (the click.stop) -->
+  <div class="d-flex" id="wrapper" @click.stop="() => {}">
     <span class="pr-4 unapproved aside" v-if="!myCheck.approved">Unapproved</span>
 
     <v-dialog
       v-model="editDialogOpened"
-      v-if="isIoCheck && canModifyCheck(myCheck.creator)"
+      v-show="isIoCheck && canModifyCheck(myCheck.creator)"
       class="aside"
       max-width="900"
     >
-      <v-btn slot="activator" icon class="ma-0">
-        <v-icon>edit</v-icon>
-      </v-btn>
+      <template v-slot:activator="{ on }">
+        <v-btn v-on="on" icon class="ma-0">
+          <v-icon>{{ editIcon }}</v-icon>
+        </v-btn>
+      </template>
       <v-card>
         <v-card-text>
           <io-check-component v-if="isIoCheck" :initialValue="ioCheck" @input="setCheck"></io-check-component>
@@ -24,30 +27,30 @@
     </v-dialog>
 
     <v-btn
-      v-if="canModifyCheck(myCheck.creator)"
+      v-show="canModifyCheck(myCheck.creator)"
       class="aside ma-0"
       icon
       @click.stop="remove(myCheck)"
     >
-      <v-icon color="#FF6347">delete</v-icon>
+      <v-icon color="#FF6347">{{ deleteIcon }}</v-icon>
     </v-btn>
 
     <!-- APPROVE BUTTONS -->
     <v-btn
-      v-if="canApprove(myCheck)"
+      v-show="canApprove(myCheck)"
       class="aside ma-0"
       icon
       @click.stop="changeApproval(myCheck, true)"
     >
-      <v-icon color="primary">check_circle_outline</v-icon>
+      <v-icon color="primary">{{ approvedIcon }}</v-icon>
     </v-btn>
     <v-btn
-      v-if="canRevokeApprove(myCheck)"
+      v-show="canRevokeApprove(myCheck)"
       class="aside ma-0"
       icon
       @click.stop="changeApproval(myCheck, false)"
     >
-      <v-icon color="#FF6347">highlight_off</v-icon>
+      <v-icon color="#FF6347">{{ unapprovedIcon }}</v-icon>
     </v-btn>
   </div>
 </template>
@@ -64,6 +67,12 @@ import { Prop, Watch } from "vue-property-decorator";
 import { UserState } from "@/store/types";
 import { extractErrorMessage } from "@/util/requests";
 import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
+import {
+  mdiCheckCircleOutline,
+  mdiCloseCircleOutline,
+  mdiDelete,
+  mdiPencil
+} from "@mdi/js";
 
 @Component({
   components: {
@@ -161,6 +170,12 @@ export default class ModifyActions extends Vue {
       })
       .catch(error => this.emitError(extractErrorMessage(error)));
   }
+
+  // ICONS
+  private deleteIcon = mdiDelete;
+  private editIcon = mdiPencil;
+  private approvedIcon = mdiCheckCircleOutline;
+  private unapprovedIcon = mdiCloseCircleOutline;
 }
 </script>
 

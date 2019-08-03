@@ -23,7 +23,7 @@
           <v-spacer></v-spacer>
           <v-btn :disabled="uploading || !uploadPossible" color="primary" ripple @click="upload">
             Upload {{ selectedTab == 0 ? "files" : "source" }}
-            <v-icon right dard>cloud_upload</v-icon>
+            <v-icon right dard>{{ uploadIcon }}</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
@@ -38,16 +38,11 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import HighlightedCode from "./highlighting/HighlightedCode.vue";
 import MultiFileSelect from "./upload/MultiFileSelect.vue";
-import Axios, { AxiosPromise } from "axios";
+import { AxiosPromise } from "axios";
 import { extractErrorMessage } from "@/util/requests";
-import {
-  CheckResultState,
-  RootState,
-  CheckCategory,
-  Pair
-} from "@/store/types";
-import { Store } from "vuex";
+import { CheckCategory, Pair, RootState } from "@/store/types";
 import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
+import { mdiCloudUpload } from "@mdi/js";
 
 @Component({
   components: {
@@ -133,6 +128,9 @@ export default class CheckCode extends Vue {
   filesSelected(files: Array<File>) {
     this.files = files;
   }
+
+  // ICONS
+  private uploadIcon = mdiCloudUpload;
 }
 </script>
 

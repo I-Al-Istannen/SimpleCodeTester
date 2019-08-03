@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { Identifiable, CrudRepository } from '../crud/CrudTypes';
+import { CrudRepository, Identifiable } from '../crud/CrudTypes';
 
 /**
  * A single user.
@@ -104,7 +104,11 @@ export class Users implements CrudRepository<User, UserToAdd>{
     formData.append("enabled", enabled ? "true" : "false")
 
     const response = await Axios.post("/admin/set-enabled", formData);
-    user.enabled = enabled;
+    if (response.status === 200) {
+      // Actually fine
+      // eslint-disable-next-line require-atomic-updates
+      user.enabled = response.data;
+    }
   }
 
   private sort() {

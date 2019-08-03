@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="label caption">Category</div>
-    <v-chip class="ml-0 mb-3" disabled label color="accent" outline>{{ checkBase.category.name }}</v-chip>
+    <v-chip class="ml-0 mb-3" disabled label color="accent" outlined>{{ checkBase.category.name }}
+    </v-chip>
     <div v-if="content">
       <span v-if="content.class === 'StaticInputOutputCheck'">
         <v-textarea class="monospace-font" label="Input" :value="content.check.input" readonly></v-textarea>
@@ -27,10 +28,10 @@ import Component from "vue-class-component";
 import "prismjs";
 import "prismjs/themes/prism.css";
 import Prism from "vue-prism-component";
-import { CheckBase } from "@/components/checklist/CheckTypes";
-import { Prop } from "vue-property-decorator";
+import {CheckBase} from "@/components/checklist/CheckTypes";
+import {Prop} from "vue-property-decorator";
 import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
-import { IoLine, IoLineType } from "@/store/types";
+import {IoLine, IoLineType} from "@/store/types";
 
 require("prismjs/components/prism-java.min.js");
 
@@ -66,6 +67,10 @@ export default class CheckDisplay extends Vue {
 </script>
 
 <style scoped>
+  .v-chip {
+    opacity: 1;
+  }
+
 .code {
   font-size: 16px;
 }

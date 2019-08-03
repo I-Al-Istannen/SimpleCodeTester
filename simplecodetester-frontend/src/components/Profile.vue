@@ -6,28 +6,37 @@
           <v-toolbar-title class="headline">You appear to be '{{ displayName }}'.</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <p class="text-xs-center subheading mb-3">This is your current data:</p>
+          <p class="text-center subtitle-1 mb-3">This is your current data:</p>
           <template>
-            <v-data-table :headers="headers" :items="items" class="elevation-1" hide-actions>
-              <template slot="headerCell" slot-scope="props">
-                <span class="title">{{ props.header.text }}</span>
+            <v-data-table :headers="headers" :items="items" class="elevation-1" hide-default-footer>
+              <template v-slot:header.name="{ header }">
+                <span class="title">{{ header.text }}</span>
+              </template>
+              <template v-slot:header.value="{ header }">
+                <span class="title">{{ header.text }}</span>
               </template>
 
-              <template slot="items" slot-scope="props">
-                <td class="subheading text-xs-center">{{ props.item.title }}</td>
-                <td class="subheading text-xs-center">{{ props.item.value }}</td>
+              <template v-slot:body="{ items }">
+                <tbody>
+                  <tr v-for="item in items" :key="item.name">
+                    <td class="subtitle-1 text-center">{{ item.title }}</td>
+                    <td class="subtitle-1 text-center">{{ item.value }}</td>
+                  </tr>
+                </tbody>
               </template>
             </v-data-table>
           </template>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" class="mr-4" @click="checkCode">Check code
-            <v-icon right dark>star_half</v-icon>
+          <v-btn color="primary" class="mr-4" :to="{ name: 'checkCode' }">
+            Check code
+            <v-icon right dark>{{ checkCodeIcon }}</v-icon>
           </v-btn>
 
-          <v-btn color="primary" class="ml-4" @click="submitCheck">Submit check
-            <v-icon right dark>add_circle_outline</v-icon>
+          <v-btn color="primary" class="ml-4" :to="{ name: 'submitCheck' }">
+            Submit check
+            <v-icon right dark>{{ submitCheckIcon }}</v-icon>
           </v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
@@ -41,6 +50,7 @@ import Vue from "vue";
 import { RootState } from "@/store/types";
 import { Store } from "vuex";
 import Component from "vue-class-component";
+import { mdiCloudUpload, mdiPlusCircleOutline } from "@mdi/js";
 
 @Component
 export default class Profile extends Vue {
@@ -72,12 +82,9 @@ export default class Profile extends Vue {
     ];
   }
 
-  submitCheck() {
-    this.$router.push("/submit-check");
-  }
-  checkCode() {
-    this.$router.push("/check-code");
-  }
+  // Icons
+  private checkCodeIcon = mdiCloudUpload;
+  private submitCheckIcon = mdiPlusCircleOutline;
 }
 </script>
 
