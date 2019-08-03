@@ -22,7 +22,10 @@
     "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {
+    "@mdi/js": "^3.8.95",
     "@types/highlight.js": "^9.12.3",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-plugin-eslint": "^3.2.0",
     "@vue/cli-plugin-typescript": "^3.2.0",
@@ -58,7 +61,10 @@
     "rules": {},
     "parserOptions": {
       "parser": "@typescript-eslint/parser"
-    }
+    },
+    "plugins": [
+      "@typescript-eslint"
+    ]
   },
   "postcss": {
     "plugins": {
