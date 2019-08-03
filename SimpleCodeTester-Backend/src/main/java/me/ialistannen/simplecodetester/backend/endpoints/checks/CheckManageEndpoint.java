@@ -253,9 +253,10 @@ public class CheckManageEndpoint {
    *
    * @param id the if of the check
    * @param approved whether the check should be approved
+   * @retrun the new approve status
    */
   @PostMapping("/checks/approve")
-  public ResponseEntity<Object> approve(long id, boolean approved) {
+  public ResponseEntity<Boolean> approve(long id, boolean approved) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
@@ -269,7 +270,7 @@ public class CheckManageEndpoint {
           approved
       );
 
-      return ResponseEntity.ok(Map.of());
+      return ResponseEntity.ok(approved);
     }
 
     return ResponseUtil.error(HttpStatus.NOT_FOUND, "The check could not be found.");

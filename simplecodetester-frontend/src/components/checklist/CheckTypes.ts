@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { CheckCategory } from '@/store/types';
+import {CheckCategory} from '@/store/types';
 
 /**
  * The base of a check, containing all metadata but no content.
@@ -132,7 +132,11 @@ export class CheckCollection {
     formData.append("approved", approved ? "true" : "false");
 
     const response = await Axios.post("/checks/approve", formData);
-    check.approved = approved;
+    if (response.status === 200) {
+      // Actually fine, the post does not modify "check"
+      // eslint-disable-next-line require-atomic-updates
+      check.approved = response.data;
+    }
   }
 
   /**
