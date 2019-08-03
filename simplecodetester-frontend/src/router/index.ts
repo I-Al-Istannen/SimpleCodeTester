@@ -1,4 +1,4 @@
-import Router, { Route } from 'vue-router'
+import Router, {Route} from 'vue-router'
 import Vue from 'vue'
 import Login from '@/components/Login.vue'
 import Profile from '@/components/Profile.vue'
@@ -105,6 +105,19 @@ let router = new Router({
         title: function () {
           return 'View all check categories'
         }
+      }
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      meta: {
+        title: function () {
+          return 'Logout'
+        }
+      },
+      beforeEnter: (to: Route, from: Route, next: Function) => {
+        store.dispatch("logout");
+        next("login")
       }
     }
   ]

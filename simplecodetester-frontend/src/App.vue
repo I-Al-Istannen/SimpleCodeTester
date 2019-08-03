@@ -5,18 +5,20 @@
       <v-container fluid fill-height>
         <!-- Key is set so the component will be recreated when the path changes. -->
         <!-- The profile view needs this to fetch the correct data -->
-        <router-view :key="$route.fullPath" @hide-nav-bar-actions="handleNavBarActionsVisibilityChange"/>
+        <router-view
+            :key="$route.fullPath"
+            @hide-nav-bar-actions="handleNavBarActionsVisibilityChange"
+        />
       </v-container>
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import NavigationBar from "./components/NavigationBar.vue";
-import "material-design-icons-iconfont/dist/material-design-icons.css";
+  import {Component, Vue} from "vue-property-decorator";
+  import NavigationBar from "./components/NavigationBar.vue";
 
-@Component({
+  @Component({
   components: {
     "navigation-bar": NavigationBar
   }
@@ -38,5 +40,15 @@ export default class App extends Vue {
 
 .v-toolbar__title {
   font-weight: 500;
+}
+
+/* I liked the old vuetify layout for side icons better */
+.v-btn__content > .v-icon--right {
+  height: 24px !important;
+  width: 24px !important;
+  font-size: 24px !important;
+  line-height: 24px !important;
+  margin-left: 16px !important;
+  margin-right: 0px !important;
 }
 </style>

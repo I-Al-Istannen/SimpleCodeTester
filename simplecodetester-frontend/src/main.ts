@@ -4,7 +4,7 @@ import router from './router'
 import Router from 'vue-router'
 import store from './store'
 import Axios from 'axios';
-import { isJwtValid } from './util/requests';
+import {isJwtValid} from './util/requests';
 import vuetify from './plugins/vuetify';
 
 Vue.config.productionTip = false
@@ -24,6 +24,7 @@ Axios.interceptors.request.use(
       await store.dispatch("user/fetchAccessToken");
     }
 
+    // eslint-disable-next-line require-atomic-updates
     request.headers['Authorization'] = 'Bearer ' + store.state.user.token;
     return Promise.resolve(request)
   }
