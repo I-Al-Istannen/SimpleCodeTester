@@ -11,12 +11,9 @@
   </v-app>
 </template>
 
-
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import HelloWorld from "./components/HelloWorld.vue";
 import NavigationBar from "./components/NavigationBar.vue";
-import "vuetify/dist/vuetify.min.css";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 
 @Component({
@@ -37,5 +34,9 @@ export default class App extends Vue {
 * {
   --primary: #4caf50;
   --primary-darken-1: #2d9437;
+}
+
+.v-toolbar__title {
+  font-weight: 500;
 }
 </style>

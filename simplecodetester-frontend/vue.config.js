@@ -5,7 +5,7 @@ module.exports = {
   configureWebpack: {
     plugins: [
 //      new BundleAnalyzerPlugin(),
-      new VuetifyLoaderPlugin()
+      // new VuetifyLoaderPlugin()
     ]
   }
 }
