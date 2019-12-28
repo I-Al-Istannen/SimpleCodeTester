@@ -73,6 +73,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/admin/**").hasRole("ADMIN")
         .antMatchers("/check-category/delete/**").hasRole("ADMIN")
         .antMatchers("/check-category/add-new/**").hasRole("ADMIN")
+        .antMatchers("/check-category/rename/**").hasRole("ADMIN")
         .antMatchers("/checks/approve").hasRole("ADMIN")
         .anyRequest().authenticated();
   }
@@ -85,6 +86,7 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
     configuration.addAllowedMethod(HttpMethod.GET);
     configuration.addAllowedMethod(HttpMethod.HEAD);
     configuration.addAllowedMethod(HttpMethod.POST);
+    configuration.addAllowedMethod(HttpMethod.PATCH);
     configuration.addAllowedMethod(HttpMethod.DELETE);
     configuration.addAllowedHeader("Authorization");
     configuration.addAllowedHeader("Content-Type");

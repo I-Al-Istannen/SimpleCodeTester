@@ -49,6 +49,26 @@ public class CheckCategoryService {
   }
 
   /**
+   * Renames a category.
+   *
+   * @param id the id of the category
+   * @param newName the new name for it
+   * @return the renamed category
+   */
+  public Optional<CheckCategory> rename(long id, String newName) {
+    Optional<CheckCategory> categoryOptional = getById(id);
+
+    if (categoryOptional.isEmpty()) {
+      return Optional.empty();
+    }
+    CheckCategory category = categoryOptional.get();
+    category.setName(newName);
+    repository.save(category);
+
+    return Optional.of(category);
+  }
+
+  /**
    * Deletes a {@link CheckCategory}.
    *
    * @param id the if of the category
