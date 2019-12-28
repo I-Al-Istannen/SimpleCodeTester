@@ -23,10 +23,21 @@ export const actions: ActionTree<CheckCategoryState, RootState> = {
 
     return category
   },
-  async deleteCheck({ commit }, category: CheckCategory) {
+  async deleteCheckCategory({ commit }, category: CheckCategory) {
     const response = await axios.delete(`/check-category/delete/${category.id}`)
 
     commit("removeCategory", category)
+
+    return response
+  },
+  async renameCheckCategory({ commit }, { id, newName }) {
+    const formData = new FormData()
+    formData.append("id", id)
+    formData.append("newName", newName)
+
+    const response = await axios.patch('/check-category/rename', formData)
+
+    commit("renameCategory", { id: id, newName: newName })
 
     return response
   }

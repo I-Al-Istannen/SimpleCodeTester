@@ -16,5 +16,8 @@ export const mutations: MutationTree<CheckCategoryState> = {
   },
   clear(state: CheckCategoryState) {
     state.categories = []
+  },
+  renameCategory(state: CheckCategoryState, { id, newName }) {
+    state.categories.filter(it => it.id == id).forEach(it => it.name = newName)
   }
 };

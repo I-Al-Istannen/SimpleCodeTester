@@ -38,6 +38,30 @@
                   <td class="subtitle-1 text-center">{{ item.name }}</td>
                   <td class="subtitle-1 text-center">{{ item.id }}</td>
                   <td class="subtitle-1 text-center" v-if="isAdmin">
+                    <v-dialog width="500">
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" icon @click="currentCheckName = item.name">
+                          <v-icon>{{ editIcon }}</v-icon>
+                        </v-btn>
+                      </template>
+                      <v-card>
+                        <v-toolbar dark color="primary">
+                          <v-toolbar-title>Edit check category name</v-toolbar-title>
+                        </v-toolbar>
+                        <v-card-text>
+                          <v-text-field label="Name" single-line v-model="currentCheckName"></v-text-field>
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            :disabled="currentCheckName == ''"
+                            color="primary"
+                            @click="renameCategory(item, currentCheckName)"
+                          >Submit</v-btn>
+                          <v-spacer></v-spacer>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
                     <v-btn icon @click="deleteCheckCategory(item)">
                       <v-icon color="red">{{ deleteIcon }}</v-icon>
                     </v-btn>
@@ -51,14 +75,14 @@
           <v-spacer></v-spacer>
           <v-dialog v-model="addDialogOpened" max-width="700">
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" color="primary">Add category</v-btn>
+              <v-btn v-on="on" color="primary" @click="currentCheckName = ''">Add category</v-btn>
             </template>
             <v-card>
               <v-toolbar dark color="primary">
                 <v-toolbar-title>Add new check category</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
-                <v-text-field label="Name" single-line v-model="newCheckName"></v-text-field>
+                <v-text-field label="Name" single-line v-model="currentCheckName"></v-text-field>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -82,7 +106,7 @@ import { CheckCategory, RootState } from "@/store/types";
 import { Store } from "vuex";
 import { extractErrorMessage } from "@/util/requests";
 import { Watch } from "vue-property-decorator";
-import { mdiDelete, mdiMagnify } from "@mdi/js";
+import { mdiDelete, mdiMagnify, mdiPencil } from "@mdi/js";
 
 @Component
 export default class CheckCategoryList extends Vue {
@@ -92,7 +116,7 @@ export default class CheckCategoryList extends Vue {
   private footerProps = {
     itemsPerPageOptions: [4, 10, 20, 50, 100]
   };
-  private newCheckName = "";
+  private currentCheckName = "";
   private addDialogOpened = false;
   private ipp = 40;
 
@@ -119,7 +143,7 @@ export default class CheckCategoryList extends Vue {
   }
 
   get canSubmit() {
-    return this.addDialogOpened && this.newCheckName.length > 0;
+    return this.addDialogOpened && this.currentCheckName.length > 0;
   }
 
   get rowsPerPage(): number {
@@ -135,13 +159,13 @@ export default class CheckCategoryList extends Vue {
     this.addDialogOpened = false;
     this.handlePromise(
       this.$store
-        .dispatch("checkcategory/addNew", this.newCheckName)
+        .dispatch("checkcategory/addNew", this.currentCheckName)
         .then(it => {
           this.message = "The check category was added with id " + it.id;
           this.messageType = "success";
         })
     );
-    this.newCheckName = "";
+    this.currentCheckName = "";
   }
 
   deleteCheckCategory(category: CheckCategory) {
@@ -153,9 +177,24 @@ export default class CheckCategoryList extends Vue {
       return;
     }
     this.handlePromise(
-      this.$store.dispatch("checkcategory/deleteCheck", category).then(it => {
-        this.message = "";
-      })
+      this.$store
+        .dispatch("checkcategory/deleteCheckCategory", category)
+        .then(it => {
+          this.message = "";
+        })
+    );
+  }
+
+  renameCategory(category: CheckCategory, name: string) {
+    console.log(category);
+
+    this.handlePromise(
+      this.$store
+        .dispatch("checkcategory/renameCheckCategory", {
+          id: category.id,
+          newName: name
+        })
+        .then(() => (this.message = ""))
     );
   }
 
@@ -173,6 +212,7 @@ export default class CheckCategoryList extends Vue {
   // ICONS
   private deleteIcon = mdiDelete;
   private searchIcon = mdiMagnify;
+  private editIcon = mdiPencil;
 }
 </script>
 
