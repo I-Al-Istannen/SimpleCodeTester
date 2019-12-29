@@ -113,7 +113,7 @@ export default class ModifyActions extends Vue {
     }
     this.checks.fetchContent(this.myCheck).then(content => {
       let check = content.check as IOCheck;
-      this.ioCheck = new IOCheck(check.input, check.output, check.name);
+      this.ioCheck = new IOCheck(check.input, check.output, check.name, check.files);
       this.checkClass = content.class;
     });
   }

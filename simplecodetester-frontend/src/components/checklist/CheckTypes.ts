@@ -92,11 +92,12 @@ export class CheckCollection {
         ioCheck = new IOCheck(
           content.input.join("\n"),
           content.output,
-          content.name
+          content.name,
+          content.files
         );
       } else if (content.class === "InterleavedStaticIOCheck") {
         checkClass = content.class;
-        ioCheck = new IOCheck(content.text, null, content.name);
+        ioCheck = new IOCheck(content.text, null, content.name, []);
       } else {
         // eslint-disable-next-line
         console.log("Unknown check received: ");
@@ -111,7 +112,8 @@ export class CheckCollection {
       ioCheck = new IOCheck(
         parsed.input.join("\n"),
         parsed.expectedOutput,
-        parsed.name
+        parsed.name,
+        []
       );
     }
 
