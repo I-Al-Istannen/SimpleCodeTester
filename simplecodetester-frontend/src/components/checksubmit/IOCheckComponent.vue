@@ -9,6 +9,13 @@
       label="Output. Hit enter for a new line."
       v-model="output"
     ></v-textarea>
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="10">
+          <textfield-add-file @input="files = $event"></textfield-add-file>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -16,13 +23,20 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
-import { IOCheck } from "@/components/checklist/CheckTypes";
+import { IOCheck, IOCheckFile } from "@/components/checklist/CheckTypes";
+import { mdiPlusCircle } from "@mdi/js";
+import TextfieldFileAddComponent from "./TextfieldFileAddComponent.vue";
 
-@Component
+@Component({
+  components: {
+    "textfield-add-file": TextfieldFileAddComponent
+  }
+})
 export default class IOCheckComponent extends Vue {
   private input = "";
   private name = "";
   private output: string | null = null;
+  private files: Array<IOCheckFile> = [];
 
   @Prop()
   initialValue!: IOCheck;
@@ -52,6 +66,11 @@ export default class IOCheckComponent extends Vue {
     this.emit();
   }
 
+  @Watch("files")
+  filesChanged() {
+    this.emit();
+  }
+
   get inputFieldLabel() {
     return this.output === null
       ? "Check data"
@@ -59,8 +78,14 @@ export default class IOCheckComponent extends Vue {
   }
 
   emit() {
-    this.$emit("input", new IOCheck(this.input, this.output, this.name));
+    this.$emit(
+      "input",
+      new IOCheck(this.input, this.output, this.name, this.files)
+    );
   }
+
+  // ICONS
+  private addFileIcon = mdiPlusCircle;
 }
 </script>
 

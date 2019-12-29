@@ -29,15 +29,27 @@ export class CheckBase {
   }
 }
 
+export class IOCheckFile {
+  name: string;
+  content: string;
+
+  constructor(name: string, content: string) {
+    this.name = name;
+    this.content = content;
+  }
+}
+
 export class IOCheck {
   input: string;
   output: string | null;
   name: string;
+  files: Array<IOCheckFile>;
 
-  constructor(input: string, output: string | null, name: string) {
+  constructor(input: string, output: string | null, name: string, files: Array<IOCheckFile>) {
     this.input = input;
     this.name = name;
     this.output = output;
+    this.files = files;
   }
 }
 
