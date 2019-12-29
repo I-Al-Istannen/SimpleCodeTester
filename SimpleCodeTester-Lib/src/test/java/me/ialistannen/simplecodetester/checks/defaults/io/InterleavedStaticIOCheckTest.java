@@ -109,7 +109,7 @@ class InterleavedStaticIOCheckTest {
   @Test
   void toStringLeftoverInput() {
     InterleavedStaticIOCheck check = new InterleavedStaticIOCheck(
-        List.of("Hello", "World!"), Collections.emptyList(), "Test"
+        List.of("Hello", "World!"), Collections.emptyList(), Collections.emptyList(), "Test"
     );
 
     assertEquals(
@@ -176,6 +176,7 @@ class InterleavedStaticIOCheckTest {
   void leftoverMatchers() {
     InterleavedStaticIOCheck check = new InterleavedStaticIOCheck(
         List.of(),
+        List.of(),
         List.of(List.of(new LiteralIoMatcher("World")), List.of(new LiteralIoMatcher("Bar"))),
         "Test"
     );
@@ -196,7 +197,7 @@ class InterleavedStaticIOCheckTest {
   @Test
   void leftoverInput() {
     InterleavedStaticIOCheck check = new InterleavedStaticIOCheck(
-        List.of("Hello", "You there"), Collections.emptyList(), "Test"
+        List.of("Hello", "You there"), List.of(), List.of(), "Test"
     );
 
     List<LineResult> output = check.getOutput(List.of(

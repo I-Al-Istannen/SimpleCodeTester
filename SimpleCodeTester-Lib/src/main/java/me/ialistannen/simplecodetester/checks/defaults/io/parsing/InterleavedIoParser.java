@@ -51,6 +51,7 @@ public class InterleavedIoParser {
   private InterleavedStaticIOCheck fromLines(List<Line> lines, String name) {
     List<List<InterleavedIoMatcher>> matchers = new ArrayList<>();
     List<String> input = new ArrayList<>();
+    List<String> parameters = new ArrayList<>();
 
     // Initial content before first input
     matchers.add(new ArrayList<>());
@@ -64,6 +65,8 @@ public class InterleavedIoParser {
             .orElseGet(() -> new LiteralIoMatcher(line.value));
 
         matchers.get(matchers.size() - 1).add(matcher);
+      } else if (line.type == LineType.PARAMETER) {
+        parameters.add(line.value);
       } else {
         input.add(line.value);
         matchers.add(new ArrayList<>());
@@ -78,7 +81,7 @@ public class InterleavedIoParser {
       throw new IllegalArgumentException("Expected at least " + minInputLength + " input lines!");
     }
 
-    return new InterleavedStaticIOCheck(input, matchers, name);
+    return new InterleavedStaticIOCheck(input, parameters, matchers, name);
   }
 
   private boolean containsQuitCommand(List<Line> lines) {
@@ -113,6 +116,9 @@ public class InterleavedIoParser {
       if (s.startsWith("> ")) {
         return new Line(s.substring(2), LineType.INPUT);
       }
+      if (s.startsWith("$$ ")) {
+        return new Line(s.substring(3), LineType.PARAMETER);
+      }
 
       return new Line(s, LineType.OUTPUT);
     }
@@ -120,6 +126,7 @@ public class InterleavedIoParser {
 
   private enum LineType {
     INPUT,
-    OUTPUT
+    OUTPUT,
+    PARAMETER
   }
 }

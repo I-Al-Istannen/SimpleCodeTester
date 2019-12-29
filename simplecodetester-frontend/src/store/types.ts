@@ -96,6 +96,7 @@ export enum IoLineType {
   ERROR = "error",
   INPUT = "input",
   OUTPUT = "output",
+  PARAMETER = "parameter",
   OTHER = "other"
 }
 

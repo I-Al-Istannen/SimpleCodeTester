@@ -57,8 +57,10 @@ export default class HighlightInterleavedIo extends Vue {
   }
 
   getPrefix(line: IoLine) {
-    if (/^(> |<|# ).+$/.test(line.content)) {
-      return line.content.substring(0, 2);
+    const regex = /^(> |<.|# |\$\$ )/;
+    const match = regex.exec(line.content);
+    if (match) {
+      return match[1];
     }
 
     return "";
@@ -67,12 +69,15 @@ export default class HighlightInterleavedIo extends Vue {
   getRest(line: IoLine) {
     let content: string;
     if (this.getPrefix(line) !== "") {
-      content = line.content.substring(2);
+      content = line.content.substring(this.getPrefix(line).length);
     } else {
       content = line.content;
     }
 
-    if (line.lineType == IoLineType.INPUT) {
+    if (
+      line.lineType == IoLineType.INPUT ||
+      line.lineType == IoLineType.PARAMETER
+    ) {
       return this.replaceSpacesWithSpecialChar(content);
     }
 
@@ -108,6 +113,9 @@ export default class HighlightInterleavedIo extends Vue {
 
 .line.input {
   color: royalblue;
+}
+.line.parameter {
+  color: gray;
 }
 .line.output {
   color: #455a64;

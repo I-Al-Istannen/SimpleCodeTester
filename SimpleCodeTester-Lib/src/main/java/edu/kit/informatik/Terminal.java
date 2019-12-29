@@ -2,15 +2,11 @@ package edu.kit.informatik;
 
 import static java.util.stream.Collectors.joining;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 
@@ -21,6 +17,7 @@ public final class Terminal {
 
   private static List<List<String>> output = new ArrayList<>();
   private static List<String> input = Collections.emptyList();
+  private static Map<String, String> files = Collections.emptyMap();
   private static int inputIndex;
 
   private Terminal() {
@@ -92,12 +89,10 @@ public final class Terminal {
    * @return the contents of the file, with each line being an entry in the array
    */
   public static String[] readFile(final String path) {
-    URL resource = Terminal.class.getResource("/" + path);
-    try {
-      return Files.readAllLines(Paths.get(resource.toURI())).toArray(String[]::new);
-    } catch (IOException | URISyntaxException e) {
-      throw new RuntimeException(e);
+    if (files.containsKey(path)) {
+      return files.get(path).split("\\n");
     }
+    throw new IllegalArgumentException("File '" + path + "' not found! " + files);
   }
 
   /**
@@ -107,6 +102,15 @@ public final class Terminal {
    */
   public static void setInput(List<String> input) {
     Terminal.input = new ArrayList<>(input);
+  }
+
+  /**
+   * Sets the input files the terminal class should use.
+   *
+   * @param files the input files
+   */
+  public static void setInputFiles(Map<String, String> files) {
+    Terminal.files = Map.copyOf(files);
   }
 
   /**

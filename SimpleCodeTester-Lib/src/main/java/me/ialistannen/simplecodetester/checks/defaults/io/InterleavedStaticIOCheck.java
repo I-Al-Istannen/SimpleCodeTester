@@ -6,6 +6,7 @@ import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 import me.ialistannen.simplecodetester.checks.Check;
@@ -25,11 +26,14 @@ import org.joor.ReflectException;
  */
 public class InterleavedStaticIOCheck implements Check {
 
+  private static final Predicate<CompiledFile> isMain = ReflectionHelper
+      .hasMain(CompiledFile::asClass);
+
   private List<String> input;
   private List<MatcherBlock> outputMatchers;
   private String name;
-  private static final Predicate<CompiledFile> isMain = ReflectionHelper
-      .hasMain(CompiledFile::asClass);
+  private List<String> parameters = List.of();
+  private Map<String, String> files = Map.of();
 
 
   /**
@@ -44,11 +48,13 @@ public class InterleavedStaticIOCheck implements Check {
    * Creates a new interleaved static io check.
    *
    * @param input the input
+   * @param parameters the program parameters. Might be empty
    * @param expectedOutput the expected output
    * @param name the name of the check
    */
-  public InterleavedStaticIOCheck(List<String> input,
+  public InterleavedStaticIOCheck(List<String> input, List<String> parameters,
       List<List<InterleavedIoMatcher>> expectedOutput, String name) {
+    this.parameters = new ArrayList<>(parameters);
     this.input = new ArrayList<>(input);
     this.name = name;
 
@@ -74,12 +80,13 @@ public class InterleavedStaticIOCheck implements Check {
     }
 
     Terminal.setInput(Collections.unmodifiableList(input));
+    Terminal.setInputFiles(Collections.unmodifiableMap(files));
 
     List<LineResult> output;
 
     try {
-      Reflect.on(file.asClass())
-          .call("main", (Object) new String[0]);
+      Reflect.onClass(file.asClass())
+          .call("main", (Object) parameters.toArray(String[]::new));
 
       output = getOutput(Terminal.getOutputLines());
     } catch (ReflectException e) {
@@ -122,8 +129,8 @@ public class InterleavedStaticIOCheck implements Check {
    * Returns the output interleaved with error messages, input and matcher results.
    *
    * @param programOutput the program output
-   * @param interjectBeforeLeftovers the lines to interject before leftover matchers or input.
-   *     This can be due to a crash leading to input being left over or something else.
+   * @param interjectBeforeLeftovers the lines to interject before leftover matchers or input. This
+   * can be due to a crash leading to input being left over or something else.
    * @return an interleaved version of the output, combined with input and error messages
    */
   private List<LineResult> getOutput(List<List<String>> programOutput,
@@ -194,6 +201,10 @@ public class InterleavedStaticIOCheck implements Check {
   @Override
   public String toString() {
     StringJoiner output = new StringJoiner("\n");
+
+    for (String parameter : parameters) {
+      output.add("$$ " + parameter);
+    }
 
     Block<String> inputBlock = new Block<>(input);
     Block<MatcherBlock> matcherBlock = getMatcherBlock();
