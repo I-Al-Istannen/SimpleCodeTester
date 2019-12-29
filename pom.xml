@@ -15,8 +15,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <immutables.version>2.7.5</immutables.version>
-    <junit.version>5.5.1</junit.version>
+    <immutables.version>2.8.3</immutables.version>
+    <junit.version>5.5.2</junit.version>
   </properties>
 
   <build>
@@ -48,13 +48,13 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M2</version>
+        <version>3.0.0-M3</version>
       </plugin>
 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
+        <version>0.8.4</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -89,7 +89,7 @@
       <!-- Failsafe plugin needs to be declared explicitly -->
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.0.0-M2</version>
+        <version>3.0.0-M3</version>
         <executions>
           <execution>
             <id>integration-tests</id>
@@ -119,7 +119,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
+      <version>1.7.28</version>
     </dependency>
 
     <dependency>
@@ -137,7 +137,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.8</version>
+      <version>1.18.10</version>
       <scope>provided</scope>
     </dependency>
 
