@@ -1,6 +1,7 @@
 package edu.kit.informatik;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import me.ialistannen.simplecodetester.checks.Check.CheckFile;
 import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 
 /**
@@ -17,7 +19,7 @@ public final class Terminal {
 
   private static List<List<String>> output = new ArrayList<>();
   private static List<String> input = Collections.emptyList();
-  private static Map<String, String> files = Collections.emptyMap();
+  private static Map<String, CheckFile> files = Collections.emptyMap();
   private static int inputIndex;
 
   private Terminal() {
@@ -90,7 +92,7 @@ public final class Terminal {
    */
   public static String[] readFile(final String path) {
     if (files.containsKey(path)) {
-      return files.get(path).split("\\n");
+      return files.get(path).getContent().split("\\n");
     }
     throw new IllegalArgumentException("File '" + path + "' not found! " + files);
   }
@@ -109,8 +111,8 @@ public final class Terminal {
    *
    * @param files the input files
    */
-  public static void setInputFiles(Map<String, String> files) {
-    Terminal.files = Map.copyOf(files);
+  public static void setInputFiles(List<CheckFile> files) {
+    Terminal.files = files.stream().collect(toMap(CheckFile::getName, it -> it));
   }
 
   /**

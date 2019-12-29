@@ -2,6 +2,8 @@ package me.ialistannen.simplecodetester.backend.endpoints.checks;
 
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -11,7 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
@@ -27,6 +33,7 @@ import me.ialistannen.simplecodetester.backend.services.config.ConfigurationServ
 import me.ialistannen.simplecodetester.backend.services.user.UserService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.checks.Check;
+import me.ialistannen.simplecodetester.checks.Check.CheckFile;
 import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
@@ -135,12 +142,12 @@ public class CheckManageEndpoint {
    * Adds a new check.
    *
    * @param categoryId the id of the category
-   * @param payload the json payload
+   * @param addRequest the add request
    * @return true if the check was added
    */
   @PostMapping("/checks/add/{categoryId}")
   public ResponseEntity<Object> addNew(@PathVariable("categoryId") long categoryId,
-      @RequestBody @NotEmpty String payload) {
+      @RequestBody @Valid AddCheckRequest addRequest) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -155,7 +162,8 @@ public class CheckManageEndpoint {
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
     try {
-      Check check = parseCheckFromJsonBlob(payload);
+      Check check = parseCheckFromJsonBlob(addRequest.getPayload());
+      check.setFiles(addRequest.getFiles());
 
       ResponseEntity<Object> responseEntity = ResponseEntity
           .ok(checkService.addCheck(check, userOptional.get(), checkCategory));
@@ -253,7 +261,7 @@ public class CheckManageEndpoint {
    *
    * @param id the if of the check
    * @param approved whether the check should be approved
-   * @retrun the new approve status
+   * @return the new approve status
    */
   @PostMapping("/checks/approve")
   public ResponseEntity<Boolean> approve(long id, boolean approved) {
@@ -284,6 +292,23 @@ public class CheckManageEndpoint {
 
     if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
       throw new WebStatusCodeException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+  }
+
+  @ToString
+  @Getter(onMethod_ = {@JsonProperty})
+  private static class AddCheckRequest {
+
+    @NotEmpty
+    private String payload;
+    @NotNull
+    private List<CheckFile> files;
+
+    @JsonCreator
+    public AddCheckRequest(@JsonProperty("payload") String payload,
+        @JsonProperty("files") List<CheckFile> files) {
+      this.payload = payload;
+      this.files = files;
     }
   }
 }

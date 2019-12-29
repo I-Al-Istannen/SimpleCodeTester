@@ -1,5 +1,9 @@
 package me.ialistannen.simplecodetester.checks;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collection;
+import lombok.Getter;
+import lombok.ToString;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import org.objectweb.asm.ClassReader;
@@ -17,8 +21,8 @@ public interface Check {
    *
    * @param file the file to check
    * @return the result of checking the file
-   * @throws CheckFailedException if the check failed and it makes more sense for the check to
-   *     not directly return a result
+   * @throws CheckFailedException if the check failed and it makes more sense for the check to not
+   * directly return a result
    */
   CheckResult check(CompiledFile file);
 
@@ -30,6 +34,14 @@ public interface Check {
    */
   default String name() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * Sets the additional files this check uses.
+   *
+   * @param files the files the check uses
+   */
+  default void setFiles(Collection<CheckFile> files) {
   }
 
   /**
@@ -50,5 +62,18 @@ public interface Check {
   default void visitClassfile(CompiledFile file, ClassVisitor visitor) {
     ClassReader classReader = new ClassReader(file.classFile());
     classReader.accept(visitor, ClassReader.SKIP_DEBUG);
+  }
+
+  @ToString
+  @Getter(onMethod_ = {@JsonProperty})
+  class CheckFile {
+
+    private String name;
+    private String content;
+
+    public CheckFile(@JsonProperty("name") String name, @JsonProperty("content") String content) {
+      this.name = name;
+      this.content = content;
+    }
   }
 }

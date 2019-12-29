@@ -4,9 +4,9 @@ import static java.util.stream.Collectors.toList;
 
 import edu.kit.informatik.Terminal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 import me.ialistannen.simplecodetester.checks.Check;
@@ -33,7 +33,7 @@ public class InterleavedStaticIOCheck implements Check {
   private List<MatcherBlock> outputMatchers;
   private String name;
   private List<String> parameters = List.of();
-  private Map<String, String> files = Map.of();
+  private List<CheckFile> files = List.of();
 
 
   /**
@@ -74,13 +74,18 @@ public class InterleavedStaticIOCheck implements Check {
   }
 
   @Override
+  public void setFiles(Collection<CheckFile> files) {
+    this.files = new ArrayList<>(files);
+  }
+
+  @Override
   public CheckResult check(CompiledFile file) {
     if (!isMain.test(file)) {
       return CheckResult.notApplicable(this);
     }
 
     Terminal.setInput(Collections.unmodifiableList(input));
-    Terminal.setInputFiles(Collections.unmodifiableMap(files));
+    Terminal.setInputFiles(Collections.unmodifiableList(files));
 
     List<LineResult> output;
 
