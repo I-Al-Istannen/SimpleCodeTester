@@ -2,6 +2,7 @@ package me.ialistannen.simplecodetester.checks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
+import java.util.Collections;
 import lombok.Getter;
 import lombok.ToString;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
@@ -42,6 +43,16 @@ public interface Check {
    * @param files the files the check uses
    */
   default void setFiles(Collection<CheckFile> files) {
+  }
+
+  /**
+   * Returns all files for this check.
+   *
+   * @return all files for this check
+   * @see #setFiles(Collection)
+   */
+  default Collection<CheckFile> getFiles() {
+    return Collections.emptyList();
   }
 
   /**

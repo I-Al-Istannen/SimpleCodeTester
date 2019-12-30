@@ -79,6 +79,11 @@ public class InterleavedStaticIOCheck implements Check {
   }
 
   @Override
+  public List<CheckFile> getFiles() {
+    return List.copyOf(files);
+  }
+
+  @Override
   public CheckResult check(CompiledFile file) {
     if (!isMain.test(file)) {
       return CheckResult.notApplicable(this);

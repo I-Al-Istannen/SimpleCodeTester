@@ -121,14 +121,16 @@ public class CheckManageEndpoint {
         data = Map.of(
             "class", checkInstance.getClass().getSimpleName(),
             "text", checkInstance.toString(),
-            "name", checkInstance.name()
+            "name", checkInstance.name(),
+            "files", checkInstance.getFiles()
         );
       } else if (checkInstance instanceof StaticInputOutputCheck) {
         data = Map.of(
             "class", checkInstance.getClass().getSimpleName(),
             "input", ((StaticInputOutputCheck) checkInstance).getInput(),
             "output", ((StaticInputOutputCheck) checkInstance).getExpectedOutput(),
-            "name", checkInstance.name()
+            "name", checkInstance.name(),
+            "files", checkInstance.getFiles()
         );
       }
     } else {
