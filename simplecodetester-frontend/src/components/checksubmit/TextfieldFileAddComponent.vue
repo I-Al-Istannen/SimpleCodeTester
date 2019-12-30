@@ -11,7 +11,7 @@
         <v-row>
           <v-col cols="auto" class="d-flex field-title py-0">
             <v-text-field :readonly="!editable" v-model="file.name" label="Dateiname mit Endung"></v-text-field>
-            <v-btn v-if="editable && items.length > 1" icon color="red" @click="deleteFile(file)">
+            <v-btn v-if="editable" icon color="red" @click="deleteFile(file)">
               <v-icon>{{ deleteIcon }}</v-icon>
             </v-btn>
           </v-col>
