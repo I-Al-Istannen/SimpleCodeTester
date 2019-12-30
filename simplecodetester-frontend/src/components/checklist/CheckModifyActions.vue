@@ -23,6 +23,7 @@
           <v-btn :disabled="!canUploadEdit" color="primary" @click="changeCheck">Submit change</v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
+        <v-alert type="error" :value="error.length > 0">{{ error }}</v-alert>
       </v-card>
     </v-dialog>
 
@@ -94,6 +95,9 @@ export default class ModifyActions extends Vue {
   @Prop()
   private myCheck!: CheckBase;
 
+  @Prop({ default: "" })
+  error!: string;
+
   get isIoCheck() {
     return this.myCheck.name;
   }
@@ -113,7 +117,12 @@ export default class ModifyActions extends Vue {
     }
     this.checks.fetchContent(this.myCheck).then(content => {
       let check = content.check as IOCheck;
-      this.ioCheck = new IOCheck(check.input, check.output, check.name, check.files);
+      this.ioCheck = new IOCheck(
+        check.input,
+        check.output,
+        check.name,
+        check.files
+      );
       this.checkClass = content.class;
     });
   }

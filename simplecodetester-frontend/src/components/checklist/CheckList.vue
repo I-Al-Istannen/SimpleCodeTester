@@ -42,6 +42,7 @@
                         :userState="userState"
                         :myCheck="item"
                         @error="setError"
+                        :error="error"
                       ></modify-actions>
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
