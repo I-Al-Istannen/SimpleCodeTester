@@ -12,7 +12,7 @@
     <v-container>
       <v-row justify="center">
         <v-col cols="10">
-          <textfield-add-file :editable="false" @input="files = $event"></textfield-add-file>
+          <textfield-add-file v-model="files"></textfield-add-file>
         </v-col>
       </v-row>
     </v-container>
@@ -49,6 +49,7 @@ export default class IOCheckComponent extends Vue {
     this.input = this.initialValue.input;
     this.output = this.initialValue.output;
     this.name = this.initialValue.name;
+    this.files = this.initialValue.files.map(it => new IOCheckFile(it.name, it.content));
   }
 
   @Watch("input")

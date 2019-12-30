@@ -1,6 +1,6 @@
 <template>
   <v-data-iterator
-    :items="files"
+    :items="value"
     item-key="name"
     hide-default-footer
     no-data-text
@@ -10,12 +10,7 @@
       <v-container v-for="(file, index) in items" :key="index" class="field-container mt-4 py-0">
         <v-row>
           <v-col cols="auto" class="d-flex field-title py-0">
-            <v-text-field
-              :readonly="!editable"
-              v-model="file.name"
-              @input="pushFinishedFiles"
-              label="Dateiname mit Endung"
-            ></v-text-field>
+            <v-text-field :readonly="!editable" v-model="file.name" label="Dateiname mit Endung"></v-text-field>
             <v-btn v-if="editable && items.length > 1" icon color="red" @click="deleteFile(file)">
               <v-icon>{{ deleteIcon }}</v-icon>
             </v-btn>
@@ -27,7 +22,6 @@
             <v-textarea
               :readonly="!editable"
               v-model="file.content"
-              @input="pushFinishedFiles"
               label="File content"
               filled
               auto-grow
@@ -59,36 +53,23 @@ import { Prop, Watch } from "vue-property-decorator";
 
 @Component
 export default class TextfieldFileAddComponent extends Vue {
-  private files: Array<IOCheckFile> = [];
-
   @Prop({ default: true })
   editable!: boolean;
 
   @Prop({ default: () => [] })
-  initialValue!: Array<IOCheckFile>;
+  value!: Array<IOCheckFile>;
 
   @Prop({ default: "#e1e4e8" })
   outlineColor!: string;
 
   deleteFile(file: IOCheckFile) {
-    this.files = this.files.filter(it => it != file);
+    this.$emit("input", this.value.filter(it => it != file));
   }
 
   addNew() {
-    this.files.push(new IOCheckFile("", ""));
-  }
-
-  pushFinishedFiles() {
-    const payload = this.files.filter(
-      it => it.name !== "" && it.content !== ""
-    );
-    if (payload.length != 0) {
-      this.$emit("input", payload);
-    }
-  }
-
-  mounted() {
-    this.files = this.initialValue;
+    const newFiles = this.value.slice();
+    newFiles.push(new IOCheckFile("", ""));
+    this.$emit("input", newFiles);
   }
 
   // ICONS

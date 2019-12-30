@@ -51,6 +51,25 @@ export class IOCheck {
     this.output = output;
     this.files = files;
   }
+
+  /**
+   * Returns a playload that can be passed as the "payload" in a post request to update or add a check.
+   */
+  serializeForSending(checkClass: string): string {
+    let sendableCheck: any = {}
+    Object.assign(sendableCheck, this);
+    sendableCheck.files = undefined
+
+    const check: any = {
+      data: sendableCheck,
+      name: sendableCheck.name
+    };
+
+    return JSON.stringify({
+      value: JSON.stringify(check),
+      class: checkClass
+    });
+  }
 }
 
 /**
@@ -176,14 +195,9 @@ export class CheckCollection {
    * @param checkClass the class of the check
    */
   async updateIoCheck(check: IOCheck, id: number, checkClass: string): Promise<void> {
-    const checkData: any = {
-      data: check,
-      name: check.name
-    };
-
     const response = await Axios.post(`/checks/update/${id}`, {
-      value: JSON.stringify(checkData),
-      class: checkClass
+      payload: check.serializeForSending(checkClass),
+      files: check.files
     });
 
     this.checkContents[id] = this.parseCheckResponse(response.data.content);
