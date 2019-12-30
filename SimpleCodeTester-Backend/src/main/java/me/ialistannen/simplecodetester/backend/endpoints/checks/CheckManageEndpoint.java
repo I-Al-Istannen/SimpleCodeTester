@@ -149,7 +149,7 @@ public class CheckManageEndpoint {
    */
   @PostMapping("/checks/add/{categoryId}")
   public ResponseEntity<Object> addNew(@PathVariable("categoryId") long categoryId,
-      @RequestBody @Valid AddCheckRequest addRequest) {
+      @RequestBody @Valid AddOrUpdateCheckRequest addRequest) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
         .getPrincipal();
@@ -208,7 +208,7 @@ public class CheckManageEndpoint {
    */
   @PostMapping("/checks/update/{checkId}")
   public ResponseEntity<Object> updateCheck(@PathVariable("checkId") long id,
-      @RequestBody @NotEmpty String payload) {
+      @RequestBody @NotEmpty AddOrUpdateCheckRequest changeRequest) {
     Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
     Optional<CodeCheck> storedCheck = checkService.getCheck(id);
@@ -220,7 +220,9 @@ public class CheckManageEndpoint {
     assertHasPermission(user, storedCheck.get());
 
     try {
-      checkService.updateCheck(id, parseCheckFromJsonBlob(payload));
+      Check newCheck = parseCheckFromJsonBlob(changeRequest.payload);
+      newCheck.setFiles(changeRequest.files);
+      checkService.updateCheck(id, newCheck);
       log.info("User {} updated a check with the name '{}'",
           user.getName(), storedCheck.get().getName()
       );
@@ -299,7 +301,7 @@ public class CheckManageEndpoint {
 
   @ToString
   @Getter(onMethod_ = {@JsonProperty})
-  private static class AddCheckRequest {
+  private static class AddOrUpdateCheckRequest {
 
     @NotEmpty
     private String payload;
@@ -307,7 +309,7 @@ public class CheckManageEndpoint {
     private List<CheckFile> files;
 
     @JsonCreator
-    public AddCheckRequest(@JsonProperty("payload") String payload,
+    public AddOrUpdateCheckRequest(@JsonProperty("payload") String payload,
         @JsonProperty("files") List<CheckFile> files) {
       this.payload = payload;
       this.files = files;
