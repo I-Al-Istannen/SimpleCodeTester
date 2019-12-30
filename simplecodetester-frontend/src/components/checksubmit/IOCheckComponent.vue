@@ -12,7 +12,7 @@
     <v-container>
       <v-row justify="center">
         <v-col cols="10">
-          <textfield-add-file @input="files = $event"></textfield-add-file>
+          <textfield-add-file :editable="false" @input="files = $event"></textfield-add-file>
         </v-col>
       </v-row>
     </v-container>

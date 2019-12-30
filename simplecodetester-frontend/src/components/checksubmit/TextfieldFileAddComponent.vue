@@ -1,15 +1,22 @@
 <template>
-  <v-data-iterator :items="files" item-key="name" hide-default-footer no-data-text>
+  <v-data-iterator
+    :items="files"
+    item-key="name"
+    hide-default-footer
+    no-data-text
+    :style="{ '--outline-color': outlineColor }"
+  >
     <template v-slot:default="{ items }">
       <v-container v-for="(file, index) in items" :key="index" class="field-container mt-4 py-0">
         <v-row>
           <v-col cols="auto" class="d-flex field-title py-0">
             <v-text-field
+              :readonly="!editable"
               v-model="file.name"
               @input="pushFinishedFiles"
               label="Dateiname mit Endung"
             ></v-text-field>
-            <v-btn v-if="items.length > 1" icon color="red" @click="deleteFile(file)">
+            <v-btn v-if="editable && items.length > 1" icon color="red" @click="deleteFile(file)">
               <v-icon>{{ deleteIcon }}</v-icon>
             </v-btn>
           </v-col>
@@ -18,6 +25,7 @@
         <v-row class="mt-2">
           <v-col class="field-content">
             <v-textarea
+              :readonly="!editable"
               v-model="file.content"
               @input="pushFinishedFiles"
               label="File content"
@@ -28,7 +36,7 @@
         </v-row>
       </v-container>
     </template>
-    <template v-slot:footer>
+    <template v-slot:footer v-if="editable">
       <v-container>
         <v-row justify="center">
           <v-col cols="auto">
@@ -47,11 +55,20 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { mdiDelete, mdiPlusCircle } from "@mdi/js";
 import { IOCheckFile } from "../checklist/CheckTypes";
+import { Prop, Watch } from "vue-property-decorator";
 
 @Component
 export default class TextfieldFileAddComponent extends Vue {
-  private text = "World";
   private files: Array<IOCheckFile> = [];
+
+  @Prop({ default: true })
+  editable!: boolean;
+
+  @Prop({ default: () => [] })
+  initialValue!: Array<IOCheckFile>;
+
+  @Prop({ default: "#e1e4e8" })
+  outlineColor!: string;
 
   deleteFile(file: IOCheckFile) {
     this.files = this.files.filter(it => it != file);
@@ -70,6 +87,10 @@ export default class TextfieldFileAddComponent extends Vue {
     }
   }
 
+  mounted() {
+    this.files = this.initialValue;
+  }
+
   // ICONS
   private deleteIcon = mdiDelete;
   private addIcon = mdiPlusCircle;
@@ -80,16 +101,12 @@ export default class TextfieldFileAddComponent extends Vue {
 .field-container .row,
 .field-container {
   border-style: solid;
-  border-color: #e1e4e8;
+  border-color: var(--outline-color);
 }
 .field-container .row {
   border-width: 2px 0 2px 0;
 }
 .field-container {
   border-width: 0 2px 0 2px;
-}
-.field-title,
-.field-content {
-  background-color: white;
 }
 </style>

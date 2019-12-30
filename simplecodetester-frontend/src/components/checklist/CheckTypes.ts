@@ -97,7 +97,7 @@ export class CheckCollection {
         );
       } else if (content.class === "InterleavedStaticIOCheck") {
         checkClass = content.class;
-        ioCheck = new IOCheck(content.text, null, content.name, []);
+        ioCheck = new IOCheck(content.text, null, content.name, content.files);
       } else {
         // eslint-disable-next-line
         console.log("Unknown check received: ");
