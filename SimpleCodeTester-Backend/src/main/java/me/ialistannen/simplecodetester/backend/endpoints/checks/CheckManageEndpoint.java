@@ -163,6 +163,12 @@ public class CheckManageEndpoint {
     CheckCategory checkCategory = checkCategoryService.getById(categoryId)
         .orElseThrow(() -> new WebStatusCodeException("Category not found", HttpStatus.NOT_FOUND));
 
+    long distinctNameSize = addRequest.files.stream().map(CheckFile::getName).distinct().count();
+    if (distinctNameSize != addRequest.files.size()) {
+      return ResponseUtil
+          .error(HttpStatus.BAD_REQUEST, "Mehrere Dateien haben den gleichen Namen!");
+    }
+
     try {
       Check check = parseCheckFromJsonBlob(addRequest.getPayload());
       check.setFiles(addRequest.getFiles());
@@ -200,12 +206,6 @@ public class CheckManageEndpoint {
     return check;
   }
 
-  /**
-   * Adds a new check.
-   *
-   * @param payload the new check payload
-   * @return true if the check was added
-   */
   @PostMapping("/checks/update/{checkId}")
   public ResponseEntity<Object> updateCheck(@PathVariable("checkId") long id,
       @RequestBody @NotEmpty AddOrUpdateCheckRequest changeRequest) {
@@ -218,6 +218,12 @@ public class CheckManageEndpoint {
     }
 
     assertHasPermission(user, storedCheck.get());
+
+    long distinctNameSize = changeRequest.files.stream().map(CheckFile::getName).distinct().count();
+    if (distinctNameSize != changeRequest.files.size()) {
+      return ResponseUtil
+          .error(HttpStatus.BAD_REQUEST, "Mehrere Dateien haben den gleichen Namen!");
+    }
 
     try {
       Check newCheck = parseCheckFromJsonBlob(changeRequest.payload);
