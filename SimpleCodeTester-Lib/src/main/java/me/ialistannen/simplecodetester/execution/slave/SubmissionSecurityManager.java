@@ -14,7 +14,9 @@ public class SubmissionSecurityManager extends SecurityManager {
       // Character.getName accesses a system resource (uniName.dat)
       "java.lang.CharacterName",
       // Local specific decimal formatting
-      "java.text.DecimalFormatSymbols"
+      "java.text.DecimalFormatSymbols",
+      // Enum.valueOf and pray there is no gadget here
+      "java.lang.Enum"
   };
 
   @Override
