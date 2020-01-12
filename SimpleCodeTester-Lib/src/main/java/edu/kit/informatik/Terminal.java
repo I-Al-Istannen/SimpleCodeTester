@@ -94,7 +94,7 @@ public final class Terminal {
     if (files.containsKey(path)) {
       return files.get(path).getContent().split("\\n");
     }
-    throw new IllegalArgumentException("File '" + path + "' not found! " + files);
+    throw new IllegalArgumentException("File '" + path + "' not found! I know: " + files.keySet());
   }
 
   /**
