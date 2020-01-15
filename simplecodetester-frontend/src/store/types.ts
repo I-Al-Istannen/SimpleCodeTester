@@ -1,3 +1,5 @@
+import { IOCheckFile } from '@/components/checklist/CheckTypes'
+
 export interface RootState {
   baseUrl: string;
 
@@ -58,13 +60,16 @@ export class FileCheckResult {
   message: string;
   errorOutput: string;
   output: Array<IoLine>
+  files: IOCheckFile[];
 
-  constructor(check: string, result: CheckResultType, message: string, errorOutput: string, output: Array<IoLine>) {
+  constructor(check: string, result: CheckResultType, message: string, errorOutput: string,
+     output: Array<IoLine>, files: IOCheckFile[]) {
     this.check = check;
     this.result = result;
     this.message = message;
     this.errorOutput = errorOutput;
     this.output = output;
+    this.files = files;
   }
 
   /**

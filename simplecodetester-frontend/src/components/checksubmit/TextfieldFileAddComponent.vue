@@ -85,9 +85,9 @@ export default class TextfieldFileAddComponent extends Vue {
   border-color: var(--outline-color);
 }
 .field-container .row {
-  border-width: 2px 0 2px 0;
+  border-width: 1px 0 1px 0;
 }
 .field-container {
-  border-width: 0 2px 0 2px;
+  border-width: 0 1px 0 1px;
 }
 </style>

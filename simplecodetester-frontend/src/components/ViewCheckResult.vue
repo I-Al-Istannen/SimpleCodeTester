@@ -66,6 +66,11 @@
                                 :faithfulFormat="false"
                                 :lines="result.output"
                               ></interleaved-io>
+                              <display-files-component
+                                outlineColor="#eeaef9"
+                                :value="result.files"
+                                :editable="false"
+                              ></display-files-component>
                             </v-card-text>
                           </v-card>
                         </v-expansion-panel-content>
@@ -96,6 +101,7 @@ import {
 } from "@/store/types";
 import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
 import { mdiCheckCircleOutline, mdiCloseCircleOutline } from "@mdi/js";
+import TextfieldFileAddComponent from './checksubmit/TextfieldFileAddComponent.vue';
 
 class SingleFileResult {
   fileName: string;
@@ -131,7 +137,8 @@ class SingleFileResult {
 
 @Component({
   components: {
-    "interleaved-io": HighlightInterleavedIo
+    "interleaved-io": HighlightInterleavedIo,
+    "display-files-component": TextfieldFileAddComponent
   }
 })
 export default class Test extends Vue {
