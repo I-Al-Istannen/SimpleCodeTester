@@ -2,9 +2,11 @@ package me.ialistannen.simplecodetester.checks;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
+import me.ialistannen.simplecodetester.checks.Check.CheckFile;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
+import org.immutables.value.Value.Default;
 
 /**
  * The result of executing a single {@link Check}.
@@ -48,6 +50,14 @@ public abstract class CheckResult {
    * @return the {@link System#err} output
    */
   public abstract String errorOutput();
+
+  /**
+   * @return a list with all files
+   */
+  @Default
+  public List<CheckFile> files() {
+    return List.of();
+  }
 
   /**
    * Returns a successful CheckResult with no message.

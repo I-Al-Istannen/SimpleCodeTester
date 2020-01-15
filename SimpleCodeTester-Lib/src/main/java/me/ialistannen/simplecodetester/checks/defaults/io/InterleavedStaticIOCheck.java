@@ -110,6 +110,7 @@ public class InterleavedStaticIOCheck implements Check {
 
     return ImmutableCheckResult.builder()
         .from(CheckResult.emptySuccess(this))
+        .files(files)
         .output(output)
         .build();
   }

@@ -66,6 +66,7 @@ public class CheckRunner {
       return ImmutableCheckResult.builder()
           .message(findRootCause(e).getMessage() == null ? "" : findRootCause(e).getMessage())
           .check(check.name())
+          .files(check.getFiles())
           .result(ResultType.FAILED)
           .errorOutput(capture.getCaptured())
           .output(e.getOutputLines())
@@ -74,6 +75,7 @@ public class CheckRunner {
       return ImmutableCheckResult.builder()
           .message(getRootCauseMessage(findRootCause(e)))
           .check(check.name())
+          .files(check.getFiles())
           .result(ResultType.FAILED)
           .errorOutput(capture.getCaptured())
           .build();
