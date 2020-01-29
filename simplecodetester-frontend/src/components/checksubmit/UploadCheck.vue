@@ -3,7 +3,7 @@
     <v-flex xs12 sm10 md8>
       <v-card class="elevation-10">
         <v-toolbar dark color="primary">
-          <v-toolbar-title>Submit a new check</v-toolbar-title>
+          <v-toolbar-title>Submit a new public check</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
           <check-category-selection :checkCategory="checkCategory" @input="setCategory"></check-category-selection>
@@ -155,6 +155,16 @@ export default class UploadCheck extends Vue {
   }
 
   upload() {
+    if(!window.confirm(
+      "Hey, du bist dabei einen öffentlichen Test zu erstellen.\n"
+       + "Danke dir! :) "
+       + "\n\nBitte gehe noch einmal sicher, dass du keine privaten "
+       + "Daten oder Lösungen hochlädst.\n\n"
+       + "Falls du dies gerade machst, klicke bitte auf 'Abbrechen'.\n"
+       + "Ansonsten klicke auf 'OK'. Vielen Dank :)"
+    )) {
+      return
+    }
     this.uploading = true;
     this.uploadIOCheck();
   }
