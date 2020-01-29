@@ -10,7 +10,7 @@
           <v-tabs slider-color="accent" v-model="selectedTab">
             <v-tab ripple>Input-Output check</v-tab>
             <v-tab-item>
-              <io-check v-model="ioCheck"></io-check>
+              <io-check fileUploadPrompt="Test-Datei hinzufügen (nicht deine Lösung!!)" v-model="ioCheck"></io-check>
               <v-dialog v-model="ioHelpOpened" max-width="700" class="help-dialog">
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on" icon>

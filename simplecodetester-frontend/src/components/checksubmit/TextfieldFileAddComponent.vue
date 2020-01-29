@@ -35,7 +35,8 @@
         <v-row justify="center">
           <v-col cols="auto">
             <v-btn @click="addNew()">
-              <v-icon left>{{ addIcon }}</v-icon>Datei Hinzufügen
+              <v-icon left>{{ addIcon }}</v-icon>
+              {{ fileUploadPrompt }}
             </v-btn>
           </v-col>
         </v-row>
@@ -62,8 +63,14 @@ export default class TextfieldFileAddComponent extends Vue {
   @Prop({ default: "#e1e4e8" })
   outlineColor!: string;
 
+  @Prop({ default: "Datei Hinzufügen" })
+  fileUploadPrompt!: string;
+
   deleteFile(file: IOCheckFile) {
-    this.$emit("input", this.value.filter(it => it != file));
+    this.$emit(
+      "input",
+      this.value.filter(it => it != file)
+    );
   }
 
   addNew() {
