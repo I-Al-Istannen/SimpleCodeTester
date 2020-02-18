@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +57,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CheckManageEndpoint {
 
-  private CheckCategoryService checkCategoryService;
-  private CodeCheckService checkService;
-  private UserService userService;
-  private CheckSerializer checkSerializer;
-  private CheckParsers checkParsers;
+  private final CheckCategoryService checkCategoryService;
+  private final CodeCheckService checkService;
+  private final UserService userService;
+  private final CheckSerializer checkSerializer;
+  private final CheckParsers checkParsers;
+  private final Counter editedChecksCounter;
 
   public CheckManageEndpoint(CheckCategoryService checkCategoryService,
       CodeCheckService checkService, UserService userService,
@@ -71,6 +74,10 @@ public class CheckManageEndpoint {
     Gson gson = ConfiguredGson.createGson();
     this.checkSerializer = new CheckSerializer(gson);
     this.checkParsers = new CheckParsers(gson, configurationService.getParsingConfig());
+    this.editedChecksCounter = Counter
+        .builder("checks_edited")
+        .description("How many edit actions were recorded")
+        .register(Metrics.globalRegistry);
   }
 
   @GetMapping("/checks/get-all")
@@ -232,6 +239,7 @@ public class CheckManageEndpoint {
       log.info("User {} updated a check with the name '{}'",
           user.getName(), storedCheck.get().getName()
       );
+      editedChecksCounter.increment();
     } catch (CheckParseException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }

@@ -2,9 +2,12 @@ package me.ialistannen.simplecodetester.backend.endpoints;
 
 import static java.util.stream.Collectors.toList;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +53,32 @@ public class TestRunEndpoint {
   // So allow 10 megabytes
   private static final int MAX_ZIP_CONTENT_SIZE = 1024 * 1024 * 10;
 
-  private CheckRunnerService checkRunnerService;
-  private CodeCheckService codeCheckService;
+  private final CheckRunnerService checkRunnerService;
+  private final CodeCheckService codeCheckService;
+  private final Counter testsRunCounter;
+  private final Counter submissionsTestedCounter;
+  private final Counter failedCompilationsCounter;
+  private final Counter executionErrorsCounter;
+  private final Counter failedTestsCounter;
 
   public TestRunEndpoint(CheckRunnerService checkRunnerService, CodeCheckService codeCheckService) {
     this.checkRunnerService = checkRunnerService;
     this.codeCheckService = codeCheckService;
+    testsRunCounter = Counter.builder("tests_total")
+        .description("Total amount of executed tests")
+        .register(Metrics.globalRegistry);
+    submissionsTestedCounter = Counter.builder("submissions_tested")
+        .description("Total amount of tested submissions")
+        .register(Metrics.globalRegistry);
+    failedCompilationsCounter = Counter.builder("failed_compilations")
+        .description("Total amount of submissions that failed to compile")
+        .register(Metrics.globalRegistry);
+    executionErrorsCounter = Counter.builder("execution_errors")
+        .description("Total amount of submissions that triggered execution errors")
+        .register(Metrics.globalRegistry);
+    failedTestsCounter = Counter.builder("failed_tests")
+        .description("Total amount of failed tests")
+        .register(Metrics.globalRegistry);
   }
 
   @PostMapping("/test/single/{categoryId}")
@@ -82,6 +105,8 @@ public class TestRunEndpoint {
       return ResponseUtil.error(HttpStatus.NOT_FOUND, "No checks I am allowed to run found.");
     }
 
+    submissionsTestedCounter.increment();
+
     try {
       SubmissionCheckResult checkResult = checkRunnerService.check(id, submission, checks);
 
@@ -98,6 +123,12 @@ public class TestRunEndpoint {
 
         skippedChecksRemoved.put(entry.getKey(), withoutSkipped);
       }
+      testsRunCounter.increment(checks.size());
+      long failedTestCount = checkResult.fileResults().values().stream()
+          .flatMap(Collection::stream)
+          .filter(it -> it.result() == ResultType.FAILED)
+          .count();
+      failedTestsCounter.increment(failedTestCount);
       return ResponseEntity.ok(
           ImmutableSubmissionCheckResult.builder()
               .from(checkResult)
@@ -105,8 +136,10 @@ public class TestRunEndpoint {
               .build()
       );
     } catch (CompilationFailedException e) {
+      failedCompilationsCounter.increment();
       return ResponseEntity.ok().body(e.getOutput());
     } catch (CheckRunningFailedException | CheckAlreadyRunningException e) {
+      executionErrorsCounter.increment();
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
   }

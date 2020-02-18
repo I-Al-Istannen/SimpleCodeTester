@@ -2,7 +2,11 @@ package me.ialistannen.simplecodetester.backend.services.checkrunning;
 
 import static java.util.stream.Collectors.toList;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -51,11 +55,18 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
   private long maxComputationTimeSeconds;
 
   private SlaveManager slaveManager;
-
-  private Map<String, RunningCheck> runningChecks;
+  private final Map<String, RunningCheck> runningChecks;
+  private final Timer submissionDurationTimer;
 
   public CheckRunnerService() {
     this.runningChecks = new ConcurrentHashMap<>();
+    this.submissionDurationTimer = Timer.builder("test_duration")
+        .description("Duration of tests")
+        .publishPercentileHistogram()
+        .register(Metrics.globalRegistry);
+
+    Gauge.builder("testing_queue_length", runningChecks::size)
+        .register(Metrics.globalRegistry);
   }
 
   /**
@@ -75,6 +86,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
       throw new CheckAlreadyRunningException();
     }
 
+    Instant start = Instant.now();
     Semaphore semaphore = new Semaphore(0);
     RunningCheck check = new RunningCheck(semaphore);
     runningChecks.put(userId, check);
@@ -97,6 +109,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
       throw new CheckRunningFailedException("Interrupted while running check", e);
     } finally {
       runningChecks.remove(userId);
+      submissionDurationTimer.record(Duration.between(start, Instant.now()));
     }
 
     if (check.getCompilationOutput() != null) {
