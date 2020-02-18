@@ -63,6 +63,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
     this.submissionDurationTimer = Timer.builder("test_duration")
         .description("Duration of tests")
         .publishPercentileHistogram()
+        .minimumExpectedValue(Duration.ofSeconds(2))
         .register(Metrics.globalRegistry);
 
     Gauge.builder("testing_queue_length", runningChecks::size)
