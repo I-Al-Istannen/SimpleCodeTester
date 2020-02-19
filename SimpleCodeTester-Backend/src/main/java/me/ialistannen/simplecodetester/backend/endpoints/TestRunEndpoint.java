@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import java.io.IOException;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.Collection;
@@ -203,6 +204,12 @@ public class TestRunEndpoint {
 
       log.info("Testing a zip file for {}", user.getName());
       return testMultipleFiles(files, user.getName(), categoryId);
+    } catch (MalformedInputException | IllegalArgumentException e) {
+      log.info("Error extracting file for user '{}'", user.getName(), e);
+      return ResponseUtil.error(
+          HttpStatus.BAD_REQUEST,
+          "Malformed input? Make sure your file names are in UTF-8! Message is" + e.getMessage()
+      );
     } catch (IOException e) {
       log.info("Error extracting file for user '{}'", user.getName(), e);
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
