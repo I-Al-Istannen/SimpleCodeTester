@@ -229,7 +229,7 @@ public class UserManageEndpoint {
         user -> user.setPasswordHash(passwordEncoder.encode(newPassword))
     );
 
-    log.info("User {} updated his password",
+    log.info("User {} / {} updated his password",
         SecurityContextHolder.getContext().getAuthentication().getName(),
         principal.getName()
     );

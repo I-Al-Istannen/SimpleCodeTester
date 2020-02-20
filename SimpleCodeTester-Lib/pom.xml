@@ -7,27 +7,33 @@
     <groupId>me.ialistannen</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
+  <modelVersion>4.0.0</modelVersion>
   <artifactId>SimpleCodeTester-Lib</artifactId>
+
+  <properties>
+    <asm.version>7.3.1</asm.version>
+    <joor.version>0.9.12</joor.version>
+    <jackson.version>2.10.2</jackson.version>
+  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>7.2</version>
+      <version>${asm.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.jooq</groupId>
       <artifactId>joor</artifactId>
-      <version>0.9.12</version>
+      <version>${joor.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
       <scope>provided</scope>
     </dependency>
 

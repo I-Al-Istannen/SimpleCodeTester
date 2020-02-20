@@ -50,7 +50,7 @@ public class StaticInputOutputCheck implements Check {
 
     Class<?> clazz = file.asClass();
 
-    Reflect.on(clazz)
+    Reflect.onClass(clazz)
         .call("main", (Object) new String[0]);
 
     assertOutputValid();

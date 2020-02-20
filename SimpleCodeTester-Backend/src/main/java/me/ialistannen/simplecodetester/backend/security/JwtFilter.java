@@ -40,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
     String requestHeader = request.getHeader("Authorization");
 
     if (requestHeader == null || !requestHeader.startsWith(PREFIX)) {
-      logger.info("Invalid auth received, no header present");
+      logger.debug("Invalid auth received, no header present");
       chain.doFilter(request, response);
       return;
     }

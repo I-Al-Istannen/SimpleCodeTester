@@ -48,7 +48,7 @@ class ExceptionUtilTest {
   @Test
   void testRelevantStacktraceStopsAtReflectionWithMessage() {
     try {
-      Reflect.on(ReflectionTestHelper.class)
+      Reflect.onClass(ReflectionTestHelper.class)
           .call("iThrowWithMessage");
     } catch (ReflectException e) {
       assertGetStacktraceIsValid(e, "Message");
@@ -58,7 +58,7 @@ class ExceptionUtilTest {
   @Test
   void testRelevantStacktraceStopsAtReflectionWithoutMessage() {
     try {
-      Reflect.on(ReflectionTestHelper.class)
+      Reflect.onClass(ReflectionTestHelper.class)
           .call("iThrowWithoutMessage");
     } catch (ReflectException e) {
       assertGetStacktraceIsValid(e, null);
