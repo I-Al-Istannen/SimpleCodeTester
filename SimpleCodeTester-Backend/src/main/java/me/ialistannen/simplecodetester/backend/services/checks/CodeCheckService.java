@@ -36,6 +36,15 @@ public class CodeCheckService {
   }
 
   /**
+   * Returns the number of checks.
+   *
+   * @return the number of checks
+   */
+  public long getCount() {
+    return checkRepository.count();
+  }
+
+  /**
    * Finds a check by its unique id.
    *
    * @param id the id of the check

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,10 @@ public class CheckManageEndpoint {
     this.editedChecksCounter = Counter
         .builder("checks_edited")
         .description("How many edit actions were recorded")
+        .register(Metrics.globalRegistry);
+
+    Gauge.builder("total_check_count", checkService::getCount)
+        .description("Total number of checks")
         .register(Metrics.globalRegistry);
   }
 
