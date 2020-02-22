@@ -124,7 +124,12 @@ public class TestRunEndpoint {
 
         skippedChecksRemoved.put(entry.getKey(), withoutSkipped);
       }
-      testsRunCounter.increment(checks.size());
+      testsRunCounter.increment(
+          checkResult.fileResults().values().stream()
+              .flatMap(Collection::stream)
+              .filter(it -> it.result() != ResultType.NOT_APPLICABLE)
+              .count()
+      );
       long failedTestCount = checkResult.fileResults().values().stream()
           .flatMap(Collection::stream)
           .filter(it -> it.result() == ResultType.FAILED)
