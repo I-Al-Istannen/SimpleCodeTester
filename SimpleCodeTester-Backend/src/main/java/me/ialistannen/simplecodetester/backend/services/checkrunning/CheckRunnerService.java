@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,6 +58,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
   private SlaveManager slaveManager;
   private final Map<String, RunningCheck> runningChecks;
   private final Timer submissionDurationTimer;
+  private final AtomicInteger queueLengthCounter;
 
   public CheckRunnerService() {
     this.runningChecks = new ConcurrentHashMap<>();
@@ -65,8 +67,9 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
         .publishPercentileHistogram()
         .minimumExpectedValue(Duration.ofSeconds(2))
         .register(Metrics.globalRegistry);
+    this.queueLengthCounter = new AtomicInteger();
 
-    Gauge.builder("testing_queue_length", runningChecks::size)
+    Gauge.builder("testing_queue_length", queueLengthCounter::get)
         .register(Metrics.globalRegistry);
   }
 
@@ -80,48 +83,53 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
    * @throws CompilationFailedException if the compilation failed
    * @throws CheckRunningFailedException if an unknown error occured
    */
-  public synchronized SubmissionCheckResult check(String userId, Submission submission,
+  public SubmissionCheckResult check(String userId, Submission submission,
       List<CodeCheck> checks) {
+    queueLengthCounter.incrementAndGet();
     // TODO: 30.01.19 Allow running in parallel?
-    if (runningChecks.containsKey(userId)) {
-      throw new CheckAlreadyRunningException();
-    }
-
-    Instant start = Instant.now();
-    Semaphore semaphore = new Semaphore(0);
-    RunningCheck check = new RunningCheck(semaphore);
-    runningChecks.put(userId, check);
-
-    List<String> checksToRun = checks.stream()
-        .map(CodeCheck::getText)
-        // run longer tests later as they are more likely to time out
-        .sorted(Comparator.comparingInt(String::length))
-        .collect(toList());
-
-    slaveManager.runSubmission(submission, checksToRun, userId);
-
-    try {
-      if (!semaphore.tryAcquire(maxComputationTimeSeconds + 20, TimeUnit.SECONDS)) {
-        throw new CheckRunningFailedException(
-            "Not sure, but I got no message. Maybe the slave died horribly?"
-        );
+    synchronized (this) {
+      if (runningChecks.containsKey(userId)) {
+        queueLengthCounter.decrementAndGet();
+        throw new CheckAlreadyRunningException();
       }
-    } catch (InterruptedException e) {
-      throw new CheckRunningFailedException("Interrupted while running check", e);
-    } finally {
-      runningChecks.remove(userId);
-      submissionDurationTimer.record(Duration.between(start, Instant.now()));
-    }
 
-    if (check.getCompilationOutput() != null) {
-      throw new CompilationFailedException(check.getCompilationOutput());
-    }
+      Instant start = Instant.now();
+      Semaphore semaphore = new Semaphore(0);
+      RunningCheck check = new RunningCheck(semaphore);
+      runningChecks.put(userId, check);
 
-    if (check.getError() != null) {
-      throw new CheckRunningFailedException(check.getError());
-    }
+      List<String> checksToRun = checks.stream()
+          .map(CodeCheck::getText)
+          // run longer tests later as they are more likely to time out
+          .sorted(Comparator.comparingInt(String::length))
+          .collect(toList());
 
-    return check.getResult().toSubmissionResult();
+      slaveManager.runSubmission(submission, checksToRun, userId);
+
+      try {
+        if (!semaphore.tryAcquire(maxComputationTimeSeconds + 20, TimeUnit.SECONDS)) {
+          throw new CheckRunningFailedException(
+              "Not sure, but I got no message. Maybe the slave died horribly?"
+          );
+        }
+      } catch (InterruptedException e) {
+        throw new CheckRunningFailedException("Interrupted while running check", e);
+      } finally {
+        runningChecks.remove(userId);
+        submissionDurationTimer.record(Duration.between(start, Instant.now()));
+        queueLengthCounter.decrementAndGet();
+      }
+
+      if (check.getCompilationOutput() != null) {
+        throw new CompilationFailedException(check.getCompilationOutput());
+      }
+
+      if (check.getError() != null) {
+        throw new CheckRunningFailedException(check.getError());
+      }
+
+      return check.getResult().toSubmissionResult();
+    }
   }
 
   // yea, this method is horrible. It is localized in this class though
