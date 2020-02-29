@@ -229,7 +229,13 @@ public class CheckManageEndpoint {
       return ResponseEntity.notFound().build();
     }
 
-    assertHasPermission(user, storedCheck.get());
+    // updating own is fine
+    if (!storedCheck.get().getCreator().getId().equals(user.getName())) {
+      // Or if you are an editor
+      if (!isAdmin(user) && !isEditor(user)) {
+        throw new WebStatusCodeException("Forbidden", HttpStatus.FORBIDDEN);
+      }
+    }
 
     long distinctNameSize = changeRequest.files.stream().map(CheckFile::getName).distinct().count();
     if (distinctNameSize != changeRequest.files.size()) {
@@ -269,7 +275,12 @@ public class CheckManageEndpoint {
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    assertHasPermission(authentication, check.get());
+    // deleting only works as admin if it is not your own
+    if (!check.get().getCreator().getId().equals(authentication.getName())) {
+      if (!isAdmin(authentication)) {
+        throw new WebStatusCodeException("Forbidden", HttpStatus.FORBIDDEN);
+      }
+    }
 
     checkService.removeCheck(id);
     log.info("User {} deleted a check with the name '{}'",
@@ -290,7 +301,7 @@ public class CheckManageEndpoint {
   public ResponseEntity<Boolean> approve(long id, boolean approved) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+    if (!isAdmin(authentication) && !isEditor(authentication)) {
       return ResponseUtil.error(HttpStatus.FORBIDDEN, "You are not allowed to do this.");
     }
 
@@ -307,19 +318,12 @@ public class CheckManageEndpoint {
     return ResponseUtil.error(HttpStatus.NOT_FOUND, "The check could not be found.");
   }
 
-  private void assertHasPermission(Authentication authentication, CodeCheck check) {
-    // deleting own is fine
-    if (check.getCreator().getId().equals(authentication.getName())) {
-      return;
-    }
+  private boolean isAdmin(Authentication authentication) {
+    return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+  }
 
-    if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_EDITOR"))) {
-      return;
-    }
-
-    if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-      throw new WebStatusCodeException("Forbidden", HttpStatus.FORBIDDEN);
-    }
+  private boolean isEditor(Authentication authentication) {
+    return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_EDITOR"));
   }
 
   @ToString
