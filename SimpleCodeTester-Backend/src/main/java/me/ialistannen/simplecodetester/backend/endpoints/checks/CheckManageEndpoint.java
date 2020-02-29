@@ -313,6 +313,10 @@ public class CheckManageEndpoint {
       return;
     }
 
+    if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_EDITOR"))) {
+      return;
+    }
+
     if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
       throw new WebStatusCodeException("Forbidden", HttpStatus.FORBIDDEN);
     }
