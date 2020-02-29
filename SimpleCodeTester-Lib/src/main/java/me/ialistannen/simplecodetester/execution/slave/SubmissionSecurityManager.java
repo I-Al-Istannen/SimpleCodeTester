@@ -16,7 +16,9 @@ public class SubmissionSecurityManager extends SecurityManager {
       // Local specific decimal formatting
       "java.text.DecimalFormatSymbols",
       // Enum.valueOf and pray there is no gadget here
-      "java.lang.Enum"
+      "java.lang.Enum",
+      // Use the fork join pool (e.g. Stream.parallel)
+      "java.util.concurrent.ForkJoinPool$InnocuousForkJoinWorkerThreadFactory"
   };
 
   @Override
