@@ -1,15 +1,22 @@
 <template>
   <div>
     <v-text-field label="Check name" v-model="name"></v-text-field>
-    <v-textarea auto-grow class="monospace-font" :label="inputFieldLabel" v-model="input"></v-textarea>
+    <v-textarea
+      :readonly="readOnly"
+      auto-grow
+      class="monospace-font"
+      :label="inputFieldLabel"
+      v-model="input"
+    ></v-textarea>
     <v-textarea
       v-if="output !== null"
+      readonly="readOnly"
       auto-grow
       class="monospace-font"
       label="Output. Hit enter for a new line."
       v-model="output"
     ></v-textarea>
-    <v-container>
+    <v-container v-if="!readOnly">
       <v-row justify="center">
         <v-col cols="10">
           <textfield-add-file :fileUploadPrompt="fileUploadPrompt" v-model="files"></textfield-add-file>
@@ -37,6 +44,9 @@ export default class IOCheckComponent extends Vue {
   private name = "";
   private output: string | null = null;
   private files: Array<IOCheckFile> = [];
+
+  @Prop({ default: false })
+  readOnly!: boolean;
 
   @Prop()
   initialValue!: IOCheck;

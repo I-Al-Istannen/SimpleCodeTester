@@ -1,8 +1,8 @@
-import { Module } from 'vuex'
-import { RootState, UserState } from '../../types'
-import { mutations } from './mutations'
-import { actions } from './actions'
-import { isJwtValid } from '@/util/requests';
+import { Module } from "vuex";
+import { RootState, UserState } from "../../types";
+import { mutations } from "./mutations";
+import { actions } from "./actions";
+import { isJwtValid } from "@/util/requests";
 
 export const state: UserState = {
   userName: "Unknown",
@@ -11,10 +11,13 @@ export const state: UserState = {
   token: null,
   refreshToken: null,
   isTokenValid(): boolean {
-    return isJwtValid(this.refreshToken)
+    return isJwtValid(this.refreshToken);
   },
-  isAdmin: function () {
-    return this.roles.indexOf("ROLE_ADMIN") >= 0;
+  isAdmin: function() {
+    return this.roles.includes("ROLE_ADMIN");
+  },
+  isEditor: function() {
+    return this.roles.includes("ROLE_EDITOR");
   }
 };
 

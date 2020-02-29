@@ -1,4 +1,4 @@
-import { IOCheckFile } from '@/components/checklist/CheckTypes'
+import { IOCheckFile } from "@/components/checklist/CheckTypes";
 
 export interface RootState {
   baseUrl: string;
@@ -25,6 +25,11 @@ export interface UserState {
    * Whether the current user is an admin.
    */
   isAdmin(): boolean;
+
+  /**
+   * Whether the current user is an editor.
+   */
+  isEditor(): boolean;
 }
 
 export interface CheckResultState {
@@ -36,7 +41,7 @@ export interface MiscSettingsState {
   category: CheckCategory | null;
 }
 
-export class Pair<K, V>{
+export class Pair<K, V> {
   key: K;
   value: V;
 
@@ -47,10 +52,10 @@ export class Pair<K, V>{
 }
 
 export class CheckResult {
-  results: Array<Pair<string, Array<FileCheckResult>>>
+  results: Array<Pair<string, Array<FileCheckResult>>>;
 
   constructor(results: Array<Pair<string, Array<FileCheckResult>>>) {
-    this.results = results
+    this.results = results;
   }
 }
 
@@ -59,11 +64,17 @@ export class FileCheckResult {
   result: CheckResultType;
   message: string;
   errorOutput: string;
-  output: Array<IoLine>
+  output: Array<IoLine>;
   files: IOCheckFile[];
 
-  constructor(check: string, result: CheckResultType, message: string, errorOutput: string,
-     output: Array<IoLine>, files: IOCheckFile[]) {
+  constructor(
+    check: string,
+    result: CheckResultType,
+    message: string,
+    errorOutput: string,
+    output: Array<IoLine>,
+    files: IOCheckFile[]
+  ) {
     this.check = check;
     this.result = result;
     this.message = message;
@@ -85,7 +96,6 @@ export enum CheckResultType {
   FAILED = "FAILED",
   NOT_APPLICABLE = "NOT_APPLICABLE"
 }
-
 
 export class IoLine {
   lineType: IoLineType;
@@ -111,7 +121,12 @@ export class UserInfo {
   displayName: string;
   roles: Array<string>;
 
-  constructor(username: string, token: string, displayName: string, roles: Array<string>) {
+  constructor(
+    username: string,
+    token: string,
+    displayName: string,
+    roles: Array<string>
+  ) {
     this.username = username;
     this.token = token;
     this.displayName = displayName;
@@ -130,7 +145,7 @@ export class UserLoginInfo {
 }
 
 export class CheckCategoryState {
-  categories: Array<CheckCategory>
+  categories: Array<CheckCategory>;
 
   constructor(categories: Array<CheckCategory>) {
     this.categories = categories;

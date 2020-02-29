@@ -3,24 +3,29 @@
   <div class="d-flex" id="wrapper" @click.stop="() => {}">
     <span class="pr-4 unapproved aside" v-if="!myCheck.approved">Unapproved</span>
 
-    <v-dialog
-      v-model="editDialogOpened"
-      v-show="isIoCheck && canModifyCheck(myCheck.creator)"
-      class="aside"
-      max-width="900"
-    >
+    <v-dialog v-model="editDialogOpened" v-show="isIoCheck" class="aside" max-width="900">
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" icon class="ma-0">
-          <v-icon>{{ editIcon }}</v-icon>
+          <v-icon>{{ canModifyCheck(myCheck.creator) ? editIcon : viewRawIcon }}</v-icon>
         </v-btn>
       </template>
       <v-card>
         <v-card-text>
-          <io-check-component v-if="isIoCheck" :initialValue="ioCheck" @input="setCheck"></io-check-component>
+          <io-check-component
+            v-if="isIoCheck"
+            :readOnly="!canModifyCheck(myCheck.creator)"
+            :initialValue="ioCheck"
+            @input="setCheck"
+          ></io-check-component>
         </v-card-text>
         <v-card-actions class="sticky-bottom">
           <v-spacer></v-spacer>
-          <v-btn :disabled="!canUploadEdit" color="primary" @click="changeCheck">Submit change</v-btn>
+          <v-btn
+            v-if="canModifyCheck(myCheck.creator)"
+            :disabled="!canUploadEdit"
+            color="primary"
+            @click="changeCheck"
+          >Submit change</v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
         <v-alert type="error" :value="error.length > 0">{{ error }}</v-alert>
@@ -28,7 +33,7 @@
     </v-dialog>
 
     <v-btn
-      v-show="canModifyCheck(myCheck.creator)"
+      v-show="canDeleteCheck(myCheck.creator)"
       class="aside ma-0"
       icon
       @click.stop="remove(myCheck)"
@@ -72,7 +77,8 @@ import {
   mdiCheckCircleOutline,
   mdiCloseCircleOutline,
   mdiDelete,
-  mdiPencil
+  mdiPencil,
+  mdiFormatText
 } from "@mdi/js";
 
 @Component({
@@ -135,15 +141,32 @@ export default class ModifyActions extends Vue {
     if (this.userState.isAdmin()) {
       return true;
     }
+    if (this.userState.isEditor()) {
+      return true;
+    }
+    return this.userState.displayName == creator;
+  }
+
+  canDeleteCheck(creator: string): boolean {
+    if (this.userState.isAdmin()) {
+      return true;
+    }
+    if (this.userState.isEditor()) {
+      return true;
+    }
     return this.userState.displayName == creator;
   }
 
   canApprove(check: CheckBase) {
-    return this.userState.isAdmin() && !check.approved;
+    return (
+      (this.userState.isAdmin() || this.userState.isEditor()) && !check.approved
+    );
   }
 
   canRevokeApprove(check: CheckBase) {
-    return this.userState.isAdmin() && check.approved;
+    return (
+      (this.userState.isAdmin() || this.userState.isEditor()) && check.approved
+    );
   }
 
   remove(check: CheckBase) {
@@ -185,6 +208,7 @@ export default class ModifyActions extends Vue {
   private editIcon = mdiPencil;
   private approvedIcon = mdiCheckCircleOutline;
   private unapprovedIcon = mdiCloseCircleOutline;
+  private viewRawIcon = mdiFormatText;
 }
 </script>
 
