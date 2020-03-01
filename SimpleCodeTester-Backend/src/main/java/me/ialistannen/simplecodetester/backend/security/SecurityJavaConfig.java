@@ -74,7 +74,6 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/check-category/delete/**").hasRole("ADMIN")
         .antMatchers("/check-category/add-new/**").hasRole("ADMIN")
         .antMatchers("/check-category/rename/**").hasRole("ADMIN")
-        .antMatchers("/checks/approve").hasRole("ADMIN")
         .antMatchers("/actuator/prometheus").permitAll()
         .anyRequest().authenticated();
   }
