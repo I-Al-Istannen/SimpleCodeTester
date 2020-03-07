@@ -179,9 +179,16 @@ public class TestRunEndpoint {
         if (!entry.getName().endsWith(".java")) {
           continue;
         }
-        // Skip hidden files. Java classes can never start with a `.` so this is fine
+        // Skip hidden files. Java classes can never start with a "." so this is okay
         if (entry.getName().startsWith(".")) {
           continue;
+        }
+        // Skip hidden files. Java classes can never start with a "." so this is okay
+        if (entry.getName().contains("/") && !entry.getName().endsWith("/")) {
+          String fileName = entry.getName().substring(entry.getName().lastIndexOf("/") + 1);
+          if (fileName.startsWith(".")) {
+            continue;
+          }
         }
 
         StringOutputStream stringOutputStream = new StringOutputStream();
