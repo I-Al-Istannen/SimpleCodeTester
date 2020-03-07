@@ -30,9 +30,9 @@ export default class CheckCategorySelection extends Vue {
   }
 
   get allCheckCategories() {
-    return (this.$store as Store<
-      RootState
-    >).state.checkcategory.categories.sort((a, b) => b.id - a.id);
+    return (this.$store as Store<RootState>).state.checkcategory.categories
+      .slice()
+      .sort((a, b) => b.id - a.id);
   }
 
   mounted() {
