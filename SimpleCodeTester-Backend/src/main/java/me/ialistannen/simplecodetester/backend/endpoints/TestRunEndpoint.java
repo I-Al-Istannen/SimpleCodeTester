@@ -175,7 +175,12 @@ public class TestRunEndpoint {
         if (entry.isDirectory()) {
           continue;
         }
+        // Skip non-java files
         if (!entry.getName().endsWith(".java")) {
+          continue;
+        }
+        // Skip hidden files. Java classes can never start with a `.` so this is fine
+        if (entry.getName().startsWith(".")) {
           continue;
         }
 
