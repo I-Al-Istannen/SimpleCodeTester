@@ -93,10 +93,11 @@ public class SlaveManager {
    * @param submission the submission to run
    * @param checks the payload json of all {@link Check}s to run
    * @param uid the UID of the submission
+   * @return the created process
    */
-  public void runSubmission(Submission submission, List<String> checks, String uid) {
+  public Process runSubmission(Submission submission, List<String> checks, String uid) {
     pendingSubmissions.put(uid, new SubmissionCheckEntry(submission, checks));
-    untrustedCodeJvmStarter.startSlave(port, uid, classpath);
+    return untrustedCodeJvmStarter.startSlave(port, uid, classpath);
   }
 
   private void runServer() {

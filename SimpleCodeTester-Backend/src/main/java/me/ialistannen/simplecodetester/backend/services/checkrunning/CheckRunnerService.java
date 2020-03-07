@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toList;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.Sla
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.StartedCheck;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.SubmissionResult;
 import me.ialistannen.simplecodetester.submission.Submission;
+import me.ialistannen.simplecodetester.util.StringOutputStream;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -104,12 +107,24 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
           .sorted(Comparator.comparingInt(String::length))
           .collect(toList());
 
-      slaveManager.runSubmission(submission, checksToRun, userId);
+      Process process = slaveManager.runSubmission(submission, checksToRun, userId);
 
       try {
-        if (!semaphore.tryAcquire(maxComputationTimeSeconds + 20, TimeUnit.SECONDS)) {
+        StringOutputStream outputStream = new StringOutputStream();
+        Thread thread = new Thread(() -> {
+          try (InputStream out = process.getErrorStream()) {
+            out.transferTo(outputStream);
+          } catch (IOException e) {
+            log.info("Reading from runner threw exception", e);
+          }
+        });
+        thread.start();
+        process.waitFor(maxComputationTimeSeconds, TimeUnit.SECONDS);
+        thread.interrupt();
+        // Wait after process death
+        if (!semaphore.tryAcquire(2, TimeUnit.SECONDS)) {
           throw new CheckRunningFailedException(
-              "Not sure, but I got no message. Maybe the slave died horribly?"
+              "The slave is dead and I got no message. Output:\n" + outputStream.toString()
           );
         }
       } catch (InterruptedException e) {
@@ -118,6 +133,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
         runningChecks.remove(userId);
         submissionDurationTimer.record(Duration.between(start, Instant.now()));
         queueLengthCounter.decrementAndGet();
+        process.toHandle().destroyForcibly();
       }
 
       if (check.getCompilationOutput() != null) {
