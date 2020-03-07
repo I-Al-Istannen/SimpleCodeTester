@@ -164,7 +164,7 @@ public class TestRunEndpoint {
     Map<String, String> files = new HashMap<>();
 
     if (file == null) {
-      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No file given!");
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No file uploaded!");
     }
 
     long uncompressedSize = 0;
@@ -176,10 +176,7 @@ public class TestRunEndpoint {
           continue;
         }
         if (!entry.getName().endsWith(".java")) {
-          return ResponseUtil.error(
-              HttpStatus.BAD_REQUEST,
-              String.format("File '%s' does not end with '.java'", entry.getName())
-          );
+          continue;
         }
 
         StringOutputStream stringOutputStream = new StringOutputStream();
@@ -270,7 +267,7 @@ public class TestRunEndpoint {
   private ResponseEntity<Object> testMultipleFiles(Map<String, String> files, String userId,
       long categoryId) {
     if (files.isEmpty()) {
-      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No files given.");
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No java files received!");
     }
 
     Submission submission = ImmutableSubmission.builder()
