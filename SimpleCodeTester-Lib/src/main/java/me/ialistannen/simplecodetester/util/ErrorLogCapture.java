@@ -19,11 +19,14 @@ public class ErrorLogCapture {
   }
 
   /**
-   * Stops capturing the {@link System#err} output.
+   * Stops capturing the {@link System#err} output. Can be called multiple times, it just has no
+   * further effect in these cases.
    */
   public void stopCapture() {
-    System.setErr(originalError);
-    originalError = null;
+    if (originalError != null) {
+      System.setErr(originalError);
+      originalError = null;
+    }
   }
 
   /**

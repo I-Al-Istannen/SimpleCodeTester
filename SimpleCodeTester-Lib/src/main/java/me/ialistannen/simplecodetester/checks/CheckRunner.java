@@ -72,6 +72,8 @@ public class CheckRunner {
           .output(e.getOutputLines())
           .build();
     } catch (Throwable e) { // user checks should not crash everything
+      capture.stopCapture();
+      e.printStackTrace();
       return ImmutableCheckResult.builder()
           .message(getRootCauseMessage(findRootCause(e)))
           .check(check.name())
