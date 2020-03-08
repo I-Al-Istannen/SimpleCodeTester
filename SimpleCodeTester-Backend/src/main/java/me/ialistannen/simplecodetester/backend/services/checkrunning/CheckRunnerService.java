@@ -125,6 +125,7 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
         if (!semaphore.tryAcquire(2, TimeUnit.SECONDS)) {
           throw new CheckRunningFailedException(
               "The slave is dead and I got no message. Output:\n" + outputStream.toString()
+                  + "\n" + (process.isAlive() ? "Process still running" : process.exitValue())
           );
         }
       } catch (InterruptedException e) {
