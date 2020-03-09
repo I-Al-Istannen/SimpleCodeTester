@@ -91,6 +91,7 @@ public class MessageClient implements Runnable {
     }
 
     LOGGER.info("Closed thread!");
+    executor.shutdownNow();
   }
 
   private void writeQueue(DataOutputStream dataOutputStream) throws IOException {
