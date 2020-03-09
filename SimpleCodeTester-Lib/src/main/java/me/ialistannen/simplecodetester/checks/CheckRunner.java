@@ -16,6 +16,7 @@ import me.ialistannen.simplecodetester.exceptions.UnsupportedIoException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.util.ErrorLogCapture;
+import me.ialistannen.simplecodetester.util.ExceptionUtil;
 
 /**
  * A class that runs a given suit of tests against a {@link CompiledSubmission}, reporting the
@@ -87,9 +88,10 @@ public class CheckRunner {
   }
 
   private String getRootCauseMessage(Throwable rootCause) {
-    return rootCause.getMessage() == null
+    String message = rootCause.getMessage() == null
         ? rootCause.getClass().getSimpleName()
         : rootCause.getMessage();
+    return message + "\n\nStacktrace:\n" + ExceptionUtil.getStacktrace(rootCause);
   }
 
   private void disableSystemInAndOut() {
