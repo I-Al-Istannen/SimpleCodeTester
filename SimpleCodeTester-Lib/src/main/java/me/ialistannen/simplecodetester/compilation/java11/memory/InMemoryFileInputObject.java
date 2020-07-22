@@ -1,4 +1,4 @@
-package me.ialistannen.simplecodetester.compilation.java8.memory;
+package me.ialistannen.simplecodetester.compilation.java11.memory;
 
 import java.nio.file.Paths;
 import javax.tools.SimpleJavaFileObject;

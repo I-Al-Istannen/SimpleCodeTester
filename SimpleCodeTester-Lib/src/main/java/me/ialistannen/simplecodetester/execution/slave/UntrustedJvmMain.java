@@ -15,7 +15,7 @@ import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckRunner;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.compilation.Compiler;
-import me.ialistannen.simplecodetester.compilation.java8.memory.Java8InMemoryCompiler;
+import me.ialistannen.simplecodetester.compilation.java11.memory.Java11InMemoryCompiler;
 import me.ialistannen.simplecodetester.exceptions.CompilationException;
 import me.ialistannen.simplecodetester.execution.MessageClient;
 import me.ialistannen.simplecodetester.jvmcommunication.protocol.masterbound.CompilationFailed;
@@ -104,7 +104,7 @@ public class UntrustedJvmMain {
   }
 
   private CompiledSubmission compile(Submission submission) {
-    Compiler compiler = new Java8InMemoryCompiler();
+    Compiler compiler = new Java11InMemoryCompiler();
     CompiledSubmission compiledSubmission = compiler.compileSubmission(submission);
 
     if (!compiledSubmission.compilationOutput().successful()) {

@@ -1,4 +1,4 @@
-package me.ialistannen.simplecodetester.compilation.java8.memory;
+package me.ialistannen.simplecodetester.compilation.java11.memory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

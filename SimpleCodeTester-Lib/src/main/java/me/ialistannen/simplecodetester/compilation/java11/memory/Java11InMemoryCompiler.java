@@ -1,4 +1,4 @@
-package me.ialistannen.simplecodetester.compilation.java8.memory;
+package me.ialistannen.simplecodetester.compilation.java11.memory;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -30,7 +30,7 @@ import me.ialistannen.simplecodetester.submission.Submission;
 /**
  * A java 8 compiler that works in-memory.
  */
-public class Java8InMemoryCompiler implements Compiler {
+public class Java11InMemoryCompiler implements Compiler {
 
   @Override
   public CompiledSubmission compileSubmission(Submission submission) {

@@ -1,4 +1,4 @@
-package me.ialistannen.simplecodetester.compilation.java8.memory;
+package me.ialistannen.simplecodetester.compilation.java11.memory;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -11,13 +11,13 @@ import me.ialistannen.simplecodetester.submission.Submission;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class Java8InMemoryCompilerTest {
+class Java11InMemoryCompilerTest {
 
-  private Java8InMemoryCompiler inMemoryCompiler;
+  private Java11InMemoryCompiler inMemoryCompiler;
 
   @BeforeEach
   void setupCompiler() {
-    inMemoryCompiler = new Java8InMemoryCompiler();
+    inMemoryCompiler = new Java11InMemoryCompiler();
   }
 
   @Test
