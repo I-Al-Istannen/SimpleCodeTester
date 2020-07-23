@@ -6,28 +6,54 @@
         <!-- Key is set so the component will be recreated when the path changes. -->
         <!-- The profile view needs this to fetch the correct data -->
         <router-view
-            :key="$route.fullPath"
-            @hide-nav-bar-actions="handleNavBarActionsVisibilityChange"
+          :key="$route.fullPath"
+          @hide-nav-bar-actions="handleNavBarActionsVisibilityChange"
         />
+        <theme-selector @useDarkTheme="setDarkTheme"></theme-selector>
       </v-container>
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
-  import {Component, Vue} from "vue-property-decorator";
-  import NavigationBar from "./components/NavigationBar.vue";
+import { Component, Vue, Watch } from "vue-property-decorator";
+import NavigationBar from "./components/NavigationBar.vue";
+import { Store } from "vuex";
+import { RootState } from "./store/types";
+import ThemeSelector from "./components/ThemeSelector.vue";
 
-  @Component({
+@Component({
   components: {
-    "navigation-bar": NavigationBar
-  }
+    "navigation-bar": NavigationBar,
+    "theme-selector": ThemeSelector,
+  },
 })
 export default class App extends Vue {
   private actionsHidden = false;
 
   handleNavBarActionsVisibilityChange(hidden: boolean) {
     this.actionsHidden = hidden;
+  }
+
+  created() {
+    this.$vuetify.theme.dark = this.isDarkTheme;
+  }
+
+  private get typedStore() {
+    return this.$store as Store<RootState>;
+  }
+
+  private setDarkTheme(darkTheme: boolean) {
+    this.typedStore.commit("user/darkThemeSelected", darkTheme);
+  }
+
+  @Watch("isDarkTheme")
+  private onDarkThemeChanged() {
+    this.$vuetify.theme.dark = this.isDarkTheme;
+  }
+
+  private get isDarkTheme() {
+    return this.typedStore.state.user.darkThemeSelected();
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div v-show="lines.length > 0" ref="container" class="container accent--text pa-2">
+  <div v-show="lines.length > 0" ref="container" class="container pa-2">
     <span v-for="(line, index) in lines" :key="index" :class="lineStyle(line)">
       <span v-if="getPrefix(line).length > 0" class="prefix">{{ getPrefix(line) }}</span>
       <span class="rest">{{ getRest(line) }}</span>
@@ -100,36 +100,39 @@ export default class HighlightInterleavedIo extends Vue {
 }
 .container-border {
   border: 1px solid;
+  border-color: var(--v-code_border-base);
 }
 
 .line {
   display: block;
   font-family: monospace;
   white-space: pre-wrap;
+  word-break: break-all;
 }
 .line.error {
   background-color: transparent !important;
 }
 
 .line.input {
-  color: royalblue;
+  color: var(--v-line_input-base);
 }
 .line.parameter {
-  color: gray;
+  color: var(--v-line_parameter-base);
 }
 .line.output {
-  color: #455a64;
+  color: var(--v-line_output-base);
 }
 .line.error > .rest {
-  color: tomato;
+  color: var(--v-line_error-base);
 }
 .line.other {
-  color: green;
+  color: var(--v-line_other-base);
 }
-.line:not(.other) > .prefix {
+.line:not(.other) > .prefix,
+.line:not(.other)::before {
   font-weight: bold;
   padding-right: 2px;
-  color: lightgray;
+  color: var(--v-line_prefix-base);
 }
 
 .faithful-line > .prefix:empty {

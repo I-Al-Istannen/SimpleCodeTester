@@ -15,6 +15,7 @@ export interface UserState {
   roles: Array<string>;
   token: string | null;
   refreshToken: string | null;
+  _darkThemeSelected: boolean | undefined;
 
   /**
    * Returns whether the current refresh token is valid.
@@ -30,6 +31,12 @@ export interface UserState {
    * Whether the current user is an editor.
    */
   isEditor(): boolean;
+
+  darkThemeSelected(): boolean;
+
+  browserPrefersDarkTheme(): boolean;
+
+  usesBrowsersThemePreferences(): boolean;
 }
 
 export interface CheckResultState {
@@ -94,7 +101,7 @@ export class FileCheckResult {
 export enum CheckResultType {
   SUCCESSFUL = "SUCCESSFUL",
   FAILED = "FAILED",
-  NOT_APPLICABLE = "NOT_APPLICABLE"
+  NOT_APPLICABLE = "NOT_APPLICABLE",
 }
 
 export class IoLine {
@@ -112,7 +119,7 @@ export enum IoLineType {
   INPUT = "input",
   OUTPUT = "output",
   PARAMETER = "parameter",
-  OTHER = "other"
+  OTHER = "other",
 }
 
 export class UserInfo {

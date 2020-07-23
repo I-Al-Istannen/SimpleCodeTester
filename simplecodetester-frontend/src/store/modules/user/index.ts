@@ -10,6 +10,7 @@ export const state: UserState = {
   displayName: "Bobby Tables",
   token: null,
   refreshToken: null,
+  _darkThemeSelected: undefined,
   isTokenValid(): boolean {
     return isJwtValid(this.refreshToken);
   },
@@ -18,7 +19,19 @@ export const state: UserState = {
   },
   isEditor: function() {
     return this.roles.includes("ROLE_EDITOR");
-  }
+  },
+  darkThemeSelected: function() {
+    if (this._darkThemeSelected !== undefined) {
+      return this._darkThemeSelected;
+    }
+    return this.browserPrefersDarkTheme();
+  },
+  browserPrefersDarkTheme: function() {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  },
+  usesBrowsersThemePreferences: function() {
+    return this._darkThemeSelected === undefined;
+  },
 };
 
 const namespaced: boolean = true;
@@ -27,5 +40,5 @@ export const user: Module<UserState, RootState> = {
   namespaced,
   state,
   mutations,
-  actions
+  actions,
 };

@@ -47,7 +47,7 @@
                     </v-expansion-panel-header>
                     <v-expansion-panel-content>
                       <v-card>
-                        <v-card-text class="grey lighten-3">
+                        <v-card-text class="check-background">
                           <check-display :checkBase="item" :content="checks.checkContents[item.id]"></check-display>
                         </v-card-text>
                       </v-card>
@@ -79,8 +79,8 @@ import { mdiMagnify } from "@mdi/js";
 @Component({
   components: {
     "modify-actions": ModifyActions,
-    "check-display": CheckDisplay
-  }
+    "check-display": CheckDisplay,
+  },
 })
 export default class CheckList extends Vue {
   private checks: CheckCollection = new CheckCollection();
@@ -89,8 +89,8 @@ export default class CheckList extends Vue {
   private footerProps = {
     itemsPerPageOptions: [4, 10, 20, 50, 100],
     pagination: {
-      rowsPerPage: this.rowsPerPage
-    }
+      rowsPerPage: this.rowsPerPage,
+    },
   };
 
   get rowsPerPage(): number {
@@ -114,11 +114,11 @@ export default class CheckList extends Vue {
     this.checks
       .fetchContent(checkBase)
       .then(() => this.setError(""))
-      .catch(error => this.setError(extractErrorMessage(error)));
+      .catch((error) => this.setError(extractErrorMessage(error)));
   }
 
   filterHandlingApproved(items: any[], search: string): any[] {
-    return items.filter(val => {
+    return items.filter((val) => {
       return this.checkMatchesSearch(val, search);
     });
   }
@@ -150,7 +150,7 @@ export default class CheckList extends Vue {
     this.checks
       .fetchAll()
       .then(() => this.setError(""))
-      .catch(error => this.setError(extractErrorMessage(error)));
+      .catch((error) => this.setError(extractErrorMessage(error)));
   }
 
   // ICONS
@@ -159,6 +159,9 @@ export default class CheckList extends Vue {
 </script>
 
 <style scoped>
+.check-background {
+  background-color: var(--v-check_background-base);
+}
 .check-header {
   justify-content: space-between;
   align-items: center;

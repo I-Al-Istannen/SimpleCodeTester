@@ -1,5 +1,5 @@
-import { MutationTree } from 'vuex';
-import { UserState, UserInfo } from '../../types';
+import { MutationTree } from "vuex";
+import { UserState, UserInfo } from "../../types";
 
 export const mutations: MutationTree<UserState> = {
   setRefreshToken(state: UserState, token: string) {
@@ -13,9 +13,12 @@ export const mutations: MutationTree<UserState> = {
   },
   logout(state: UserState) {
     state.userName = "";
-    state.roles = []
-    state.token = ""
-    state.refreshToken = ""
-    state.displayName = "Bobby Tables"
-  }
+    state.roles = [];
+    state.token = "";
+    state.refreshToken = "";
+    state.displayName = "Bobby Tables";
+  },
+  darkThemeSelected(state: UserState, selected: boolean) {
+    state._darkThemeSelected = selected;
+  },
 };

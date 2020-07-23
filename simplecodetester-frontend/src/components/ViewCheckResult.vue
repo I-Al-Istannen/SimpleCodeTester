@@ -24,7 +24,7 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-card>
-                  <v-card-text class="grey lighten-3">
+                  <v-card-text class="check-background">
                     <!-- Inner panel -->
                     <v-expansion-panels multiple accordion class="elevation-4">
                       <v-expansion-panel v-for="(result, i) in item.results" :key="i">
@@ -35,27 +35,27 @@
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
                           <v-card>
-                            <v-card-text class="grey lighten-3">
+                            <v-card-text class="check-background">
                               <div>
                                 <v-btn
                                   v-if="result.output.length > 0"
                                   outlined
                                   class="elevation-1 mb-4 ml-0 mr-4"
-                                  color="#4169e1"
+                                  color="highlighted_button_color"
                                   @click="copyFullInput(result, findButtonOnCopy($event.srcElement))"
                                 >Copy full input</v-btn>
                                 <v-btn
                                   v-if="result.failed() && result.output.length > 0"
                                   outlined
                                   class="elevation-1 mb-4 mr-4"
-                                  color="#4169e1"
+                                  color="highlighted_button_color"
                                   @click="copyInputUntilError(result, findButtonOnCopy($event.srcElement))"
                                 >Copy input until error</v-btn>
                                 <v-btn
                                   v-if="result.output.length > 0"
                                   outlined
                                   class="elevation-1 mb-4"
-                                  color="#4169e1"
+                                  color="highlighted_button_color"
                                   @click="copyFullOutput(result, findButtonOnCopy($event.srcElement))"
                                 >Copy full output</v-btn>
                               </div>
@@ -97,11 +97,11 @@ import {
   FileCheckResult,
   IoLine,
   IoLineType,
-  RootState
+  RootState,
 } from "@/store/types";
 import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
 import { mdiCheckCircleOutline, mdiCloseCircleOutline } from "@mdi/js";
-import TextfieldFileAddComponent from './checksubmit/TextfieldFileAddComponent.vue';
+import TextfieldFileAddComponent from "./checksubmit/TextfieldFileAddComponent.vue";
 
 class SingleFileResult {
   fileName: string;
@@ -138,24 +138,24 @@ class SingleFileResult {
 @Component({
   components: {
     "interleaved-io": HighlightInterleavedIo,
-    "display-files-component": TextfieldFileAddComponent
-  }
+    "display-files-component": TextfieldFileAddComponent,
+  },
 })
 export default class Test extends Vue {
   private items: Array<SingleFileResult> = [];
 
   get allPassed() {
-    return this.items.every(elem => elem.successful);
+    return this.items.every((elem) => elem.successful);
   }
 
   get failCount() {
-    return this.items.filter(elem => !elem.successful).length;
+    return this.items.filter((elem) => !elem.successful).length;
   }
 
   get failureBooleanArray() {
     return Array.from(this.items)
       .slice()
-      .map(it => !it.successful);
+      .map((it) => !it.successful);
   }
   // We just ignore it, as we  don't need it
   set failureBooleanArray(array: Array<boolean>) {}
@@ -169,8 +169,8 @@ export default class Test extends Vue {
 
   copyFullInput(result: FileCheckResult, element: HTMLElement) {
     let input = result.output
-      .filter(line => line.lineType === IoLineType.INPUT)
-      .map(line => line.content)
+      .filter((line) => line.lineType === IoLineType.INPUT)
+      .map((line) => line.content)
       .join("\n");
     this.copyText(input, element);
   }
@@ -188,14 +188,17 @@ export default class Test extends Vue {
     linesUntilError.pop();
 
     let input = linesUntilError
-      .filter(line => line.lineType === IoLineType.INPUT)
-      .map(line => line.content)
+      .filter((line) => line.lineType === IoLineType.INPUT)
+      .map((line) => line.content)
       .join("\n");
     this.copyText(input, element);
   }
 
   copyFullOutput(result: FileCheckResult, element: HTMLElement) {
-    this.copyText(result.output.map(line => line.content).join("\n"), element);
+    this.copyText(
+      result.output.map((line) => line.content).join("\n"),
+      element
+    );
   }
 
   private copyText(text: string, element: HTMLElement) {
@@ -228,7 +231,7 @@ export default class Test extends Vue {
 
     checkResult.results.forEach(({ key, value }) => {
       const allSuccessful = value.every(
-        elem => elem.result !== CheckResultType.FAILED
+        (elem) => elem.result !== CheckResultType.FAILED
       );
 
       this.items.push(new SingleFileResult(key, value.slice(), allSuccessful));
@@ -253,6 +256,9 @@ export default class Test extends Vue {
 
 
 <style scoped>
+.check-background {
+  background-color: var(--v-check_background-base);
+}
 .monospaced {
   font-family: monospace;
   overflow-x: auto;
