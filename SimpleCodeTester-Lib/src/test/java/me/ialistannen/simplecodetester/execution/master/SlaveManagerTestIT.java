@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
 import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
@@ -37,6 +39,8 @@ import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class SlaveManagerTestIT {
 
@@ -294,6 +298,8 @@ class SlaveManagerTestIT {
                     + "java.util.EnumSet.of(java.nio.file.StandardOpenOption.CREATE);"
                     + "new java.util.EnumMap<>(java.nio.file.StandardOpenOption.class);"
                     + "Terminal.printLine(Character.getName(':'));"
+                    + "java.util.stream.Stream.of(2, 5).parallel().forEach(it -> {});"
+                    + "java.nio.file.StandardOpenOption.class.getEnumConstants();"
                     + "}"
                     + "}"
             )
@@ -320,6 +326,47 @@ class SlaveManagerTestIT {
                 ))
                 .build()
         ))
+    );
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "System.exit(0);",
+      "Runtime.getRuntime().exec(\"hey\");",
+      "Runtime.class.getDeclaredField(\"version\").setAccessible(true);",
+  })
+  void blocksEvilClasses(String methodString) throws InterruptedException {
+    runSubmission(
+        ImmutableSubmission.builder()
+            .putFiles("Test.java",
+                "import edu.kit.informatik.Terminal;"
+                    + "public class Test {"
+                    + "public static void main(String[] args) throws Exception {"
+                    + methodString
+                    + "}"
+                    + "}"
+            )
+            .build(),
+        "COLON\n> hello\n> quit"
+    );
+
+    assertNotNull(result);
+    assertNull(result.compilationOutput);
+    assertNull(result.error);
+    assertEquals(1, result.toResult().fileResults().size());
+    assertEquals(1, result.toResult().fileResults().size());
+    assertNotNull(result.toResult().fileResults().get("Test"));
+    List<CheckResult> results = result.toResult().fileResults().get("Test");
+    assertEquals(1, results.size());
+    CheckResult result = results.get(0);
+
+    assertEquals(ResultType.FAILED, result.result());
+    assertEquals("", result.errorOutput());
+    assertEquals("", result.message());
+    System.out.println(result);
+    assertTrue(
+        result.output().stream().map(Object::toString).collect(Collectors.joining(""))
+            .contains("access denied")
     );
   }
 

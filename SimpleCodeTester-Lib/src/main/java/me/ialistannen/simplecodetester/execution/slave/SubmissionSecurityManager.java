@@ -1,55 +1,81 @@
 package me.ialistannen.simplecodetester.execution.slave;
 
+import java.lang.StackWalker.StackFrame;
 import java.security.Permission;
-import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 public class SubmissionSecurityManager extends SecurityManager {
 
-  private static final String[] WHITELISTED_CLASSES = {
-      // CallSite is needed for lambdas
-      "java.lang.invoke.CallSite",
-      // enum set/map because they do a reflective invocation to get the universe
-      // let's hope that is actually safe and EnumSet/Map can not be used to invoke arbitrary code
-      "java.util.EnumSet", "java.util.EnumMap",
-      // Character.getName accesses a system resource (uniName.dat)
-      "java.lang.CharacterName",
-      // Local specific decimal formatting
-      "java.text.DecimalFormatSymbols",
-      // Enum.valueOf and pray there is no gadget here
-      "java.lang.Enum",
-      // Use the fork join pool (e.g. Stream.parallel)
-      "java.util.concurrent.ForkJoinPool$InnocuousForkJoinWorkerThreadFactory"
-  };
+  private final Map<String, Function<StackFrame, Boolean>> STACK_BASED_WHITELIST = new HashMap<>();
+
+  SubmissionSecurityManager() {
+    // Allow calls to getUniverse as that is used to enumerate the enum and uses reflection
+    STACK_BASED_WHITELIST.put(
+        "java.util.EnumSet",
+        frame -> frame.getMethodName().equals("getUniverse")
+    );
+    // Allow calls to getKeyUniverse, as that is used to enumerate the enum and uses reflection
+    STACK_BASED_WHITELIST.put(
+        "java.util.EnumMap",
+        frame -> frame.getMethodName().equals("getKeyUniverse")
+    );
+    // ignore all lambda creations
+    STACK_BASED_WHITELIST.put(
+        "java.lang.invoke.CallSite", ignored -> true
+    );
+    // Character.getName accesses a system resource (uniName.dat)
+    STACK_BASED_WHITELIST.put(
+        "java.lang.CharacterName", ignored -> true
+    );    // Character.getName accesses a system resource (uniName.dat)
+    STACK_BASED_WHITELIST.put(
+        "java.util.concurrent.ForkJoinPool$InnocuousForkJoinWorkerThreadFactory", ignored -> true
+    );
+  }
 
   @Override
   public void checkPermission(Permission perm) {
+    if (comesFromMe()) {
+      return;
+    }
+
+    // lambda init call
     if (containsWhitelistedClass()) {
       return;
     }
 
-    Class<?>[] classContext = getClassContext();
-    for (int i = 0; i < classContext.length; i++) {
-      Class<?> aClass = classContext[i];
-
-      if (i > 1 && aClass == SubmissionSecurityManager.class) {
-        return;
-      }
-
-      if (aClass.getClassLoader() instanceof SubmissionClassLoader) {
-        super.checkPermission(perm);
-        return;
-      }
+    // allow all but Jshell to bypass this
+    if (comesFromJshell()) {
+      super.checkPermission(perm);
     }
   }
 
+  private boolean comesFromJshell() {
+    return Arrays.stream(getClassContext())
+        .anyMatch(aClass -> aClass.getName().contains("REPL"));
+  }
+
+  private boolean comesFromMe() {
+    return Arrays.stream(getClassContext())
+        // one frame for this method, one frame for the call to checkPermission
+        .skip(2)
+        // see if the security manager appears anywhere else in the context. If so, we initiated
+        // the call
+        .anyMatch(aClass -> aClass == getClass());
+  }
+
   private boolean containsWhitelistedClass() {
-    for (Class<?> aClass : getClassContext()) {
-      for (String s : WHITELISTED_CLASSES) {
-        if (s.equals(aClass.getName())) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return StackWalker.getInstance().walk(stream ->
+        stream.anyMatch(this::isWhitelisted)
+    );
+  }
+
+  private boolean isWhitelisted(StackFrame frame) {
+    Function<StackFrame, Boolean> function = STACK_BASED_WHITELIST
+        .get(frame.getClassName());
+
+    return function != null && function.apply(frame);
   }
 }
