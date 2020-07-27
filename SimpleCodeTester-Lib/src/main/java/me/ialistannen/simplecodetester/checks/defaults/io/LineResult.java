@@ -66,6 +66,7 @@ public class LineResult {
    * The type of the line.
    */
   public enum Type {
+    PARAMETER,
     ERROR,
     INPUT,
     OUTPUT,

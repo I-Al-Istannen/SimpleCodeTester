@@ -63,6 +63,14 @@ class ResultBlock {
   void addInput(String input) {
     results.add(new LineResult(Type.INPUT, input));
   }
+  /**
+   * Adds a parameter line.
+   *
+   * @param parameterValue the parameter to add
+   */
+  void addParameter(String parameterValue) {
+    results.add(new LineResult(Type.PARAMETER, parameterValue));
+  }
 
   /**
    * Adds an error line

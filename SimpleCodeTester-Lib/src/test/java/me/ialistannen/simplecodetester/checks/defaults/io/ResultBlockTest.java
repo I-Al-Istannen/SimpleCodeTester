@@ -27,6 +27,9 @@ class ResultBlockTest {
         case INPUT:
           block.addInput(line.getContent());
           break;
+        case PARAMETER:
+          block.addParameter(line.getContent());
+          break;
       }
     }
 

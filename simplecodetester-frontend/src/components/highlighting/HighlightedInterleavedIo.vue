@@ -46,11 +46,6 @@ export default class HighlightInterleavedIo extends Vue {
 
     cssClasses[line.lineType] = true;
 
-    if (!this.faithfulFormat) {
-      if (line.lineType === IoLineType.INPUT) {
-        cssClasses["prepend-input-label"] = true;
-      }
-    }
     cssClasses["faithful-line"] = this.faithfulFormat;
 
     return cssClasses;
@@ -147,5 +142,9 @@ export default class HighlightInterleavedIo extends Vue {
 
 .line.input:not(.faithful-line)::before {
   content: "> ";
+}
+
+.line.parameter:not(.faithful-line)::before {
+  content: "$$ ";
 }
 </style>

@@ -156,6 +156,8 @@ public class InterleavedStaticIOCheck implements Check {
 
     ResultBlock resultBlock = new ResultBlock();
 
+    parameters.forEach(resultBlock::addParameter);
+
     // pop all blocks that have some output and a corresponding matcher
     while (outputBlocks.hasNext() && matcherBlocks.hasNext()) {
       if (!outputBlocks.isAtStart()) {
