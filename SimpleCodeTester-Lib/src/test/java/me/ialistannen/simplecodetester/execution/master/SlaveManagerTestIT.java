@@ -312,7 +312,6 @@ class SlaveManagerTestIT {
     assertNull(result.error);
     assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.toResult().fileResults(),
         Map.of("Test", List.of(
             ImmutableCheckResult.builder()
                 .message("")
@@ -325,7 +324,8 @@ class SlaveManagerTestIT {
                     new LineResult(Type.INPUT, "quit")
                 ))
                 .build()
-        ))
+        )),
+        result.toResult().fileResults()
     );
   }
 
@@ -363,7 +363,6 @@ class SlaveManagerTestIT {
     assertEquals(ResultType.FAILED, result.result());
     assertEquals("", result.errorOutput());
     assertEquals("", result.message());
-    System.out.println(result);
     assertTrue(
         result.output().stream().map(Object::toString).collect(Collectors.joining(""))
             .contains("access denied")

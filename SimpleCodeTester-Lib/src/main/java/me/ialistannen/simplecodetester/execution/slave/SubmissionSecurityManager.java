@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import me.ialistannen.simplecodetester.execution.SubmissionClassLoader;
 
 public class SubmissionSecurityManager extends SecurityManager {
 
@@ -46,15 +47,25 @@ public class SubmissionSecurityManager extends SecurityManager {
       return;
     }
 
-    // allow all but Jshell to bypass this
-    if (comesFromJshell()) {
+    if (comesFromUserCode()) {
       super.checkPermission(perm);
     }
   }
 
-  private boolean comesFromJshell() {
-    return Arrays.stream(getClassContext())
-        .anyMatch(aClass -> aClass.getName().contains("REPL"));
+  private boolean comesFromUserCode() {
+    Class<?>[] classContext = getClassContext();
+    for (int i = 0; i < classContext.length; i++) {
+      Class<?> aClass = classContext[i];
+
+      if (i > 1 && aClass == SubmissionSecurityManager.class) {
+        return false;
+      }
+
+      if (aClass.getClassLoader() instanceof SubmissionClassLoader) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean comesFromMe() {
