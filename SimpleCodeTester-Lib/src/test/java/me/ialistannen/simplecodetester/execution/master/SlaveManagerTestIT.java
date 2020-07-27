@@ -299,7 +299,7 @@ class SlaveManagerTestIT {
                     + "new java.util.EnumMap<>(java.nio.file.StandardOpenOption.class);"
                     + "Terminal.printLine(Character.getName(':'));"
                     + "java.util.stream.Stream.of(2, 5).parallel().forEach(it -> {});"
-                    + "java.nio.file.StandardOpenOption.class.getEnumConstants();"
+                    + "java.nio.file.StandardCopyOption.class.getEnumConstants();"
                     + "}"
                     + "}"
             )

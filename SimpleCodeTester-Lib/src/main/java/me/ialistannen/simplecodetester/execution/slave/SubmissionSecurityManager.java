@@ -23,6 +23,11 @@ public class SubmissionSecurityManager extends SecurityManager {
         "java.util.EnumMap",
         frame -> frame.getMethodName().equals("getKeyUniverse")
     );
+    // Allow calls to getEnumConstants (it uses setAccessible)
+    STACK_BASED_WHITELIST.put(
+        "java.lang.Class",
+        frame -> frame.getMethodName().equals("getEnumConstants")
+    );
     // ignore all lambda creations
     STACK_BASED_WHITELIST.put(
         "java.lang.invoke.CallSite", ignored -> true
