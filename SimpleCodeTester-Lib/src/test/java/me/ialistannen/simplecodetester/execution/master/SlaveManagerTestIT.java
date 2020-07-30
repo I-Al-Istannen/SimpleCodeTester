@@ -300,6 +300,7 @@ class SlaveManagerTestIT {
                     + "Terminal.printLine(Character.getName(':'));"
                     + "java.util.stream.Stream.of(2, 5).parallel().forEach(it -> {});"
                     + "java.nio.file.StandardCopyOption.class.getEnumConstants();"
+                    + "java.net.StandardProtocolFamily.valueOf(\"INET\");"
                     + "}"
                     + "}"
             )

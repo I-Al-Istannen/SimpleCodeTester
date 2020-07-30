@@ -23,10 +23,11 @@ public class SubmissionSecurityManager extends SecurityManager {
         "java.util.EnumMap",
         frame -> frame.getMethodName().equals("getKeyUniverse")
     );
-    // Allow calls to getEnumConstants (it uses setAccessible)
+    // Allow calls to Enum.valueOf and Class.getEnumConstants (it uses setAccessible)
     STACK_BASED_WHITELIST.put(
         "java.lang.Class",
         frame -> frame.getMethodName().equals("getEnumConstants")
+            || frame.getMethodName().equals("getEnumConstantsShared")
     );
     // ignore all lambda creations
     STACK_BASED_WHITELIST.put(
