@@ -94,7 +94,11 @@ public class CheckManageEndpoint {
               .put("name", codeCheck.getName())
               .put("creator", codeCheck.getCreator().getName())
               .put("checkType", codeCheck.getCheckType().name())
-              .put("approved", codeCheck.isApproved());
+              .put("approved", codeCheck.isApproved())
+              .put("creationTime", codeCheck.getCreationTime().toEpochMilli());
+
+          codeCheck.getUpdateTime()
+              .ifPresent(it -> object.put("updateTime", it.toEpochMilli()));
 
           ObjectNode categoryNode = objectMapper.createObjectNode();
           categoryNode.put("id", codeCheck.getCategory().getId());

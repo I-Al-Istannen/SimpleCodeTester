@@ -1,5 +1,6 @@
 package me.ialistannen.simplecodetester.backend.services.checks;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,8 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CodeCheckService {
 
-  private CheckRepository checkRepository;
-  private CheckSerializer checkSerializer;
+  private final CheckRepository checkRepository;
+  private final CheckSerializer checkSerializer;
 
   public CodeCheckService(CheckRepository checkRepository) {
     this.checkRepository = checkRepository;
@@ -114,6 +115,7 @@ public class CodeCheckService {
     codeCheck.setText(payload);
     codeCheck.setName(newCheck.name());
     codeCheck.setApproved(!newCheck.needsApproval());
+    codeCheck.setUpdateTime(Instant.now());
     checkRepository.save(codeCheck);
 
     return true;
@@ -132,7 +134,7 @@ public class CodeCheckService {
       return false;
     }
     check.get().setApproved(approved);
-    checkRepository.save(check.get()).isApproved();
+    checkRepository.save(check.get());
 
     return true;
   }

@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.sun.istack.Nullable;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -22,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.ialistannen.simplecodetester.checks.CheckType;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -53,6 +57,12 @@ public class CodeCheck {
   @NotNull
   private CheckCategory category;
 
+  @ColumnDefault("{ts '1970-01-01'}")
+  @NotNull
+  private Instant creationTime;
+  @Nullable
+  private Instant updateTime;
+
   /**
    * Whether the check is approved and allowed to run.
    */
@@ -83,8 +93,12 @@ public class CodeCheck {
     this.text = text;
     this.creator = creator;
     this.category = category;
+    this.creationTime = Instant.now();
   }
 
+  public Optional<Instant> getUpdateTime() {
+    return Optional.ofNullable(updateTime);
+  }
 
   @Override
   public boolean equals(Object o) {
