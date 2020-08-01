@@ -1,7 +1,22 @@
 <template>
   <div>
     <div class="caption">Category</div>
-    <v-chip class="ml-0 mb-3" disabled label color="accent" outlined>{{ checkBase.category.name }}</v-chip>
+    <v-chip class="ml-0 mb-3 mr-3" disabled label color="accent" outlined>{{ checkBase.category.name }}</v-chip>
+    <v-chip
+      class="ml-0 mb-3 mr-3"
+      disabled
+      label
+      color="muted"
+      outlined
+    >Created at {{ checkBase.creationTime }}</v-chip>
+    <v-chip
+      v-if="checkBase.updateTime"
+      class="ml-0 mb-3"
+      disabled
+      label
+      color="muted"
+      outlined
+    >Updated at {{ checkBase.updateTime }}</v-chip>
     <div v-if="content">
       <span v-if="content.class === 'StaticInputOutputCheck'">
         <v-textarea class="monospace-font" label="Input" :value="content.check.input" readonly></v-textarea>
@@ -46,8 +61,8 @@ require("prismjs/components/prism-java.min.js");
   components: {
     prism: Prism,
     "interleaved-io": HighlightInterleavedIo,
-    "display-files-component": TextfieldFileAddComponent,
-  },
+    "display-files-component": TextfieldFileAddComponent
+  }
 })
 export default class CheckDisplay extends Vue {
   @Prop()
@@ -59,7 +74,7 @@ export default class CheckDisplay extends Vue {
   get interleavedLines() {
     let lines = (this.content.check.input as string).split(/\n/);
 
-    return lines.map((line) => {
+    return lines.map(line => {
       if (line.startsWith("> ")) {
         return new IoLine(IoLineType.INPUT, line);
       } else if (line.startsWith("<")) {

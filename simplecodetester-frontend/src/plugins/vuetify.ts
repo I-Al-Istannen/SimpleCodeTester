@@ -29,6 +29,7 @@ export default new Vuetify({
         highlighted_button_color: "#4169e1",
         check_background: "#eeeeee",
         code_border: "#E040FB",
+        muted: "#848484"
       },
       dark: {
         primary: "#4CAF50",
@@ -43,6 +44,7 @@ export default new Vuetify({
         highlighted_button_color: "#e980fc",
         check_background: "#303030",
         code_border: "#808080",
+        muted: "#7c8c8f"
       },
     },
   },

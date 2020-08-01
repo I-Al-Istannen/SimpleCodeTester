@@ -1,6 +1,11 @@
 import Axios from 'axios';
 import { CheckCategory } from '@/store/types';
 
+const dateFormat = new Intl.DateTimeFormat(
+  (new Intl.NumberFormat()).resolvedOptions().locale,
+  { dateStyle: "medium", timeStyle: "short" } as any
+)
+
 /**
  * The base of a check, containing all metadata but no content.
  */
@@ -11,6 +16,8 @@ export class CheckBase {
   approved: boolean;
   category: CheckCategory;
   checkType: string | null;
+  creationTime: string;
+  updateTime: string | null;
 
   constructor(
     id: number,
@@ -18,7 +25,9 @@ export class CheckBase {
     name: string,
     approved: boolean,
     category: CheckCategory,
-    checkType: string | null
+    checkType: string | null,
+    creationTime: string,
+    updateTime: string | null
   ) {
     this.id = id;
     this.creator = creator;
@@ -26,6 +35,26 @@ export class CheckBase {
     this.approved = approved;
     this.category = category;
     this.checkType = checkType;
+    this.creationTime = creationTime;
+    this.updateTime = updateTime;
+  }
+
+  static fromJson(json: any): CheckBase {
+    const creationTime = dateFormat.format(new Date(json.creationTime))
+    const updateTime = json.updateTime === undefined
+      ? null
+      : dateFormat.format(new Date(json.updateTime));
+
+    return new CheckBase(
+      json.id,
+      json.creator,
+      json.name,
+      json.approved,
+      new CheckCategory(json.category.name, json.category.id),
+      json.checkType,
+      creationTime,
+      updateTime
+    );
   }
 }
 
@@ -177,7 +206,7 @@ export class CheckCollection {
    */
   async fetchAll(): Promise<void> {
     const response = await Axios.get("/checks/get-all");
-    this.checkBases = (response.data as Array<CheckBase>);
+    this.checkBases = response.data.map(CheckBase.fromJson);
     const scratchObject = ({} as any);
     this.checkBases.forEach(it => (scratchObject[it.id] = undefined));
     // This is needed as vue can not observe property addition/deletion
