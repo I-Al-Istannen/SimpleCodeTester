@@ -15,8 +15,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <immutables.version>2.8.3</immutables.version>
-    <junit.version>5.6.0</junit.version>
+    <immutables.version>2.8.8</immutables.version>
+    <junit.version>5.7.0-M1</junit.version>
     <slf4j.version>1.7.30</slf4j.version>
     <logback.version>1.2.3</logback.version>
     <gson.version>2.8.6</gson.version>
@@ -137,6 +137,12 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>edu.washington.cs.types.checker</groupId>
+          <artifactId>checker-framework</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -170,6 +176,13 @@
       <artifactId>hamcrest-library</artifactId>
       <version>${hamcrest.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305 -->
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.2</version>
     </dependency>
 
   </dependencies>
