@@ -335,6 +335,8 @@ class SlaveManagerTestIT {
       "System.exit(0);",
       "Runtime.getRuntime().exec(\"hey\");",
       "Runtime.class.getDeclaredField(\"version\").setAccessible(true);",
+      "java.lang.reflect.Constructor<AccessTestClass> c = AccessTestClass.class.getDeclaredConstructor(); "
+          + "c.setAccessible(true); c.newInstance();",
   })
   void blocksEvilClasses(String methodString) throws InterruptedException {
     runSubmission(
@@ -346,6 +348,13 @@ class SlaveManagerTestIT {
                     + methodString
                     + "}"
                     + "}"
+            )
+            .putFiles(
+                "AccessTestClass.java",
+                "public class AccessTestClass {\n"
+                    + "\n"
+                    + "  private AccessTestClass() {}\n"
+                    + "}\n"
             )
             .build(),
         "COLON\n> hello\n> quit"

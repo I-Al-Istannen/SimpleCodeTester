@@ -36,9 +36,15 @@ public class SubmissionSecurityManager extends SecurityManager {
     // Character.getName accesses a system resource (uniName.dat)
     STACK_BASED_WHITELIST.put(
         "java.lang.CharacterName", ignored -> true
-    );    // Character.getName accesses a system resource (uniName.dat)
+    );
+    // Stream.parallel
     STACK_BASED_WHITELIST.put(
         "java.util.concurrent.ForkJoinPool$InnocuousForkJoinWorkerThreadFactory", ignored -> true
+    );
+    // Optimized constructor generation for Constructor.newInstance
+    STACK_BASED_WHITELIST.put(
+        "jdk.internal.reflect.MethodAccessorGenerator",
+        stackFrame -> stackFrame.getMethodName().equals("generate")
     );
   }
 
