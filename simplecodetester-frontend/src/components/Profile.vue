@@ -28,17 +28,20 @@
           </template>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" class="mr-4" :to="{ name: 'checkCode' }">
-            Check code
-            <v-icon right dark>{{ checkCodeIcon }}</v-icon>
-          </v-btn>
-
-          <v-btn color="primary" class="ml-4" :to="{ name: 'submitCheck' }">
-            Submit check
-            <v-icon right dark>{{ submitCheckIcon }}</v-icon>
-          </v-btn>
-          <v-spacer></v-spacer>
+          <v-row no-gutters justify="space-around">
+            <v-col cols="auto" class="mb-3">
+              <v-btn color="primary" :to="{ name: 'checkCode' }">
+                Check code
+                <v-icon right dark>{{ checkCodeIcon }}</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn color="primary" :to="{ name: 'submitCheck' }">
+                Submit check
+                <v-icon right dark>{{ submitCheckIcon }}</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-card-actions>
       </v-card>
     </v-flex>
