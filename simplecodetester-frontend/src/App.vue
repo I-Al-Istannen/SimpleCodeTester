@@ -9,9 +9,9 @@
           :key="$route.fullPath"
           @hide-nav-bar-actions="handleNavBarActionsVisibilityChange"
         />
-        <theme-selector @useDarkTheme="setDarkTheme"></theme-selector>
       </v-container>
     </v-main>
+    <theme-selector @useDarkTheme="setDarkTheme"></theme-selector>
   </v-app>
 </template>
 
@@ -25,8 +25,8 @@ import ThemeSelector from "./components/ThemeSelector.vue";
 @Component({
   components: {
     "navigation-bar": NavigationBar,
-    "theme-selector": ThemeSelector,
-  },
+    "theme-selector": ThemeSelector
+  }
 })
 export default class App extends Vue {
   private actionsHidden = false;
