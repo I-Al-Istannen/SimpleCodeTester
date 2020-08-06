@@ -4,7 +4,7 @@
     item-key="name"
     hide-default-footer
     no-data-text
-    :style="{ '--outline-color': outlineColor }"
+    :class="[plainOutline ? 'plain' : '']"
   >
     <template v-slot:default="{ items }">
       <v-container v-for="(file, index) in items" :key="index" class="field-container mt-4 py-0">
@@ -60,8 +60,8 @@ export default class TextfieldFileAddComponent extends Vue {
   @Prop({ default: () => [] })
   value!: Array<IOCheckFile>;
 
-  @Prop({ default: "#e1e4e8" })
-  outlineColor!: string;
+  @Prop({ default: false })
+  plainOutline!: boolean;
 
   @Prop({ default: "Datei Hinzufügen" })
   fileUploadPrompt!: string;
@@ -89,8 +89,15 @@ export default class TextfieldFileAddComponent extends Vue {
 .field-container .row,
 .field-container {
   border-style: solid;
-  border-color: var(--outline-color);
+  border-color: var(--v-code_border-base);
 }
+
+.plain .field-container .row,
+.plain .field-container {
+  border-style: solid;
+  border-color: var(--v-muted-base);
+}
+
 .field-container .row {
   border-width: 1px 0 1px 0;
 }

@@ -19,7 +19,7 @@
     <v-container v-if="!readOnly">
       <v-row justify="center">
         <v-col cols="10">
-          <textfield-add-file :fileUploadPrompt="fileUploadPrompt" v-model="files"></textfield-add-file>
+          <textfield-add-file :plainOutline="true" :fileUploadPrompt="fileUploadPrompt" v-model="files"></textfield-add-file>
         </v-col>
       </v-row>
     </v-container>

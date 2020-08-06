@@ -67,7 +67,6 @@
                                 :lines="result.output"
                               ></interleaved-io>
                               <display-files-component
-                                outlineColor="#eeaef9"
                                 :value="result.files"
                                 :editable="false"
                               ></display-files-component>

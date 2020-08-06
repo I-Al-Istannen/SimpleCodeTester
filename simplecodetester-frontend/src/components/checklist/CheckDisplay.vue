@@ -32,7 +32,6 @@
       </span>
       <span v-if="content.check.files.length != 0">
         <display-files-component
-          outlineColor="#eeaef9"
           :value="content.check.files"
           :editable="false"
         ></display-files-component>
