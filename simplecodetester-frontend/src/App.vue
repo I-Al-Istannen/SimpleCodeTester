@@ -1,7 +1,7 @@
 <template>
   <v-app id="app">
     <navigation-bar :actionsHidden="actionsHidden"></navigation-bar>
-    <v-content>
+    <v-main>
       <v-container fluid fill-height>
         <!-- Key is set so the component will be recreated when the path changes. -->
         <!-- The profile view needs this to fetch the correct data -->
@@ -11,7 +11,7 @@
         />
         <theme-selector @useDarkTheme="setDarkTheme"></theme-selector>
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
