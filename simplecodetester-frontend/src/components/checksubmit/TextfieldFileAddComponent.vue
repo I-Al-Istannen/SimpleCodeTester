@@ -9,7 +9,7 @@
     <template v-slot:default="{ items }">
       <v-container v-for="(file, index) in items" :key="index" class="field-container mt-4 py-0">
         <v-row>
-          <v-col cols="auto" class="d-flex field-title py-0">
+          <v-col cols="auto" class="d-flex field-title py-0 align-center">
             <v-text-field :readonly="!editable" v-model="file.name" label="Dateiname mit Endung"></v-text-field>
             <v-btn v-if="editable" icon color="red" @click="deleteFile(file)">
               <v-icon>{{ deleteIcon }}</v-icon>
