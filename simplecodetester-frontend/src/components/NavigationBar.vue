@@ -218,9 +218,6 @@ export default class NavigationBar extends Vue {
   font-weight: 500;
 }
 
-.selected {
-  background-color: #e8e8e8;
-}
 </style>
 
 <style>
