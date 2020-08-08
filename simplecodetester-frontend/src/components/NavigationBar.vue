@@ -144,7 +144,8 @@ export default class NavigationBar extends Vue {
       icon: this.checkCategoryIcon,
       title: "Manage check categories",
       route: "/view-check-categories",
-      predicatePath: "viewCheckCategories"
+      predicatePath: "viewCheckCategories",
+      admin: true
     },
     {
       icon: this.usersIcon,
