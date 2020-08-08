@@ -10,7 +10,7 @@
             class="mx-5 mb-2"
             v-model="search"
             :append-icon="searchIcon"
-            label="Search..."
+            label="Search for category, id, check name or author..."
             single-line
           ></v-text-field>
 
