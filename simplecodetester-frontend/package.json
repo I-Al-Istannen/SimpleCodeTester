@@ -11,7 +11,7 @@
     "axios": "^0.19.0",
     "highlight.js": "^9.13.1",
     "material-design-icons-iconfont": "^5.0.1",
-    "prismjs": "^1.15.0",
+    "prismjs": "^1.21.0",
     "vue": "^2.5.17",
     "vue-class-component": "^7.1.0",
     "vue-prism-component": "^1.1.1",
