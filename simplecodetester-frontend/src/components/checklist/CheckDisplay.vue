@@ -41,24 +41,16 @@
 </template>
 
 <script lang="ts">
-/// <reference path="../../vue-prism-component.d.ts" />
-
 import Vue from "vue";
 import Component from "vue-class-component";
-import "prismjs";
-import "prismjs/themes/prism.css";
-import Prism from "vue-prism-component";
 import { CheckBase } from "@/components/checklist/CheckTypes";
 import { Prop } from "vue-property-decorator";
 import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
 import { IoLine, IoLineType } from "@/store/types";
 import TextfieldFileAddComponent from "../checksubmit/TextfieldFileAddComponent.vue";
 
-require("prismjs/components/prism-java.min.js");
-
 @Component({
   components: {
-    prism: Prism,
     "interleaved-io": HighlightInterleavedIo,
     "display-files-component": TextfieldFileAddComponent
   }
