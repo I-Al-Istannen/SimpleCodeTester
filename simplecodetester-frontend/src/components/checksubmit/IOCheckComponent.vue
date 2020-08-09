@@ -3,8 +3,8 @@
     <v-text-field label="Check name" v-model="name"></v-text-field>
     <v-textarea
       :readonly="readOnly"
-      auto-grow
       class="monospace-font"
+      rows="15"
       :label="inputFieldLabel"
       v-model="input"
     ></v-textarea>

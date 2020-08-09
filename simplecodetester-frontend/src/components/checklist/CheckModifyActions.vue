@@ -10,7 +10,13 @@
         </v-btn>
       </template>
       <v-card>
-        <v-card-text>
+        <v-card-actions class="pa-0 ma-0 top-actions">
+          <v-spacer></v-spacer>
+          <v-btn @click="editDialogOpened = false" icon>
+            <v-icon>{{ closeIcon }}</v-icon>
+          </v-btn>
+        </v-card-actions>
+        <v-card-text class="pt-2">
           <io-check-component
             v-if="isIoCheck"
             :readOnly="!canModifyCheck(myCheck.creator)"
@@ -78,7 +84,8 @@ import {
   mdiCloseCircleOutline,
   mdiDelete,
   mdiPencil,
-  mdiFormatText
+  mdiFormatText,
+  mdiClose
 } from "@mdi/js";
 
 @Component({
@@ -209,12 +216,19 @@ export default class ModifyActions extends Vue {
   private approvedIcon = mdiCheckCircleOutline;
   private unapprovedIcon = mdiCloseCircleOutline;
   private viewRawIcon = mdiFormatText;
+  private closeIcon = mdiClose;
 }
 </script>
 
 <style scoped>
 .aside {
   flex: none !important;
+}
+
+.top-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 
 #wrapper {
