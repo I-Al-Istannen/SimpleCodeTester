@@ -140,8 +140,8 @@ public class InterleavedStaticIOCheck implements Check {
    * Returns the output interleaved with error messages, input and matcher results.
    *
    * @param programOutput the program output
-   * @param interjectBeforeLeftovers the lines to interject before leftover matchers or input. This
-   * can be due to a crash leading to input being left over or something else.
+   * @param interjectBeforeLeftovers the lines to interject before leftover matchers or input.
+   *     This can be due to a crash leading to input being left over or something else.
    * @return an interleaved version of the output, combined with input and error messages
    */
   private List<LineResult> getOutput(List<List<String>> programOutput,
@@ -193,7 +193,15 @@ public class InterleavedStaticIOCheck implements Check {
       MatcherBlock matcherBlock = matcherBlocks.next();
 
       while (matcherBlock.hasNext()) {
-        resultBlock.addError(matcherBlock.next().getError());
+        InterleavedIoMatcher matcher = matcherBlock.next();
+        // Append errors. If there are none, the matcher probably didn't fail
+        // (like a Comment Matcher)
+        // Just append its string form then... Yea, not really nice.
+        if (matcher.getError() != null) {
+          resultBlock.addError(matcher.getError());
+        } else {
+          resultBlock.addOther(matcher.toString());
+        }
       }
     }
 
