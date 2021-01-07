@@ -86,7 +86,7 @@ import {
   mdiLock,
   mdiPlusCircleOutline,
   mdiShape,
-  mdiStarHalf
+  mdiStarHalfFull
 } from "@mdi/js";
 
 @Component({})
@@ -96,7 +96,7 @@ export default class NavigationBar extends Vue {
 
   // ================ Icons ====================
   private addCheckIcon = mdiPlusCircleOutline;
-  private checkCodeIcon = mdiStarHalf;
+  private checkCodeIcon = mdiStarHalfFull;
   private profileIcon = mdiAccount;
   private lastCheckResultIcon = mdiHistory;
   private allChecksIcon = mdiFormatListBulleted;
