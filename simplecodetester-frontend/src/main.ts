@@ -11,8 +11,7 @@ Vue.config.productionTip = false
 
 Vue.use(Router)
 
-// Axios.defaults.baseURL = "https://codetester.ialistannen.de"
-Axios.defaults.baseURL = "http://localhost:8081"
+Axios.defaults.baseURL = process.env.VUE_APP_BASE_URL
 
 Axios.interceptors.request.use(
   async request => {
