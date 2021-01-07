@@ -14,8 +14,8 @@
   <properties>
     <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <micrometer.version>1.5.3</micrometer.version>
-    <jose4j.version>0.7.2</jose4j.version>
+    <micrometer.version>1.6.2</micrometer.version>
+    <jose4j.version>0.7.4</jose4j.version>
     <h2.version>1.4.200</h2.version>
     <commons-text.version>1.9</commons-text.version>
     <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
@@ -24,14 +24,6 @@
   <build>
     <finalName>SimpleCodeTester</finalName>
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
-        <configuration>
-          <release>11</release>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

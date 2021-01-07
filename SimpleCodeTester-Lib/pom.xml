@@ -12,9 +12,9 @@
   <artifactId>SimpleCodeTester-Lib</artifactId>
 
   <properties>
-    <asm.version>9.0-beta</asm.version>
+    <asm.version>9.0</asm.version>
     <joor.version>0.9.13</joor.version>
-    <jackson.version>2.11.1</jackson.version>
+    <jackson.version>2.12.0</jackson.version>
   </properties>
 
   <dependencies>
