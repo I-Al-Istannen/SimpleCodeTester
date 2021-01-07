@@ -35,7 +35,7 @@ export default class ChangeOwnPassword extends Vue {
     data.append("newPassword", password);
 
     Axios.post("/set-own-password", data)
-      .then(response => {
+      .then(() => {
         this.messageType = "success";
         this.message = "Successfully changed your password!";
       })

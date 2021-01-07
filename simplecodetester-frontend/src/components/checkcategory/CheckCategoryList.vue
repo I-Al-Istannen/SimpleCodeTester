@@ -22,13 +22,13 @@
             :items-per-page="rowsPerPage"
             @update:items-per-page="setRowsPerPage"
           >
-            <template v-slot:header.name="{ header }">
+            <template v-slot:[`header.name`]="{ header }">
               <span class="title">{{ header.text }}</span>
             </template>
-            <template v-slot:header.id="{ header }">
+            <template v-slot:[`header.id`]="{ header }">
               <span class="title">{{ header.text }}</span>
             </template>
-            <template v-slot:header.actions="{ header }">
+            <template v-slot:[`header.actions`]="{ header }">
               <span class="title">{{ header.text }}</span>
             </template>
 
@@ -179,7 +179,7 @@ export default class CheckCategoryList extends Vue {
     this.handlePromise(
       this.$store
         .dispatch("checkcategory/deleteCheckCategory", category)
-        .then(it => {
+        .then(() => {
           this.message = "";
         })
     );

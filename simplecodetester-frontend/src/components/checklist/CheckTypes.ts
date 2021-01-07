@@ -85,7 +85,7 @@ export class IOCheck {
    * Returns a playload that can be passed as the "payload" in a post request to update or add a check.
    */
   serializeForSending(checkClass: string): string {
-    let sendableCheck: any = {}
+    const sendableCheck: any = {}
     Object.assign(sendableCheck, this);
     sendableCheck.files = undefined
 
@@ -123,7 +123,7 @@ export class CheckCollection {
         id: check.id
       }
     });
-    let content = response.data.content;
+    const content = response.data.content;
 
     this.checkContents[check.id] = this.parseCheckResponse(content)
 
@@ -155,7 +155,7 @@ export class CheckCollection {
         return;
       }
     } else {
-      let parsed = JSON.parse(content);
+      const parsed = JSON.parse(content);
       checkClass = "StaticInputOutputCheck";
       ioCheck = new IOCheck(
         parsed.input.join("\n"),

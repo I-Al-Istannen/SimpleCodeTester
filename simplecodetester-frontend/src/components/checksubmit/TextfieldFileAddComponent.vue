@@ -50,7 +50,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { mdiDelete, mdiPlusCircle } from "@mdi/js";
 import { IOCheckFile } from "../checklist/CheckTypes";
-import { Prop, Watch } from "vue-property-decorator";
+import { Prop } from "vue-property-decorator";
 
 @Component
 export default class TextfieldFileAddComponent extends Vue {

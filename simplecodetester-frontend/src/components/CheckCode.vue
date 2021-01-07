@@ -94,7 +94,7 @@ export default class CheckCode extends Vue {
 
   private handleUploadResult(promise: AxiosPromise<any>) {
     promise
-      .then(response => this.$router.push("/view-check-result"))
+      .then(() => this.$router.push("/view-check-result"))
       .catch(error => {
         this.error = extractErrorMessage(error);
       })

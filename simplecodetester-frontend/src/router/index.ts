@@ -11,7 +11,7 @@ import CheckCategoryList from '@/components/checkcategory/CheckCategoryList.vue'
 import ChangeOwnPassword from '@/components/users/ChangeOwnPassword.vue'
 import store from '@/store';
 
-let router = new Router({
+const router = new Router({
   routes: [
     {
       path: '/',

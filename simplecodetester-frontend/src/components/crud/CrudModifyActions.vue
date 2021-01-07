@@ -74,7 +74,7 @@ export default class CrudModifyActions<
 
   handlePromise(promise: Promise<any>) {
     promise
-      .then(success => this.emitError(""))
+      .then(() => this.emitError(""))
       .catch(error => this.emitError(extractErrorMessage(error)))
       .finally(() => this.$emit("requestFinished"));
   }

@@ -33,7 +33,7 @@ export function isJwtValid(jwtString: string | null | undefined): boolean {
 }
 
 function isJwtExpired(jwt: string): boolean {
-  let parts = jwt.split('.')
+  const parts = jwt.split('.')
 
   if (parts.length !== 3) {
     return false

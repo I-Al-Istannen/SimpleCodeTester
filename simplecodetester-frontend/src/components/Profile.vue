@@ -9,10 +9,10 @@
           <p class="text-center subtitle-1 mb-3">This is your current data:</p>
           <template>
             <v-data-table :headers="headers" :items="items" class="elevation-1" hide-default-footer>
-              <template v-slot:header.name="{ header }">
+              <template v-slot:[`header.name`]="{ header }">
                 <span class="title">{{ header.text }}</span>
               </template>
-              <template v-slot:header.value="{ header }">
+              <template v-slot:[`header.value`]="{ header }">
                 <span class="title">{{ header.text }}</span>
               </template>
 

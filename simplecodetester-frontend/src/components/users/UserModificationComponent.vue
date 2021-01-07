@@ -29,8 +29,8 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import { Watch, Prop } from "vue-property-decorator";
-import { User, UserToAdd, Users } from "@/components/users/Users";
+import { Prop } from "vue-property-decorator";
+import { UserToAdd, Users } from "@/components/users/Users";
 
 @Component
 export default class UserModificationComponent extends Vue {
