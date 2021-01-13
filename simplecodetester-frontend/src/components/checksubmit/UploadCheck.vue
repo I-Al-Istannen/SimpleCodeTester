@@ -47,18 +47,16 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import Axios, { AxiosError, AxiosPromise } from "axios";
 import { extractErrorMessage } from "@/util/requests";
-import HighlightedCode from "@/components/highlighting/HighlightedCode.vue";
 import CheckSubmitErrorDialogVue from "@/components/checksubmit/CheckSubmitErrorDialog.vue";
 import IOCheckComponent from "@/components/checksubmit/IOCheckComponent.vue";
 import { CheckCategory, RootState } from "@/store/types";
 import CheckCategorySelection from "@/components/CheckCategorySelection.vue";
 import { IOCheck } from "@/components/checklist/CheckTypes";
 import { mdiCloudUpload } from "@mdi/js";
-import SubmitHelpDialog from './SubmitHelpDialog.vue';
+import SubmitHelpDialog from "./SubmitHelpDialog.vue";
 
 @Component({
   components: {
-    "highlighted-code": HighlightedCode,
     "check-submit-error-dialog": CheckSubmitErrorDialogVue,
     "io-check": IOCheckComponent,
     "check-category-selection": CheckCategorySelection,

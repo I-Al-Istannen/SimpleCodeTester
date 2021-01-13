@@ -61,15 +61,8 @@
                               </div>
                               <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                               <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
-                              <interleaved-io
-                                :border="true"
-                                :faithfulFormat="false"
-                                :lines="result.output"
-                              ></interleaved-io>
-                              <display-files-component
-                                :value="result.files"
-                                :editable="false"
-                              ></display-files-component>
+                              <highlighted-code :io-lines="result.output" readonly></highlighted-code>
+                              <display-files-component :value="result.files" :editable="false"></display-files-component>
                             </v-card-text>
                           </v-card>
                         </v-expansion-panel-content>
@@ -96,11 +89,11 @@ import {
   FileCheckResult,
   IoLine,
   IoLineType,
-  RootState,
+  RootState
 } from "@/store/types";
-import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
 import { mdiCheckCircleOutline, mdiCloseCircleOutline } from "@mdi/js";
 import TextfieldFileAddComponent from "./checksubmit/TextfieldFileAddComponent.vue";
+import HighlightedCode from "./highlighting/HighlightedCode.vue";
 
 class SingleFileResult {
   fileName: string;
@@ -136,9 +129,9 @@ class SingleFileResult {
 
 @Component({
   components: {
-    "interleaved-io": HighlightInterleavedIo,
     "display-files-component": TextfieldFileAddComponent,
-  },
+    "highlighted-code": HighlightedCode
+  }
 })
 export default class Test extends Vue {
   private items: Array<SingleFileResult> = [];

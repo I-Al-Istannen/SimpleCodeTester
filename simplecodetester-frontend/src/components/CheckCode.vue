@@ -15,7 +15,7 @@
 
             <v-tab ripple>Paste source</v-tab>
             <v-tab-item class="flex">
-              <highlighted-code v-model="code"></highlighted-code>
+              <v-textarea v-model="code"></v-textarea>
             </v-tab-item>
           </v-tabs>
         </v-card-text>
@@ -36,7 +36,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import HighlightedCode from "./highlighting/HighlightedCode.vue";
 import MultiFileSelect from "./upload/MultiFileSelect.vue";
 import { AxiosPromise } from "axios";
 import { extractErrorMessage } from "@/util/requests";
@@ -46,7 +45,6 @@ import { mdiCloudUpload } from "@mdi/js";
 
 @Component({
   components: {
-    "highlighted-code": HighlightedCode,
     "multi-file-select": MultiFileSelect,
     "check-category-selection": CheckCategorySelection
   }

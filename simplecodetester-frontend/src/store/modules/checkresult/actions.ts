@@ -1,6 +1,6 @@
 import { ActionTree } from 'vuex';
 import axios, { AxiosPromise } from 'axios';
-import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType, CheckCategory, IoLine } from '../../types';
+import { CheckResultState, CheckResult, FileCheckResult, UserLoginInfo, Pair, CheckResultType, CheckCategory, IoLine, IoLineType } from '../../types';
 import { RootState } from '../../types';
 
 /**
@@ -30,7 +30,16 @@ function parseCheckResponse(json: any): CheckResult {
 
 function parseLines(lines: Array<any>): Array<IoLine> {
   return lines.map(line => {
-    return new IoLine(line.type.toLowerCase(), line.content);
+    let content = line.content
+    const lineType = line.type.toLowerCase();
+
+    if(lineType === IoLineType.INPUT) {
+      content = "> " + content;
+    } else if(lineType === IoLineType.PARAMETER) {
+      content = "$$ " + content
+    }
+
+    return new IoLine(lineType, content);
   })
 }
 

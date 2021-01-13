@@ -28,7 +28,7 @@
         ></v-textarea>
       </span>
       <span v-if="content.class === 'InterleavedStaticIOCheck'">
-        <interleaved-io :lines="interleavedLines" :faithfulFormat="true"></interleaved-io>
+        <highlighted-code :io-lines="interleavedLines" readonly></highlighted-code>
       </span>
       <span v-if="content.check.files.length != 0">
         <display-files-component
@@ -45,13 +45,13 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { CheckBase } from "@/components/checklist/CheckTypes";
 import { Prop } from "vue-property-decorator";
-import HighlightInterleavedIo from "@/components/highlighting/HighlightedInterleavedIo.vue";
 import { IoLine, IoLineType } from "@/store/types";
 import TextfieldFileAddComponent from "../checksubmit/TextfieldFileAddComponent.vue";
+import HighlightedCode from "../highlighting/HighlightedCode.vue";
 
 @Component({
   components: {
-    "interleaved-io": HighlightInterleavedIo,
+    "highlighted-code": HighlightedCode,
     "display-files-component": TextfieldFileAddComponent
   }
 })

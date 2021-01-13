@@ -1,13 +1,7 @@
 <template>
   <div>
     <v-text-field label="Check name" v-model="name"></v-text-field>
-    <v-textarea
-      :readonly="readOnly"
-      class="monospace-font"
-      rows="15"
-      :label="inputFieldLabel"
-      v-model="input"
-    ></v-textarea>
+    <highlighted-code class="mt-2" v-model="input" faithfulFormat border></highlighted-code>
     <v-textarea
       v-if="output !== null"
       readonly="readOnly"
@@ -33,10 +27,12 @@ import { Prop, Watch } from "vue-property-decorator";
 import { IOCheck, IOCheckFile } from "@/components/checklist/CheckTypes";
 import { mdiPlusCircle } from "@mdi/js";
 import TextfieldFileAddComponent from "./TextfieldFileAddComponent.vue";
+import HighlightedCode from "../highlighting/HighlightedCode.vue";
 
 @Component({
   components: {
-    "textfield-add-file": TextfieldFileAddComponent
+    "textfield-add-file": TextfieldFileAddComponent,
+    "highlighted-code": HighlightedCode
   }
 })
 export default class IOCheckComponent extends Vue {
