@@ -68,6 +68,7 @@ export default class HighlightedCode extends Vue {
 <style>
 .prism-editor__textarea {
   font-family: monospace !important;
+  word-break: break-all;
 }
 .prism-editor__textarea:focus {
   outline: none;
