@@ -16,16 +16,27 @@ export function guessLineType(line: string): IoLineType {
     return IoLineType.PARAMETER;
   }
 
+  if (line.startsWith("<e")) {
+    return IoLineType.ERROR;
+  }
+
   return IoLineType.OUTPUT;
 }
 
 /**
- * 
+ *
  * @param code the code to highlight
  */
 export function highlight(code: IoLine[]) {
   const resultSpans = code.map((line) => {
     const result: string[] = [];
+
+    // Dirty, but overwrite the type here. This is not really an error line, just an error output matcher.
+    // This means the backend sets the type to "OUTPUT", but for displaying it is nicer to work with "ERROR"
+    let type: IoLineType = line.lineType;
+    if (line.content === "<e") {
+      type = IoLineType.ERROR;
+    }
 
     if (getPrefix(line).length > 0) {
       result.push(`<span class="prefix">${escapeHtml(getPrefix(line))}</span>`);
@@ -36,7 +47,7 @@ export function highlight(code: IoLine[]) {
 
     const inner = result.join("");
 
-    const classes = ["line", "line-" + line.lineType].join(" ")
+    const classes = ["line", "line-" + type].join(" ");
     return `<span class="${classes}">${inner}</span>`;
   });
   return resultSpans.join("");

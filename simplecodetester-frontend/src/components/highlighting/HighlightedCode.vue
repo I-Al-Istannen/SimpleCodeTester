@@ -92,8 +92,9 @@ export default class HighlightedCode extends Vue {
 .line.line-output {
   color: var(--v-line_output-base);
 }
+.line.line-error > .prefix,
 .line.line-error > .rest {
-  color: var(--v-line_error-base);
+  color: var(--v-line_error-base) !important;
 }
 .line.line-other {
   color: var(--v-line_other-base);
