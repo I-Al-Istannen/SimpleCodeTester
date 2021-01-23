@@ -37,9 +37,6 @@ public class UntrustedCodeJvmStarter {
         // classpath only added when it is specified
         classpath.length == 0 ? "" : "-cp",
         String.join(":", classpath),
-        // policy
-        "-Djava.security.policy=="
-            + getClass().getResource("/SlavePolicy.policy").toExternalForm(),
         // main class
         UntrustedJvmMain.class.getName(),
         Integer.toString(port),

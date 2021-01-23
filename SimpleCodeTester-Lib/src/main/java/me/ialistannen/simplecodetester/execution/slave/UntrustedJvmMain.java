@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.Policy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -150,7 +151,8 @@ public class UntrustedJvmMain {
     int port = Integer.parseInt(args[0]);
     String uid = args[1];
 
-    System.setSecurityManager(new SubmissionSecurityManager());
+    Policy.setPolicy(new SlavePolicy());
+    System.setSecurityManager(new SecurityManager());
 
     new UntrustedJvmMain(port, uid).execute();
   }

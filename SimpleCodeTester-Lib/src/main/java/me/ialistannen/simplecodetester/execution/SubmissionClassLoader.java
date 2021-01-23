@@ -4,8 +4,13 @@ import static java.util.stream.Collectors.toMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.security.CodeSource;
+import java.security.Permissions;
+import java.security.ProtectionDomain;
+import java.security.SecureClassLoader;
+import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +28,7 @@ import me.ialistannen.simplecodetester.submission.Submission;
  * Those cached classes will be unique to this classloader, so each classloader has its own
  * instance.
  */
-public class SubmissionClassLoader extends URLClassLoader {
+public class SubmissionClassLoader extends SecureClassLoader {
 
   private final Map<String, byte[]> compiledClasses;
   private final Set<Class<?>> loadedSubmissionClasses;
@@ -36,7 +41,7 @@ public class SubmissionClassLoader extends URLClassLoader {
    */
   public SubmissionClassLoader(CompiledSubmission submission) {
     // Allow class requests to bubble up
-    super(new URL[0], SubmissionClassLoader.class.getClassLoader());
+    super(SubmissionClassLoader.class.getClassLoader());
 
     this.compiledClasses = submission.compiledFiles().stream()
         .collect(toMap(
@@ -51,11 +56,23 @@ public class SubmissionClassLoader extends URLClassLoader {
   protected Class<?> findClass(String name) throws ClassNotFoundException {
     if (compiledClasses.containsKey(name)) {
       byte[] bytes = compiledClasses.get(name);
-      Class<?> defineClass = defineClass(name, bytes, 0, bytes.length);
+      Class<?> defineClass = defineClass(name, bytes, 0, bytes.length, getProtectionDomain());
       loadedSubmissionClasses.add(defineClass);
       return defineClass;
     }
     return super.findClass(name);
+  }
+
+  private ProtectionDomain getProtectionDomain() {
+    CodeSource codeSource;
+    try {
+      codeSource = new CodeSource(new URL("file://submission"), (Certificate[]) null);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+    Permissions permissions = new Permissions();
+    permissions.setReadOnly();
+    return new ProtectionDomain(codeSource, permissions);
   }
 
   /**

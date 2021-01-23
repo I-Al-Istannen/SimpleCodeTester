@@ -337,6 +337,16 @@ class SlaveManagerTestIT {
       "Runtime.class.getDeclaredField(\"version\").setAccessible(true);",
       "java.lang.reflect.Constructor<AccessTestClass> c = AccessTestClass.class.getDeclaredConstructor(); "
           + "c.setAccessible(true); c.newInstance();",
+      "'java.security.Policy.setPolicy(new java.security.Policy() {"
+          + "public java.security.PermissionCollection getPermissions(java.security.ProtectionDomain domain) {"
+          + "  java.security.Permissions permissions = new java.security.Permissions();"
+          + "  permissions.add(new java.security.AllPermission());"
+          + "  return permissions;"
+          + "}"
+          + "public boolean implies(java.security.ProtectionDomain domain, java.security.Permission permission) {"
+          + "  return getPermissions(domain).implies(permission);"
+          + "}"
+          + "});'"
   })
   void blocksEvilClasses(String methodString) throws InterruptedException {
     runSubmission(
