@@ -123,6 +123,39 @@ export default class CheckList extends Vue {
     });
   }
 
+  private containsWordsInAnyOrder(needle: string, haystack: string): boolean {
+    const words = needle.split(" ");
+
+    for (const word of words) {
+      if (!haystack.includes(word)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private filterCategory(search: string, categoryName: string): boolean {
+    const words: string[] = [];
+
+    let soFar = "";
+    for (const char of search) {
+      if (char === " " && soFar !== "final" && soFar !== "task") {
+        words.push(soFar);
+        soFar = "";
+      } else {
+        soFar += char;
+      }
+    }
+    words.push(soFar);
+
+    for (const word of words) {
+      if (!categoryName.includes(word)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   checkMatchesSearch(check: CheckBase, search: string) {
     search = search.toLowerCase();
     if ("approved".startsWith(search) && check.approved) {
@@ -131,13 +164,13 @@ export default class CheckList extends Vue {
     if ("unapproved".startsWith(search) && !check.approved) {
       return true;
     }
-    if (check.name.toLowerCase().indexOf(search) !== -1) {
+    if (this.containsWordsInAnyOrder(search, check.name.toLowerCase())) {
       return true;
     }
-    if (check.creator.toLowerCase().indexOf(search) !== -1) {
+    if (this.containsWordsInAnyOrder(search, check.creator.toLowerCase())) {
       return true;
     }
-    if (check.category.name.toLowerCase().indexOf(search) !== -1) {
+    if (this.filterCategory(search, check.category.name.toLowerCase())) {
       return true;
     }
     if (check.id.toString().indexOf(search) !== -1) {
