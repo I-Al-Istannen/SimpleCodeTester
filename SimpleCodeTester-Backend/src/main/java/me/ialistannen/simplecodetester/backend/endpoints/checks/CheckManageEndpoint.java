@@ -111,7 +111,7 @@ public class CheckManageEndpoint {
   }
 
   @GetMapping("/checks/get-content")
-  public ResponseEntity<Object> getCheckContent(@RequestParam long id) {
+  public ResponseEntity<Object> getCheckContent(@RequestParam int id) {
     Optional<CodeCheck> check = checkService.getCheck(id);
 
     if (check.isEmpty()) {
@@ -164,7 +164,7 @@ public class CheckManageEndpoint {
    * @return true if the check was added
    */
   @PostMapping("/checks/add/{categoryId}")
-  public ResponseEntity<Object> addNew(@PathVariable("categoryId") long categoryId,
+  public ResponseEntity<Object> addNew(@PathVariable("categoryId") int categoryId,
       @RequestBody @Valid AddOrUpdateCheckRequest addRequest) {
     AuthenticatedJwtUser user = (AuthenticatedJwtUser) SecurityContextHolder.getContext()
         .getAuthentication()
@@ -223,7 +223,7 @@ public class CheckManageEndpoint {
   }
 
   @PostMapping("/checks/update/{checkId}")
-  public ResponseEntity<Object> updateCheck(@PathVariable("checkId") long id,
+  public ResponseEntity<Object> updateCheck(@PathVariable("checkId") int id,
       @RequestBody @NotEmpty AddOrUpdateCheckRequest changeRequest) {
     Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
@@ -270,7 +270,7 @@ public class CheckManageEndpoint {
    * @return true if the check was removed
    */
   @DeleteMapping("/checks/remove/{id}")
-  public ResponseEntity<Object> remove(@PathVariable long id) {
+  public ResponseEntity<Object> remove(@PathVariable int id) {
     Optional<CodeCheck> check = checkService.getCheck(id);
 
     if (check.isEmpty()) {
@@ -302,7 +302,7 @@ public class CheckManageEndpoint {
    * @return the new approve status
    */
   @PostMapping("/checks/approve")
-  public ResponseEntity<Boolean> approve(long id, boolean approved) {
+  public ResponseEntity<Boolean> approve(int id, boolean approved) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (!isAdmin(authentication) && !isEditor(authentication)) {

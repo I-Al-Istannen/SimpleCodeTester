@@ -12,10 +12,5 @@ cors:
   allowedOrigin:
     - "http://localhost:8080"
 
-spring:
-  datasource:
-    url: "jdbc:h2:mem:testDb"
-    initialization-mode: always
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
+database:
+  url: "jdbc:sqlite:target/unit-test.db"

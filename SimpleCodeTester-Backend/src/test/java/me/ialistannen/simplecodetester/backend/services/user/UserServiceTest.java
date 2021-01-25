@@ -7,12 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import lombok.SneakyThrows;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
+import me.ialistannen.simplecodetester.backend.services.config.DatabaseConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -92,7 +96,7 @@ class UserServiceTest {
     );
 
     assertThat(
-        userService.getUser("Test").map(User::getEnabled),
+        userService.getUser("Test").map(User::isEnabled),
         is(Optional.of(false))
     );
   }

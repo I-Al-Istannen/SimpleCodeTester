@@ -1,10 +1,7 @@
 package me.ialistannen.simplecodetester.backend.services.checks;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.repos.CheckCategoryRepository;
 import org.springframework.stereotype.Service;
@@ -12,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CheckCategoryService {
 
-  private CheckCategoryRepository repository;
+  private final CheckCategoryRepository repository;
 
   public CheckCategoryService(CheckCategoryRepository repository) {
     this.repository = repository;
@@ -24,8 +21,7 @@ public class CheckCategoryService {
    * @return all check categories
    */
   public List<CheckCategory> getAll() {
-    return StreamSupport.stream(repository.findAll().spliterator(), false)
-        .collect(toList());
+    return repository.findAll();
   }
 
   /**
@@ -34,7 +30,7 @@ public class CheckCategoryService {
    * @param id the id
    * @return the {@link CheckCategory} with that id
    */
-  public Optional<CheckCategory> getById(long id) {
+  public Optional<CheckCategory> getById(int id) {
     return repository.findById(id);
   }
 
@@ -45,7 +41,7 @@ public class CheckCategoryService {
    * @return the created category with its id field populated
    */
   public CheckCategory addCategory(String name) {
-    return repository.save(new CheckCategory(name));
+    return repository.save(name);
   }
 
   /**
@@ -55,17 +51,8 @@ public class CheckCategoryService {
    * @param newName the new name for it
    * @return the renamed category
    */
-  public Optional<CheckCategory> rename(long id, String newName) {
-    Optional<CheckCategory> categoryOptional = getById(id);
-
-    if (categoryOptional.isEmpty()) {
-      return Optional.empty();
-    }
-    CheckCategory category = categoryOptional.get();
-    category.setName(newName);
-    repository.save(category);
-
-    return Optional.of(category);
+  public Optional<CheckCategory> rename(int id, String newName) {
+    return repository.rename(id, newName);
   }
 
   /**
@@ -74,12 +61,7 @@ public class CheckCategoryService {
    * @param id the if of the category
    * @return true if the category existed
    */
-  public boolean removeCategory(long id) {
-    if (!repository.existsById(id)) {
-      return false;
-    }
-    repository.deleteById(id);
-
-    return true;
+  public boolean removeCategory(int id) {
+    return repository.deleteById(id) != 0;
   }
 }

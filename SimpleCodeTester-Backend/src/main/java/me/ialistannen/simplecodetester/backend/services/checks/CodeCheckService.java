@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.backend.services.checks;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,8 +33,7 @@ public class CodeCheckService {
    * @return all code checks
    */
   public List<CodeCheck> getAll() {
-    return StreamSupport.stream(checkRepository.findAll().spliterator(), false)
-        .collect(Collectors.toList());
+    return checkRepository.findAll();
   }
 
   /**
@@ -51,29 +51,8 @@ public class CodeCheckService {
    * @param id the id of the check
    * @return the check, if found
    */
-  public Optional<CodeCheck> getCheck(long id) {
+  public Optional<CodeCheck> getCheck(int id) {
     return checkRepository.findById(id);
-  }
-
-  /**
-   * Checks if a check exists.
-   *
-   * @param id the id of the check
-   * @return true if the check was found
-   */
-  public boolean containsCheck(long id) {
-    return checkRepository.existsById(id);
-  }
-
-
-  /**
-   * Finds all checks created by a given creator.
-   *
-   * @param ownerId the id of the check owner
-   * @return all checks from that user
-   */
-  public List<CodeCheck> getChecksForOwner(String ownerId) {
-    return checkRepository.findAllByCreatorId(ownerId);
   }
 
   /**
@@ -86,10 +65,9 @@ public class CodeCheckService {
    */
   public CodeCheck addCheck(Check check, User creator, CheckCategory category) {
     String json = checkSerializer.toJson(check);
-    CodeCheck codeCheck = new CodeCheck(json, creator, category);
-
-    codeCheck.setApproved(!check.needsApproval());
-    codeCheck.setName(check.name());
+    CodeCheck codeCheck = new CodeCheck(
+        json, creator, category, check.name(), !check.needsApproval()
+    );
 
     return checkRepository.save(codeCheck);
   }
@@ -103,7 +81,7 @@ public class CodeCheckService {
    * @throws IllegalArgumentException if the check was no IO check
    */
   @Transactional
-  public boolean updateCheck(long id, Check newCheck) {
+  public boolean updateCheck(int id, Check newCheck) {
     Optional<CodeCheck> check = getCheck(id);
     if (check.isEmpty()) {
       return false;
@@ -128,7 +106,7 @@ public class CodeCheckService {
    * @param approved whether the check is approved
    * @return false if the check could not be found
    */
-  public boolean approveCheck(long id, boolean approved) {
+  public boolean approveCheck(int id, boolean approved) {
     Optional<CodeCheck> check = getCheck(id);
     if (check.isEmpty()) {
       return false;
@@ -146,7 +124,7 @@ public class CodeCheckService {
    * @return true if the check existed
    */
   @Transactional
-  public boolean removeCheck(long id) {
+  public boolean removeCheck(int id) {
     return checkRepository.deleteCodeCheckById(id) != 0;
   }
 

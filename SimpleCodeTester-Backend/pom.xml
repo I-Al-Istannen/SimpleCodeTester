@@ -12,13 +12,20 @@
   <artifactId>SimpleCodeTester-Backend</artifactId>
 
   <properties>
-    <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <micrometer.version>1.6.2</micrometer.version>
-    <jose4j.version>0.7.4</jose4j.version>
-    <h2.version>1.4.200</h2.version>
+    <db.url>jdbc:sqlite:${project.build.directory}/data.db</db.url>
+
     <commons-text.version>1.9</commons-text.version>
+    <flyway.version>6.5.5</flyway.version>
+    <hikaricp.version>3.4.5</hikaricp.version>
     <jakarta.validation-api.version>2.0.2</jakarta.validation-api.version>
+    <jooq.version>3.13.4</jooq.version>
+    <jose4j.version>0.7.4</jose4j.version>
+    <micrometer.version>1.6.2</micrometer.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
+    <sqlite.version>3.32.3.1</sqlite.version>
+
+    <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
   </properties>
 
   <build>
@@ -37,6 +44,86 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Ensure that the target directory exists so that flyway can connect to ${db.url} -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.directory}"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>${flyway.version}</version>
+
+        <configuration>
+          <url>${db.url}</url>
+          <locations>
+            <location>filesystem:src/main/resources/db/migration</location>
+          </locations>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>migrate</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- JOOQ -->
+      <plugin>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+        <version>${jooq.version}</version>
+
+        <configuration>
+          <generator>
+            <database>
+              <includes>.*</includes>
+              <!-- Associate data type rewrites with database columns -->
+              <forcedTypes>
+                <!-- Force SQLITE's Timestamps to be Instants in application code -->
+                <forcedType>
+                  <name>INSTANT</name>
+                  <includeTypes>TIMESTAMP</includeTypes>
+                </forcedType>
+              </forcedTypes>
+            </database>
+            <target>
+              <directory>target/generated-sources/jooq</directory>
+              <packageName>org.jooq.codegen.db</packageName>
+            </target>
+          </generator>
+          <jdbc>
+            <url>${db.url}</url>
+          </jdbc>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -95,12 +182,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
       <version>${commons-text.version}</version>
@@ -110,6 +191,43 @@
       <groupId>me.ialistannen</groupId>
       <artifactId>SimpleCodeTester-Lib</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.jooq/jooq -->
+    <dependency>
+      <artifactId>jooq</artifactId>
+      <groupId>org.jooq</groupId>
+      <version>${jooq.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.jooq/jooq-codegen -->
+    <dependency>
+      <artifactId>jooq-codegen</artifactId>
+      <groupId>org.jooq</groupId>
+      <version>${jooq.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.jooq/jooq-meta -->
+    <dependency>
+      <artifactId>jooq-meta</artifactId>
+      <groupId>org.jooq</groupId>
+      <version>${jooq.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+    <dependency>
+      <artifactId>sqlite-jdbc</artifactId>
+      <groupId>org.xerial</groupId>
+      <version>${sqlite.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+    <dependency>
+      <artifactId>HikariCP</artifactId>
+      <groupId>com.zaxxer</groupId>
+      <version>${hikaricp.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.flywaydb/flyway-core -->
+    <dependency>
+      <artifactId>flyway-core</artifactId>
+      <groupId>org.flywaydb</groupId>
+      <version>${flyway.version}</version>
     </dependency>
 
     <dependency>

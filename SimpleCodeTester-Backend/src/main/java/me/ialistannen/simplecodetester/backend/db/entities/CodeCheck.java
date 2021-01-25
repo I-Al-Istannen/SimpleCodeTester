@@ -4,76 +4,35 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.sun.istack.Nullable;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.ialistannen.simplecodetester.checks.CheckType;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @ToString
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
 public class CodeCheck {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id")
-  @Setter(AccessLevel.NONE)
-  private Long id;
-
-  @Lob
-  @NotEmpty
+  private Integer id;
   private String text;
-
   @JsonSerialize(using = UserSerializer.class)
-  @ManyToOne
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinColumn(referencedColumnName = "id")
   private User creator;
-
-  @ManyToOne
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinColumn(referencedColumnName = "id")
-  @NotNull
   private CheckCategory category;
-
-  @ColumnDefault("{ts '1970-01-01'}")
-  @NotNull
   private Instant creationTime;
-  @Nullable
   private Instant updateTime;
-
   /**
    * Whether the check is approved and allowed to run.
    */
   private boolean approved;
-
-
-  @NotNull
-  @Enumerated
-  private CheckType checkType = CheckType.UNKNOWN;
-
-  @NotEmpty
+  private CheckType checkType = CheckType.INTERLEAVED_IO;
   private String name;
 
   protected CodeCheck() {
@@ -82,18 +41,20 @@ public class CodeCheck {
   /**
    * Creates a new CodeCheck.
    *
-   * <p><br><strong>Remember to call {@link #setName(String)} before saving this
-   * entity.</strong></p>
-   *
    * @param text the text
    * @param creator the creator
    * @param category the {@link CheckCategory}
+   * @param approved whether this check is approved
+   * @param name the name of the check
    */
-  public CodeCheck(@NotEmpty String text, User creator, CheckCategory category) {
+  public CodeCheck(@NotEmpty String text, User creator, CheckCategory category, String name,
+      boolean approved) {
     this.text = text;
     this.creator = creator;
     this.category = category;
     this.creationTime = Instant.now();
+    this.name = name;
+    this.approved = approved;
   }
 
   public Optional<Instant> getUpdateTime() {

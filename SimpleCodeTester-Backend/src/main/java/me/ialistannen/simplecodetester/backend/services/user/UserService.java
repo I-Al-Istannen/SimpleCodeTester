@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
@@ -78,7 +78,7 @@ public class UserService {
     if (!userRepository.existsUserById(userId)) {
       return false;
     }
-    User user = userRepository.getOne(userId);
+    User user = userRepository.findById(userId).orElseThrow();
     update.accept(user);
     userRepository.save(user);
 

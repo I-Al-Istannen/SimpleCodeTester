@@ -28,10 +28,10 @@ public class LoginEndpoint {
 
   private static final String CREDENTIALS_INCORRECT = "Username or password incorrect";
 
-  private JwtGenerator jwtGenerator;
-  private UserService userService;
-  private PasswordEncoder passwordEncoder;
-  private JwtConsumer jwtConsumer;
+  private final JwtGenerator jwtGenerator;
+  private final UserService userService;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtConsumer jwtConsumer;
 
   public LoginEndpoint(JwtGenerator jwtGenerator, UserService userService,
       PasswordEncoder passwordEncoder, JwtConsumer jwtConsumer) {
@@ -83,7 +83,7 @@ public class LoginEndpoint {
         return ResponseUtil.error(HttpStatus.NOT_FOUND, "User not found");
       }
 
-      if (!user.get().getEnabled()) {
+      if (!user.get().isEnabled()) {
         return ResponseUtil.error(HttpStatus.FORBIDDEN, "Account locked");
       }
 
@@ -108,7 +108,7 @@ public class LoginEndpoint {
     claims.setIssuer("SimpleCodeTester");
     claims.setSubject(user.getId());
     claims.setStringListClaim("roles", user.getAuthorities());
-    claims.setClaim("enabled", user.getEnabled());
+    claims.setClaim("enabled", user.isEnabled());
     claims.setExpirationTimeMinutesInTheFuture(1);
     claims.setNotBeforeMinutesInThePast(1);
     claims.setGeneratedJwtId();

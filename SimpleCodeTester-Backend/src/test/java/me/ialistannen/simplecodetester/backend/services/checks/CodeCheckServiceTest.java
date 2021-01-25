@@ -101,25 +101,6 @@ class CodeCheckServiceTest {
   }
 
   @Test
-  void findByOwner() {
-    CodeCheck check = addAndAssertAdded(getCheck());
-    CodeCheck check2 = addAndAssertAdded(getCheck());
-    User user = createUser("12");
-    userService.addUser(user);
-    CodeCheck checkOtherUser = addAndAssertAdded(getCheck(), user);
-
-    assertThat(
-        codeCheckService.getChecksForOwner(this.user.getId()),
-        is(List.of(check, check2))
-    );
-
-    assertThat(
-        codeCheckService.getChecksForOwner("12"),
-        is(List.of(checkOtherUser))
-    );
-  }
-
-  @Test
   void updateCheck() {
     CodeCheck check = addAndReturnCheck();
 

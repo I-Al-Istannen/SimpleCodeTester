@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 @Getter
 public class ConfigurationService {
 
-  private ParsingConfig parsingConfig;
+  private final ParsingConfig parsingConfig;
+  private final DatabaseConfig databaseConfig;
 
-  public ConfigurationService(ParsingConfig parsingConfig) {
+  public ConfigurationService(ParsingConfig parsingConfig, DatabaseConfig databaseConfig) {
     this.parsingConfig = parsingConfig;
+    this.databaseConfig = databaseConfig;
   }
 }

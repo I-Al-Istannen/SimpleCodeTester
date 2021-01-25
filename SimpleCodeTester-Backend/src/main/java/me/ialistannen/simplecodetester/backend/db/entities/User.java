@@ -14,29 +14,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
 @ToString
 @Getter
 @Setter
 public class User {
 
-  @Id
-  @Column(name = "id", unique = true)
-  @Setter(AccessLevel.NONE)
   private String id;
   private String name;
   @JsonIgnore
   private String passwordHash;
-  @Column(name = "enabled")
-  private Boolean enabled = true;
+  private boolean enabled = true;
 
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> authorities;
 
-  protected User() {
-  }
-
-  public User(String id, String name, String passwordHash, Boolean enabled,
+  public User(String id, String name, String passwordHash, boolean enabled,
       List<String> authorities) {
     this.id = id;
     this.name = name;

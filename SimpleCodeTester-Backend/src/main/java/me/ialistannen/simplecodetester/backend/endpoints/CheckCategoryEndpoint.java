@@ -33,17 +33,17 @@ public class CheckCategoryEndpoint {
   }
 
   @GetMapping("/check-category/get")
-  public ResponseEntity<Object> getForId(@RequestParam long id) {
+  public ResponseEntity<Object> getForId(@RequestParam int id) {
     return ResponseEntity.ok(checkCategoryService.getById(id));
   }
 
   @PatchMapping("/check-category/rename")
-  public ResponseEntity<Object> rename(@RequestParam long id, @RequestParam String newName) {
+  public ResponseEntity<Object> rename(@RequestParam int id, @RequestParam String newName) {
     return ResponseEntity.ok(checkCategoryService.rename(id, newName));
   }
 
   @DeleteMapping("/check-category/delete/{id}")
-  public ResponseEntity<Object> delete(@PathVariable("id") long id) {
+  public ResponseEntity<Object> delete(@PathVariable("id") int id) {
     if (checkCategoryService.removeCategory(id)) {
       String user = SecurityContextHolder.getContext().getAuthentication().getName();
       log.info("{} deleted the category {}", user, id);
