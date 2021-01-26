@@ -34,8 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class UserManageEndpoint {
 
-  private UserService userService;
-  private PasswordEncoder passwordEncoder;
+  private final UserService userService;
+  private final PasswordEncoder passwordEncoder;
 
   UserManageEndpoint(UserService userService, PasswordEncoder passwordEncoder) {
     this.userService = userService;
@@ -81,14 +81,15 @@ public class UserManageEndpoint {
   public ResponseEntity<Object> addUser(
       @RequestBody @Valid @NotNull UserManageEndpoint.AddUserBase addUserBase) {
 
-    if (userService.containsUser(addUserBase.id)) {
+    String userId = addUserBase.id.trim();
+    if (userService.containsUser(userId)) {
       return ResponseUtil.error(HttpStatus.CONFLICT, "User already exists.");
     }
 
     userService.addUser(
         new User(
-            addUserBase.id,
-            addUserBase.displayName,
+            userId,
+            addUserBase.displayName.trim(),
             passwordEncoder.encode(addUserBase.password),
             true,
             addUserBase.roles
@@ -97,7 +98,7 @@ public class UserManageEndpoint {
 
     log.info("{} added the user '{}'",
         SecurityContextHolder.getContext().getAuthentication().getName(),
-        addUserBase.id
+        userId
     );
 
     return ResponseEntity.ok(Map.of());
