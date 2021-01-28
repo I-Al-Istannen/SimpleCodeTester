@@ -97,6 +97,17 @@ public class UserRepository {
       } else {
         db.insertInto(USER).set(userRecord).execute();
       }
+
+      // update authorities
+      db.deleteFrom(USER_AUTHORITIES).where(USER_AUTHORITIES.USER_ID.eq(user.getId())).execute();
+
+      List<UserAuthoritiesRecord> authoritiesRecords = user.getAuthorities()
+          .stream()
+          .map(it -> new UserAuthoritiesRecord(user.getId(), it))
+          .collect(toList());
+      if (!authoritiesRecords.isEmpty()) {
+        db.dsl().batchInsert(authoritiesRecords).execute();
+      }
     });
   }
 
