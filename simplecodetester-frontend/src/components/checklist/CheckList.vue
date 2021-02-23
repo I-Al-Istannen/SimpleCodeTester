@@ -6,6 +6,23 @@
           <v-toolbar-title>All checks</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
+          <v-row no-gutters style="flex-wrap: nowrap" align="center" class="mx-4">
+            <v-col cols="auto">
+              <v-icon>{{ filterCategoryIcon }}</v-icon>
+            </v-col>
+            <v-col cols="auto">
+              <v-chip-group v-model="selectedCategories" multiple show-arrows>
+                <v-chip
+                  v-for="category in allCategories"
+                  filter
+                  :key="category.id"
+                  :value="category"
+                  :outlined="!selectedCategories.includes(category)"
+                >{{ category.name }}</v-chip>
+              </v-chip-group>
+            </v-col>
+          </v-row>
+
           <v-text-field
             class="mx-5 mb-2"
             v-model="search"
@@ -15,7 +32,7 @@
           ></v-text-field>
 
           <v-data-iterator
-            :items="checks.checkBases"
+            :items="filteredChecks"
             :footer-props="footerProps"
             :search="search"
             column
@@ -68,29 +85,30 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Store } from "vuex";
-import { RootState } from "@/store/types";
+import { CheckCategory, RootState } from "@/store/types";
 import { extractErrorMessage } from "@/util/requests";
 import ModifyActions from "@/components/checklist/CheckModifyActions.vue";
 import { CheckBase, CheckCollection } from "@/components/checklist/CheckTypes";
 import CheckDisplay from "@/components/checklist/CheckDisplay.vue";
 import { Watch } from "vue-property-decorator";
-import { mdiMagnify } from "@mdi/js";
+import { mdiFilterPlusOutline, mdiMagnify } from "@mdi/js";
 
 @Component({
   components: {
     "modify-actions": ModifyActions,
-    "check-display": CheckDisplay,
-  },
+    "check-display": CheckDisplay
+  }
 })
 export default class CheckList extends Vue {
   private checks: CheckCollection = new CheckCollection();
+  private selectedCategories: CheckCategory[] = [];
   private error: string = "";
   private search: string = "";
   private footerProps = {
     itemsPerPageOptions: [4, 10, 20, 50, 100],
     pagination: {
-      rowsPerPage: this.rowsPerPage,
-    },
+      rowsPerPage: this.rowsPerPage
+    }
   };
 
   get rowsPerPage(): number {
@@ -110,15 +128,31 @@ export default class CheckList extends Vue {
     this.error = error;
   }
 
+  private get allCategories() {
+    return (this.$store.state as RootState).checkcategory.categories
+      .slice()
+      .sort((a, b) => b.id - a.id);
+  }
+
+  private get filteredChecks() {
+    if (this.selectedCategories.length === 0) {
+      return this.checks.getCheckBases();
+    }
+    const allowedCategories = new Set(this.selectedCategories.map(it => it.id));
+    return this.checks
+      .getCheckBases()
+      .filter(it => allowedCategories.has(it.category.id));
+  }
+
   fetchCheckText(checkBase: CheckBase) {
     this.checks
       .fetchContent(checkBase)
       .then(() => this.setError(""))
-      .catch((error) => this.setError(extractErrorMessage(error)));
+      .catch(error => this.setError(extractErrorMessage(error)));
   }
 
   filterHandlingApproved(items: any[], search: string): any[] {
-    return items.filter((val) => {
+    return items.filter(val => {
       return this.checkMatchesSearch(val, search);
     });
   }
@@ -183,11 +217,14 @@ export default class CheckList extends Vue {
     this.checks
       .fetchAll()
       .then(() => this.setError(""))
-      .catch((error) => this.setError(extractErrorMessage(error)));
+      .catch(error => this.setError(extractErrorMessage(error)));
+
+    this.$store.dispatch("checkcategory/fetchAll");
   }
 
   // ICONS
   private searchIcon = mdiMagnify;
+  private filterCategoryIcon = mdiFilterPlusOutline;
 }
 </script>
 

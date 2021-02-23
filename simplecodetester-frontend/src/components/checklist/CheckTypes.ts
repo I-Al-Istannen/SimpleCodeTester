@@ -130,6 +130,10 @@ export class CheckCollection {
     return this.checkContents[check.id];
   }
 
+  getCheckBases(): CheckBase[] {
+    return this.checkBases
+  }
+
   private parseCheckResponse(content: any) {
     let ioCheck: IOCheck;
     let checkClass: string;
