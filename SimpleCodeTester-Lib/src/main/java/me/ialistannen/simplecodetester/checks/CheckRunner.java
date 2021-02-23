@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
@@ -49,9 +50,17 @@ public class CheckRunner {
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
       for (Check check : checks) {
         checkStartingConsumer.accept("'" + check.name() + "' on '" + file.qualifiedName() + "'");
+
+        long startTime = System.currentTimeMillis();
         CheckResult checkResult = tryCheck(check, file);
+        long endTime = System.currentTimeMillis();
+
         if (checkResult.result() != ResultType.NOT_APPLICABLE) {
-          resultConsumer.accept(file.qualifiedName(), checkResult);
+          ImmutableCheckResult timedResult = ImmutableCheckResult.builder()
+              .from(checkResult)
+              .durationMillis(Optional.of(endTime - startTime))
+              .build();
+          resultConsumer.accept(file.qualifiedName(), timedResult);
         }
       }
     }

@@ -2,6 +2,7 @@ package me.ialistannen.simplecodetester.checks;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
+import java.util.Optional;
 import me.ialistannen.simplecodetester.checks.Check.CheckFile;
 import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 import org.immutables.gson.Gson;
@@ -57,6 +58,15 @@ public abstract class CheckResult {
   @Default
   public List<CheckFile> files() {
     return List.of();
+  }
+
+  /**
+   * @return the time in milliseconds executing this test took, if measured
+   */
+  @Default
+  @Value.Auxiliary
+  public Optional<Long> durationMillis() {
+    return Optional.empty();
   }
 
   /**
