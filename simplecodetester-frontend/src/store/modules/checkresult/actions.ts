@@ -19,7 +19,13 @@ function parseCheckResponse(json: any): CheckResult {
   Object.keys(json.fileResults).forEach(fileName => {
     const checkResults = json.fileResults[fileName].map((json: any) => {
       return new FileCheckResult(
-        json.check, json.result, json.message, json.errorOutput, parseLines(json.output), json.files
+        json.check,
+        json.result,
+        json.message,
+        json.errorOutput,
+        parseLines(json.output),
+        json.files,
+        json.durationMillis
       )
     })
     entries.push(new Pair(fileName, checkResults));
@@ -29,6 +35,10 @@ function parseCheckResponse(json: any): CheckResult {
 }
 
 function parseLines(lines: Array<any>): Array<IoLine> {
+  if(!Array.isArray(lines)) {
+    return []
+  }
+
   return lines.map(line => {
     let content = line.content
     const lineType = line.type.toLowerCase();

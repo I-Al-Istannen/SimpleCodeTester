@@ -73,6 +73,7 @@ export class FileCheckResult {
   errorOutput: string;
   output: Array<IoLine>;
   files: IOCheckFile[];
+  durationMillis?: number;
 
   constructor(
     check: string,
@@ -80,7 +81,8 @@ export class FileCheckResult {
     message: string,
     errorOutput: string,
     output: Array<IoLine>,
-    files: IOCheckFile[]
+    files: IOCheckFile[],
+    durationMillis?: number
   ) {
     this.check = check;
     this.result = result;
@@ -88,6 +90,7 @@ export class FileCheckResult {
     this.errorOutput = errorOutput;
     this.output = output;
     this.files = files;
+    this.durationMillis = durationMillis;
   }
 
   /**

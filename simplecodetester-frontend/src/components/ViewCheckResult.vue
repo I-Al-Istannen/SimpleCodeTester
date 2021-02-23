@@ -8,6 +8,8 @@
             <span v-if="!allPassed">({{ failCount }} classes failed)</span>
             <span v-if="items.length == 0">(No tests run)</span>
           </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn v-if="!showTimes" text @click="onShowTimes">Show execution time</v-btn>
         </v-toolbar>
         <v-card-title v-if="items.length === 0">
           <h2
@@ -21,6 +23,11 @@
                 <v-icon v-if="item.successful" color="green">{{ successfulIcon }}</v-icon>
                 <v-icon v-else color="#ff6347">{{ failedIcon }}</v-icon>
                 Class '{{ item.fileName }}'
+                <v-spacer v-if="showTimes"></v-spacer>
+                <span
+                  v-if="item.totalDuration && showTimes"
+                  class="duration-tag"
+                >Sum: ~{{ fudgeDuration(item.totalDuration) }} ms</span>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-card>
@@ -32,6 +39,12 @@
                           <v-icon v-if="!result.failed()" color="green">{{ successfulIcon }}</v-icon>
                           <v-icon v-else color="#ff6347">{{ failedIcon }}</v-icon>
                           Check '{{ result.check }}'
+                          <v-spacer v-if="showTimes"></v-spacer>
+                          <span v-if="result.durationMillis && showTimes" class="duration-tag">
+                            <span
+                              :class="[ result.durationMillis > 2 * item.averageDuration ? 'above-average' : '' ]"
+                            >{{ fudgeDuration(result.durationMillis) }}</span> ms
+                          </span>
                         </v-expansion-panel-header>
                         <v-expansion-panel-content>
                           <v-card>
@@ -61,8 +74,16 @@
                               </div>
                               <pre class="monospaced" v-if="result.message">{{ result.message }}</pre>
                               <pre class="monospaced" v-if="result.errorOutput">{{ result.errorOutput }}</pre>
-                              <highlighted-code :io-lines="result.output" readonly></highlighted-code>
-                              <display-files-component :value="result.files" :editable="false"></display-files-component>
+                              <highlighted-code
+                                v-if="result.output.length > 0"
+                                :io-lines="result.output"
+                                readonly
+                              ></highlighted-code>
+                              <display-files-component
+                                v-if="result.files.length > 0"
+                                :value="result.files"
+                                :editable="false"
+                              ></display-files-component>
                             </v-card-text>
                           </v-card>
                         </v-expansion-panel-content>
@@ -99,6 +120,8 @@ class SingleFileResult {
   fileName: string;
   results: Array<FileCheckResult>;
   successful: boolean;
+  totalDuration: number;
+  averageDuration: number;
 
   constructor(
     fileName: string,
@@ -108,6 +131,11 @@ class SingleFileResult {
     this.fileName = fileName;
     this.results = results;
     this.successful = successful;
+
+    this.totalDuration = this.results
+      .map(it => it.durationMillis || 0)
+      .reduce((acc, next) => acc + next);
+    this.averageDuration = this.totalDuration / this.results.length;
 
     // Pull up failed checks, sort alphabetically inside the groups
     this.results.sort((a, b) => {
@@ -135,19 +163,20 @@ class SingleFileResult {
 })
 export default class Test extends Vue {
   private items: Array<SingleFileResult> = [];
+  private showTimes: boolean = false;
 
   get allPassed() {
-    return this.items.every((elem) => elem.successful);
+    return this.items.every(elem => elem.successful);
   }
 
   get failCount() {
-    return this.items.filter((elem) => !elem.successful).length;
+    return this.items.filter(elem => !elem.successful).length;
   }
 
   get failureBooleanArray() {
     return Array.from(this.items)
       .slice()
-      .map((it) => !it.successful);
+      .map(it => !it.successful);
   }
   // We just ignore it, as we  don't need it
   set failureBooleanArray(array: Array<boolean>) {}
@@ -159,10 +188,28 @@ export default class Test extends Vue {
     return element;
   }
 
+  private onShowTimes() {
+    const promptMessage =
+      "Only DESIGN and FUNCTIONALITY are relevant for this module.\n\n" +
+      "Please DO NOT OPTIMIZE your code for performance and DO NOT COMPARE your times with others.\n\n" +
+      "These times are just here to help you debug timeouts.";
+
+    if (window.confirm(promptMessage)) {
+      this.showTimes = true;
+    }
+  }
+
+  private fudgeDuration(millis: number) {
+    if (millis < 30) {
+      return "<30";
+    }
+    return Math.ceil(millis / 20) * 20;
+  }
+
   copyFullInput(result: FileCheckResult, element: HTMLElement) {
     let input = result.output
-      .filter((line) => line.lineType === IoLineType.INPUT)
-      .map((line) => line.content)
+      .filter(line => line.lineType === IoLineType.INPUT)
+      .map(line => line.content)
       .join("\n");
     this.copyText(input, element);
   }
@@ -180,17 +227,14 @@ export default class Test extends Vue {
     linesUntilError.pop();
 
     let input = linesUntilError
-      .filter((line) => line.lineType === IoLineType.INPUT)
-      .map((line) => line.content)
+      .filter(line => line.lineType === IoLineType.INPUT)
+      .map(line => line.content)
       .join("\n");
     this.copyText(input, element);
   }
 
   copyFullOutput(result: FileCheckResult, element: HTMLElement) {
-    this.copyText(
-      result.output.map((line) => line.content).join("\n"),
-      element
-    );
+    this.copyText(result.output.map(line => line.content).join("\n"), element);
   }
 
   private copyText(text: string, element: HTMLElement) {
@@ -223,7 +267,7 @@ export default class Test extends Vue {
 
     checkResult.results.forEach(({ key, value }) => {
       const allSuccessful = value.every(
-        (elem) => elem.result !== CheckResultType.FAILED
+        elem => elem.result !== CheckResultType.FAILED
       );
 
       this.items.push(new SingleFileResult(key, value.slice(), allSuccessful));
@@ -266,5 +310,19 @@ export default class Test extends Vue {
   height: 70vh;
   overflow-y: auto;
   margin-top: 8px;
+}
+
+.duration-tag {
+  text-align: end;
+  font-family: monospace;
+  color: var(--v-muted-base);
+}
+
+.theme--dark .duration-tag .above-average {
+  color: white;
+}
+
+.theme--light .duration-tag .above-average {
+  color: black;
 }
 </style>
