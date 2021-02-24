@@ -35,16 +35,18 @@
             :items="filteredChecks"
             :footer-props="footerProps"
             :search="search"
+            item-key="id"
             column
             style="overflow-x: auto;"
             wrap
             :custom-filter="filterHandlingApproved"
             :items-per-page="rowsPerPage"
             @update:items-per-page="setRowsPerPage"
+            @update:page="openedItems = []"
           >
             <template v-slot:default="props">
               <v-layout column>
-                <v-expansion-panels inset multiple>
+                <v-expansion-panels inset multiple v-model="openedItems">
                   <v-expansion-panel
                     v-for="item in props.items"
                     :key="item.id"
@@ -110,6 +112,8 @@ export default class CheckList extends Vue {
       rowsPerPage: this.rowsPerPage
     }
   };
+  // needed to reset open expansion panels on page navigation
+  private openedItems: number[] = [];
 
   get rowsPerPage(): number {
     return (this.$store.state as RootState).miscsettings.itemsPerPage;
