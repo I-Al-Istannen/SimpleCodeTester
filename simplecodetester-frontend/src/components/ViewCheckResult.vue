@@ -210,6 +210,7 @@ export default class Test extends Vue {
     let input = result.output
       .filter(line => line.lineType === IoLineType.INPUT)
       .map(line => line.content)
+      .map(line => line.replace(/^> /, ""))
       .join("\n");
     this.copyText(input, element);
   }
@@ -229,6 +230,7 @@ export default class Test extends Vue {
     let input = linesUntilError
       .filter(line => line.lineType === IoLineType.INPUT)
       .map(line => line.content)
+      .map(line => line.replace(/^> /, ""))
       .join("\n");
     this.copyText(input, element);
   }
