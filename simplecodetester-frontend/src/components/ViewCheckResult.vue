@@ -9,7 +9,11 @@
             <span v-if="items.length == 0">(No tests run)</span>
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn v-if="!showTimes" text @click="onShowTimes">Show execution time</v-btn>
+          <v-btn
+            v-if="!showTimes && !shouldHideTimesBecausePeopleAreNaughtyAndCompareThem"
+            text
+            @click="onShowTimes"
+          >Show execution time</v-btn>
         </v-toolbar>
         <v-card-title v-if="items.length === 0">
           <h2
@@ -186,6 +190,10 @@ export default class Test extends Vue {
       return element.parentElement!!;
     }
     return element;
+  }
+
+  private get shouldHideTimesBecausePeopleAreNaughtyAndCompareThem(): boolean {
+    return this.items.map(it => it.totalDuration).reduce((a, b) => a + b) < 15 * 1000;
   }
 
   private onShowTimes() {
