@@ -108,7 +108,8 @@ public class CheckRunner {
       @Override
       public int read() {
         throw new UnsupportedIoException(
-            "You can not read from System.in, please use the Terminal class for io!"
+            "You can not read from System.in, please use the edu.kit.informatik.Terminal class for"
+                + " io and make sure it is in that package!"
         );
       }
     });
@@ -116,7 +117,9 @@ public class CheckRunner {
       @Override
       public void write(int b) {
         throw new UnsupportedIoException(
-            "You can not write to System.out, please use the Terminal class for io!"
+            "You can not write to System.out, please use the edu.kit.informatik.Terminal class for"
+                + " io and make sure it is in that package!"
+
         );
       }
     }));
