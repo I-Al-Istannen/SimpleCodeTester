@@ -119,6 +119,7 @@ class SlaveManagerTestIT {
                     + "public static void main(String[] args) {"
                     + "Terminal.readLine();"
                     + "Terminal.printLine(\"world\");"
+                    + "Terminal.readLine();"
                     + "}"
                     + "}"
             )
@@ -158,6 +159,8 @@ class SlaveManagerTestIT {
                     + "public static void main(String[] args) {"
                     + "Terminal.readLine();"
                     + "Terminal.printLine(\"world\");"
+                    + "Terminal.readLine();"
+                    + "Terminal.readLine();"
                     + "}"
                     + "}"
             )
@@ -199,11 +202,12 @@ class SlaveManagerTestIT {
                     + "Terminal.readLine();"
                     + "Terminal.printLine(\"world\");"
                     + "Terminal.printLine(\"world\");"
+                    + "Terminal.readLine();"
                     + "}"
                     + "}"
             )
             .build(),
-        "> hello\nworld"
+        "> hello\nworld\n> quit"
     );
 
     assertEquals(1, result.toResult().fileResults().size());
@@ -253,7 +257,6 @@ class SlaveManagerTestIT {
 
     assertEquals(1, result.toResult().fileResults().size());
     assertEquals(
-        result.toResult().fileResults(),
         Map.of(
             "Test", List.of(
                 ImmutableCheckResult.builder()
@@ -264,8 +267,7 @@ class SlaveManagerTestIT {
                     .output(List.of(
                         new LineResult(Type.INPUT, "hello"),
                         new LineResult(Type.OUTPUT, "world"),
-                        new LineResult(Type.OUTPUT, "world"),
-                        new LineResult(Type.INPUT, "quit")
+                        new LineResult(Type.OUTPUT, "world")
                     ))
                     .build(),
                 ImmutableCheckResult.builder()
@@ -277,12 +279,12 @@ class SlaveManagerTestIT {
                         new LineResult(Type.INPUT, "hello"),
                         new LineResult(Type.OUTPUT, "world"),
                         new LineResult(Type.OUTPUT, "world"),
-                        new LineResult(Type.ERROR, "Did not expect any output."),
-                        new LineResult(Type.INPUT, "quit")
+                        new LineResult(Type.ERROR, "Did not expect any output.")
                     ))
                     .build()
             )
-        )
+        ),
+        result.toResult().fileResults()
     );
   }
 
@@ -301,6 +303,8 @@ class SlaveManagerTestIT {
                     + "java.util.stream.Stream.of(2, 5).parallel().forEach(it -> {});"
                     + "java.nio.file.StandardCopyOption.class.getEnumConstants();"
                     + "java.net.StandardProtocolFamily.valueOf(\"INET\");"
+                    + "Terminal.readLine();"
+                    + "Terminal.readLine();"
                     + "}"
                     + "}"
             )
@@ -386,6 +390,50 @@ class SlaveManagerTestIT {
     assertTrue(
         result.output().stream().map(Object::toString).collect(Collectors.joining(""))
             .contains("access denied")
+    );
+  }
+
+  @Test
+  void findsLeftoverInput() throws InterruptedException {
+    runSubmission(
+        ImmutableSubmission.builder()
+            .putFiles("Test.java",
+                "import edu.kit.informatik.Terminal;"
+                    + "public class Test {"
+                    + "public static void main(String[] args) {"
+                    + "Terminal.readLine();" // read > hello
+                    + "Terminal.printLine(\"world\");" // write world
+                    + "Terminal.readLine();" // read > quit
+                    + "}" // leftover: > this isn't read
+                    + "}" //           > neither is this
+            )
+            .build(),
+        "> hello\nworld\n> quit\n> this isn't read\n> neither is this"
+    );
+
+    assertNotNull(result);
+    assertNull(result.compilationOutput);
+    assertNull(result.error);
+    assertEquals(1, result.toResult().fileResults().size());
+    assertEquals(
+        Map.of("Test", List.of(
+            ImmutableCheckResult.builder()
+                .message("")
+                .errorOutput("")
+                .check("Test")
+                .result(ResultType.FAILED)
+                .output(List.of(
+                    new LineResult(Type.INPUT, "hello"),
+                    new LineResult(Type.OUTPUT, "world"),
+                    new LineResult(Type.INPUT, "quit"),
+                    new LineResult(Type.INPUT, "this isn't read"),
+                    new LineResult(Type.ERROR, "Above input was never read! Did your program exit?"),
+                    new LineResult(Type.INPUT, "neither is this"),
+                    new LineResult(Type.ERROR, "Above input was never read! Did your program exit?")
+                ))
+                .build()
+        )),
+        result.toResult().fileResults()
     );
   }
 

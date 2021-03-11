@@ -136,6 +136,20 @@ public final class Terminal {
   }
 
   /**
+   * @return true if there is unread input left, i.e. the program didn't read everything it could
+   */
+  public static boolean hasLeftoverInput() {
+    return inputIndex < input.size();
+  }
+
+  /**
+   * @return the index of the last read input. -1 if nothing was read
+   */
+  public static int getLastReadInputIndex() {
+    return inputIndex - 1;
+  }
+
+  /**
    * Resets the terminal's state (read input and written output is cleared).
    */
   public static void reset() {

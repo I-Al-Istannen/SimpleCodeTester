@@ -106,6 +106,31 @@ public class InterleavedStaticIOCheck implements Check {
       output = new ArrayList<>(getOutput(Terminal.getOutputLines(), toInterject));
     }
 
+    if (Terminal.hasLeftoverInput()) {
+      int lastReadIndex = Terminal.getLastReadInputIndex();
+      int currentInputIndex = 0;
+      List<LineResult> outputWithLeftoverErrors = new ArrayList<>();
+
+      for (LineResult result : output) {
+        outputWithLeftoverErrors.add(result);
+
+        if (result.getType() == Type.INPUT && currentInputIndex > lastReadIndex) {
+          outputWithLeftoverErrors.add(
+              new LineResult(
+                  Type.ERROR,
+                  "Above input was never read! Did your program exit?"
+              )
+          );
+        }
+
+        if (result.getType() == Type.INPUT) {
+          currentInputIndex++;
+        }
+      }
+
+      output = outputWithLeftoverErrors;
+    }
+
     assertOutputValid(output);
 
     return ImmutableCheckResult.builder()
