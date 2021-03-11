@@ -6,7 +6,6 @@ runner:
 
 parsing:
   minCommands: 0
-  quitCommand: "quit"
 
 cors:
   allowedOrigin:

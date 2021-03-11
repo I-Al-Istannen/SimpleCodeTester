@@ -24,7 +24,6 @@ public class InterleavedIoCheckParser implements CheckParser<InterleavedStaticIO
   public InterleavedIoCheckParser(Gson gson, ParsingConfig parsingConfig) {
     this.gson = gson;
     this.interleavedIoParser = new InterleavedIoParser(
-        parsingConfig.getQuitCommand(),
         parsingConfig.getMinCommands()
     );
   }

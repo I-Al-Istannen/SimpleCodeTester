@@ -83,7 +83,7 @@ class SlaveManagerTestIT {
     slaveManager.start();
 
     checkSerializer = new CheckSerializer(ConfiguredGson.createGson());
-    interleavedIoParser = new InterleavedIoParser("quit", 0);
+    interleavedIoParser = new InterleavedIoParser(0);
   }
 
   @AfterEach

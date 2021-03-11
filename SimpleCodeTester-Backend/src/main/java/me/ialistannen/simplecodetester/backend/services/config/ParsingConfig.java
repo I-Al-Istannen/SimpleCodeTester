@@ -19,7 +19,4 @@ public class ParsingConfig {
 
   @Positive
   private int minCommands;
-
-  @NotNull
-  private String quitCommand;
 }

@@ -86,8 +86,7 @@ class InterleavedStaticIOCheckTest {
         Type.OUTPUT, Type.OUTPUT,
         Type.INPUT,
         Type.OUTPUT, Type.OUTPUT, Type.ERROR, Type.OUTPUT, Type.ERROR,
-        Type.INPUT,
-        Type.INPUT // quit appended
+        Type.INPUT
     );
   }
 
@@ -97,7 +96,8 @@ class InterleavedStaticIOCheckTest {
         "> Hello", "World",
         "> Foo", "Bar",
         "> Regex", "<r.+",
-        "> Error", "<e"
+        "> Error", "<e",
+        "> quit"
     );
 
     assertEquals(
@@ -221,7 +221,7 @@ class InterleavedStaticIOCheckTest {
   }
 
   private InterleavedStaticIOCheck getCheck(String... lines) {
-    return new InterleavedIoParser("quit", 2)
+    return new InterleavedIoParser(2)
         .fromString(String.join("\n", lines), "A check");
   }
 }

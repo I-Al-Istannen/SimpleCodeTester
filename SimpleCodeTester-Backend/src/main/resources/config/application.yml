@@ -5,8 +5,7 @@ runner:
   max-computation-time-seconds: 30
 
 parsing:
-  minCommands: 2
-  quitCommand: "quit"
+  minCommands: 1
 
 management:
   endpoints:
