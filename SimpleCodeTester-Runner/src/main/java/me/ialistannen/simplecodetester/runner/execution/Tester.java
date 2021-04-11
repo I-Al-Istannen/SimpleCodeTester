@@ -83,6 +83,9 @@ public class Tester {
       }
     }
 
+    System.out.println(task.getCurrentStdErr());
+    System.out.println(task.getCurrentStdOut());
+
     return ImmutableResult.builder()
         .timeoutData(
             killed
@@ -126,7 +129,7 @@ public class Tester {
     if (data.containsKey("is-check-start")) {
       return data.get("check-name").getAsString();
     } else {
-      CheckResult singleResult = gson.fromJson(data.get("data").getAsString(), CheckResult.class);
+      CheckResult singleResult = gson.fromJson(data.get("data"), CheckResult.class);
       resultList.add(singleResult);
       return singleResult.check();
     }

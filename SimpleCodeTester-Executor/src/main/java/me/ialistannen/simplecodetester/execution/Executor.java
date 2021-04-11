@@ -56,6 +56,8 @@ public class Executor {
   }
 
   private void test(List<Check> checks, CompiledSubmission submission) {
+    out.println(gson.toJson(submission.compilationOutput()));
+
     CheckRunner checkRunner = new CheckRunner(checks);
     checkRunner.checkSubmission(submission, this::onCheckResult, this::onCheckStarted);
   }

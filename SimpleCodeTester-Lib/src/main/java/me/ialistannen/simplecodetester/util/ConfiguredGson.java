@@ -18,8 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import lombok.experimental.UtilityClass;
+import me.ialistannen.simplecodetester.checks.CheckResult;
+import me.ialistannen.simplecodetester.checks.GsonAdaptersCheckResult;
 import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
+import me.ialistannen.simplecodetester.submission.CompleteTask;
+import me.ialistannen.simplecodetester.submission.GsonAdaptersCompiledFile;
+import me.ialistannen.simplecodetester.submission.GsonAdaptersCompleteTask;
+import me.ialistannen.simplecodetester.submission.GsonAdaptersSubmission;
+import me.ialistannen.simplecodetester.submission.ImmutableCompleteTask;
+import me.ialistannen.simplecodetester.submission.Submission;
 
 /**
  * A helper to create a configured {@link Gson} instance.
@@ -42,6 +50,9 @@ public class ConfiguredGson {
     return gsonBuilder
         .registerTypeAdapter(Path.class, new PathTypeAdapter())
         .registerTypeAdapter(StaticInputOutputCheck.class, new StaticInputOutputCheckAdapter())
+        .registerTypeAdapterFactory(new GsonAdaptersCompleteTask())
+        .registerTypeAdapterFactory(new GsonAdaptersCheckResult())
+        .registerTypeAdapterFactory(new GsonAdaptersSubmission())
         .registerTypeAdapterFactory(new InterleavedMatcherAdapterFactory())
         .create();
   }

@@ -1,0 +1,12 @@
+{
+  "container_start_command": [
+    "java",
+    "-cp",
+    "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Executor/target/SimpleCodeTester-Executor.jar",
+    "me.ialistannen.simplecodetester.execution.UntrustedMain"
+  ],
+  "container_kill_command": [
+    "there"
+  ],
+  "max_runtime_seconds": 30
+}
