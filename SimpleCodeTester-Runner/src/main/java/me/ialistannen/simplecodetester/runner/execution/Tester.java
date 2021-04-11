@@ -83,8 +83,9 @@ public class Tester {
       }
     }
 
-    System.out.println(task.getCurrentStdErr());
-    System.out.println(task.getCurrentStdOut());
+    if (!task.getCurrentStdErr().isBlank()) {
+      LOGGER.warn("Received STDERR for ({}): {}", completeTask.userId(), task.getCurrentStdErr());
+    }
 
     return ImmutableResult.builder()
         .timeoutData(

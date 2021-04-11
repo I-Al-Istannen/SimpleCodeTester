@@ -10,6 +10,7 @@ import java.util.Map;
 import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
+import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
 import me.ialistannen.simplecodetester.execution.compilation.Compiler;
 import me.ialistannen.simplecodetester.execution.compilation.memory.Java11InMemoryCompiler;
 import me.ialistannen.simplecodetester.execution.running.CheckRunner;
@@ -56,7 +57,11 @@ public class Executor {
   }
 
   private void test(List<Check> checks, CompiledSubmission submission) {
-    out.println(gson.toJson(submission.compilationOutput()));
+    out.println(gson.toJson(
+        ImmutableCompilationOutput.builder()
+            .from(submission.compilationOutput())
+            .files(List.of())
+    ));
 
     CheckRunner checkRunner = new CheckRunner(checks);
     checkRunner.checkSubmission(submission, this::onCheckResult, this::onCheckStarted);
