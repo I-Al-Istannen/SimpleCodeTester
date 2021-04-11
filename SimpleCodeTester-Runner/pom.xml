@@ -16,4 +16,12 @@
     <maven.compiler.target>11</maven.compiler.target>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>me.ialistannen</groupId>
+      <artifactId>SimpleCodeTester-Lib</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
 </project>
