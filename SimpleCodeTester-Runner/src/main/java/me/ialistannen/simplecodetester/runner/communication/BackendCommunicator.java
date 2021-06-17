@@ -57,9 +57,9 @@ public class BackendCommunicator {
     return Optional.empty();
   }
 
-  public void sendResults(Result result) throws IOException, InterruptedException {
+  public void sendResults(Result result, String userId) throws IOException, InterruptedException {
     HttpRequest request = HttpRequest.newBuilder(reportWorkUri)
-        .POST(BodyPublishers.ofString(gson.toJson(result)))
+        .POST(BodyPublishers.ofString(gson.toJson(new AttributedResult(userId, result))))
         .header("Authorization", password)
         .build();
 
@@ -71,6 +71,25 @@ public class BackendCommunicator {
           response.statusCode(),
           response.body()
       );
+    }
+  }
+
+  private static class AttributedResult {
+
+    private final String userId;
+    private final Result result;
+
+    private AttributedResult(String userId, Result result) {
+      this.userId = userId;
+      this.result = result;
+    }
+
+    public String getUserId() {
+      return userId;
+    }
+
+    public Result getResult() {
+      return result;
     }
   }
 }

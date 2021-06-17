@@ -63,7 +63,7 @@ public class Main {
     }
     CompleteTask task = taskOpt.get();
     Result result = tester.test(task);
-    backendCommunicator.sendResults(result);
+    backendCommunicator.sendResults(result, task.userId());
   }
 
   private static RunnerConfiguration loadConfig(String arg) {
