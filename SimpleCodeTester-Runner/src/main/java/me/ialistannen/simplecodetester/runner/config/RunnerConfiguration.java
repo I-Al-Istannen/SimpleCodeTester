@@ -13,11 +13,15 @@ public class RunnerConfiguration {
   private final List<String> startContainerCommand;
   private final List<String> killContainerCommand;
   private final int maxRuntimeSeconds;
+  private final String backendUrl;
+  private final String password;
 
   public RunnerConfiguration(JsonObject jsonObject) {
     this.startContainerCommand = fromArray(jsonObject.getAsJsonArray("container_start_command"));
     this.killContainerCommand = fromArray(jsonObject.getAsJsonArray("container_kill_command"));
     this.maxRuntimeSeconds = jsonObject.getAsJsonPrimitive("max_runtime_seconds").getAsInt();
+    this.password = jsonObject.getAsJsonPrimitive("backend_password").getAsString();
+    this.backendUrl = jsonObject.getAsJsonPrimitive("backend_url").getAsString();
   }
 
   public List<String> getStartContainerCommand() {
@@ -30,6 +34,14 @@ public class RunnerConfiguration {
 
   public int getMaxRuntimeSeconds() {
     return maxRuntimeSeconds;
+  }
+
+  public String getBackendUrl() {
+    return backendUrl;
+  }
+
+  public String getPassword() {
+    return password;
   }
 
   private static List<String> fromArray(JsonArray array) {

@@ -8,5 +8,7 @@
   "container_kill_command": [
     "there"
   ],
-  "max_runtime_seconds": 30
+  "max_runtime_seconds": 30,
+  "backend_url": "http://localhost:8081",
+  "backend_password": "foobar"
 }

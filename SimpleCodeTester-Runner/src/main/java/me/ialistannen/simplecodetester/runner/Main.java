@@ -3,23 +3,25 @@ package me.ialistannen.simplecodetester.runner;
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.List;
-import me.ialistannen.simplecodetester.checks.defaults.io.InterleavedStaticIOCheck;
-import me.ialistannen.simplecodetester.checks.defaults.io.matcher.LiteralIoMatcher;
-import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
+import java.util.Optional;
 import me.ialistannen.simplecodetester.result.Result;
+import me.ialistannen.simplecodetester.runner.communication.BackendCommunicator;
 import me.ialistannen.simplecodetester.runner.config.RunnerConfiguration;
 import me.ialistannen.simplecodetester.runner.execution.Tester;
-import me.ialistannen.simplecodetester.submission.ImmutableCompleteTask;
-import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
+import me.ialistannen.simplecodetester.submission.CompleteTask;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
 
-  public static void main(String[] args) {
+  private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
+  public static void main(String[] args) throws InterruptedException {
     if (args.length < 1) {
       System.err.println("Parameter: <config file location>");
       System.exit(1);
@@ -33,26 +35,35 @@ public class Main {
         Duration.ofSeconds(config.getMaxRuntimeSeconds()),
         ConfiguredGson.createGson()
     );
-    Result test = tester.test(
-        ImmutableCompleteTask.builder()
-            .addChecks(new CheckSerializer(ConfiguredGson.createGson()).toJson(
-                new InterleavedStaticIOCheck(
-                    List.of(), List.of(), List.of(List.of(new LiteralIoMatcher("Hello"))),
-                    "Test"
-                )
-            ))
-            .userId("Test")
-            .submission(
-                ImmutableSubmission.builder()
-                    .putFiles(
-                        "Test.java",
-                        "class Test { public static void main(String... args) {edu.kit.informatik.Terminal.printLine(\"Hello\"); } }"
-                    )
-                    .build()
-            )
-            .build()
+    BackendCommunicator backendCommunicator = new BackendCommunicator(
+        config.getBackendUrl(), config.getPassword(), ConfiguredGson.createGson()
     );
-    System.out.println(test);
+
+    //noinspection InfiniteLoopStatement
+    while (true) {
+      try {
+        iteration(tester, backendCommunicator);
+      } catch (ConnectException e) {
+        LOGGER.warn("Connection refused: {}", e.getMessage());
+      } catch (IOException | InterruptedException e) {
+        LOGGER.warn("Error in iteration", e);
+      }
+
+      //noinspection BusyWait
+      Thread.sleep(2000);
+    }
+  }
+
+  private static void iteration(Tester tester, BackendCommunicator backendCommunicator)
+      throws IOException, InterruptedException {
+    Optional<CompleteTask> taskOpt = backendCommunicator.requestTask();
+
+    if (taskOpt.isEmpty()) {
+      return;
+    }
+    CompleteTask task = taskOpt.get();
+    Result result = tester.test(task);
+    backendCommunicator.sendResults(result);
   }
 
   private static RunnerConfiguration loadConfig(String arg) {
