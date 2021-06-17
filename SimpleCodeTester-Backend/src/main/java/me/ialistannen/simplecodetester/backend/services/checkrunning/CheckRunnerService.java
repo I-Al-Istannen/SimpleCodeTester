@@ -1,43 +1,39 @@
 package me.ialistannen.simplecodetester.backend.services.checkrunning;
 
+import static java.util.stream.Collectors.toList;
+
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
-import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
-import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
+import me.ialistannen.simplecodetester.result.Result;
+import me.ialistannen.simplecodetester.submission.ImmutableCompleteTask;
 import me.ialistannen.simplecodetester.submission.Submission;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class CheckRunnerService implements DisposableBean, InitializingBean {
+public class CheckRunnerService {
 
-  @Value("${runner.classpath}")
-  private String[] slaveClasspath;
-  @Value("${runner.max-computation-time-seconds}")
-  private long maxComputationTimeSeconds;
-
+  private final TaskQueue queue;
   private final Timer submissionDurationTimer;
-  private final AtomicInteger queueLengthCounter;
 
-  public CheckRunnerService() {
+  public CheckRunnerService(TaskQueue queue) {
+    this.queue = queue;
+
     this.submissionDurationTimer = Timer.builder("test_duration")
         .description("Duration of tests")
         .publishPercentileHistogram()
         .minimumExpectedValue(Duration.ofSeconds(2))
         .register(Metrics.globalRegistry);
-    this.queueLengthCounter = new AtomicInteger();
 
-    Gauge.builder("testing_queue_length", queueLengthCounter::get)
+    Gauge.builder("testing_queue_length", queue::size)
         .register(Metrics.globalRegistry);
   }
 
@@ -47,22 +43,24 @@ public class CheckRunnerService implements DisposableBean, InitializingBean {
    * @param userId the id of the user
    * @param submission the {@link Submission} to check
    * @param checks the checks to run
-   * @return the {@link SubmissionCheckResult}
-   * @throws CompilationFailedException if the compilation failed
-   * @throws CheckRunningFailedException if an unknown error occured
+   * @return the {@link Result}
+   * @throws CheckRunningFailedException if an unknown error occurred
    */
-  public SubmissionCheckResult check(String userId, Submission submission,
+  public Result check(String userId, Submission submission,
       List<CodeCheck> checks) {
-    return null;
+    CompletableFuture<Result> result = queue.addTask(
+        ImmutableCompleteTask.builder()
+            .userId(userId)
+            .submission(submission)
+            .addAllChecks(checks.stream().map(CodeCheck::getText).collect(toList()))
+            .build()
+    );
+
+    try {
+      System.out.println("Waiting for my tiiimmee");
+      return result.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new CheckRunningFailedException(userId, e);
+    }
   }
-
-  @Override
-  public void afterPropertiesSet() {
-  }
-
-  @Override
-  public void destroy() {
-
-  }
-
 }

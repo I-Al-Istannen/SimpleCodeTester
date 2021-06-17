@@ -61,9 +61,12 @@ public class BackendCommunicator {
     HttpRequest request = HttpRequest.newBuilder(reportWorkUri)
         .POST(BodyPublishers.ofString(gson.toJson(new AttributedResult(userId, result))))
         .header("Authorization", password)
+        .header("Content-Type", "application/json")
         .build();
 
     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+
+    System.out.println(request.headers());
 
     if (response.statusCode() != 200) {
       LOGGER.warn(

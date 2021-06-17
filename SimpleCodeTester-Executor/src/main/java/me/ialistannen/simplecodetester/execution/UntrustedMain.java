@@ -22,6 +22,7 @@ public final class UntrustedMain {
 
     Gson gson = ConfiguredGson.createGson();
     Executor executor = new Executor(System.out, gson);
-    executor.runTests(readTask(gson));
+    CompleteTask task = readTask(gson);
+    executor.runTests(task);
   }
 }

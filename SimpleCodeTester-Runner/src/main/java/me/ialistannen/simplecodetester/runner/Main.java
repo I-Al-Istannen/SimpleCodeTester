@@ -61,6 +61,7 @@ public class Main {
     if (taskOpt.isEmpty()) {
       return;
     }
+    System.out.println("Got work!");
     CompleteTask task = taskOpt.get();
     Result result = tester.test(task);
     backendCommunicator.sendResults(result, task.userId());

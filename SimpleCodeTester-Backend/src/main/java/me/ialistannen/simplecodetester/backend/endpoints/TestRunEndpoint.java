@@ -21,16 +21,15 @@ import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
-import me.ialistannen.simplecodetester.backend.exception.CheckAlreadyRunningException;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
-import me.ialistannen.simplecodetester.backend.exception.CompilationFailedException;
 import me.ialistannen.simplecodetester.backend.services.checkrunning.CheckRunnerService;
 import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
-import me.ialistannen.simplecodetester.checks.ImmutableSubmissionCheckResult;
-import me.ialistannen.simplecodetester.checks.SubmissionCheckResult;
+import me.ialistannen.simplecodetester.compilation.CompilationOutput;
+import me.ialistannen.simplecodetester.result.ImmutableResult;
+import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import me.ialistannen.simplecodetester.util.ClassParsingUtil;
@@ -109,7 +108,17 @@ public class TestRunEndpoint {
     submissionsTestedCounter.increment();
 
     try {
-      SubmissionCheckResult checkResult = checkRunnerService.check(id, submission, checks);
+      Result checkResult = checkRunnerService.check(id, submission, checks);
+
+      System.out.println(checkResult);
+
+      if (checkResult.compilationOutput().isPresent()) {
+        CompilationOutput output = checkResult.compilationOutput().get();
+        if (!output.successful()) {
+          failedCompilationsCounter.increment();
+          return ResponseEntity.ok().body(output);
+        }
+      }
 
       Map<String, List<CheckResult>> skippedChecksRemoved = new HashMap<>();
 
@@ -136,15 +145,12 @@ public class TestRunEndpoint {
           .count();
       failedTestsCounter.increment(failedTestCount);
       return ResponseEntity.ok(
-          ImmutableSubmissionCheckResult.builder()
+          ImmutableResult.builder()
               .from(checkResult)
               .fileResults(skippedChecksRemoved)
               .build()
       );
-    } catch (CompilationFailedException e) {
-      failedCompilationsCounter.increment();
-      return ResponseEntity.ok().body(e.getOutput());
-    } catch (CheckRunningFailedException | CheckAlreadyRunningException e) {
+    } catch (CheckRunningFailedException e) {
       executionErrorsCounter.increment();
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }

@@ -67,8 +67,8 @@ public class Executor {
     checkRunner.checkSubmission(submission, this::onCheckResult, this::onCheckStarted);
   }
 
-  private void onCheckResult(String name, CheckResult result) {
-    out.println(gson.toJson(Map.of("check-name", name, "data", result)));
+  private void onCheckResult(String fileName, CheckResult result) {
+    out.println(gson.toJson(Map.of("file-name", fileName, "data", result)));
   }
 
   private void onCheckStarted(String name) {

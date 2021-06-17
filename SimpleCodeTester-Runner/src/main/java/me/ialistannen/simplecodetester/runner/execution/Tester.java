@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class Tester {
     }
 
     String lastCheck = "Unknown";
-    List<CheckResult> results = new ArrayList<>();
+    Map<String, List<CheckResult>> results = new HashMap<>();
     List<String> stdOut = task.getCurrentStdOut().lines().collect(Collectors.toList());
 
     for (int i = 1; i < stdOut.size(); i++) {
@@ -93,7 +94,7 @@ public class Tester {
                 ? Optional.of(ImmutableTimeoutData.builder().lastTest(lastCheck).build())
                 : Optional.empty()
         )
-        .addAllResults(results)
+        .putAllFileResults(results)
         .compilationOutput(parseCompilationOutput(stdOut, completeTask.userId()))
         .build();
   }
@@ -121,7 +122,7 @@ public class Tester {
     }
   }
 
-  private String parseResultLine(String line, List<CheckResult> resultList) {
+  private String parseResultLine(String line, Map<String, List<CheckResult>> resultList) {
     Map<String, JsonElement> data = gson.fromJson(
         line,
         new TypeToken<Map<String, JsonElement>>() {
@@ -131,7 +132,12 @@ public class Tester {
       return data.get("check-name").getAsString();
     } else {
       CheckResult singleResult = gson.fromJson(data.get("data"), CheckResult.class);
-      resultList.add(singleResult);
+      String filename = data.get("file-name").getAsString();
+      List<CheckResult> results = resultList.getOrDefault(filename, new ArrayList<>());
+      results.add(singleResult);
+
+      resultList.put(filename, results);
+
       return singleResult.check();
     }
   }
