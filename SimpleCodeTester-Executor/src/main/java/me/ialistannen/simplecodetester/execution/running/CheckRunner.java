@@ -21,6 +21,7 @@ import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.util.ErrorLogCapture;
 import me.ialistannen.simplecodetester.util.ExceptionUtil;
+import me.ialistannen.simplecodetester.util.StringOutputStream;
 
 /**
  * A class that runs a given suit of tests against a {@link CompiledSubmission}, reporting the
@@ -48,7 +49,7 @@ public class CheckRunner {
    */
   public void checkSubmission(CompiledSubmission compiledSubmission,
       BiConsumer<String, CheckResult> resultConsumer, Consumer<String> checkStartingConsumer) {
-    disableSystemInAndOut();
+    modifySystemInAndOut();
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
       for (Check check : checks) {
@@ -107,24 +108,28 @@ public class CheckRunner {
     return message + "\n\nStacktrace:\n" + ExceptionUtil.getStacktrace(rootCause);
   }
 
-  private void disableSystemInAndOut() {
+  private void modifySystemInAndOut() {
     System.setIn(new InputStream() {
       @Override
       public int read() {
         throw new UnsupportedIoException(
-            "You can not read from System.in, please use the edu.kit.informatik.Terminal class for"
-                + " io and make sure it is in that package!"
+            "You can not read from System.in directly. Artemis I/O is too restricted to allow proper"
+                + " error messages so I had to get creative."
+                + " Please use a Scanner or BufferedReader to read from System.in."
         );
       }
     });
     System.setOut(new PrintStream(new OutputStream() {
+      private StringOutputStream outputStream = new StringOutputStream();
+
       @Override
       public void write(int b) {
-        throw new UnsupportedIoException(
-            "You can not write to System.out, please use the edu.kit.informatik.Terminal class for"
-                + " io and make sure it is in that package!"
-
-        );
+        if (b == '\n') {
+          Terminal.printLine(outputStream.getString());
+          outputStream = new StringOutputStream();
+        } else {
+          outputStream.write(b);
+        }
       }
     }));
   }
