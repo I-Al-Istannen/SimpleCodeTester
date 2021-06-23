@@ -1,6 +1,5 @@
 package me.ialistannen.simplecodetester.submission;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Optional;
 import java.util.function.Supplier;
 import me.ialistannen.simplecodetester.exceptions.CompiledClassNotLoadableException;
@@ -11,7 +10,6 @@ import org.immutables.value.Value;
  * A submitted file that was successfully compiled.
  */
 @Gson.TypeAdapters
-@JsonSerialize
 @Value.Immutable
 public abstract class CompiledFile {
 

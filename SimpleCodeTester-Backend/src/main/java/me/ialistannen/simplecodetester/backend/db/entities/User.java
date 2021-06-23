@@ -1,15 +1,11 @@
 package me.ialistannen.simplecodetester.backend.db.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.annotations.Expose;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
 import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,9 +17,9 @@ public class User {
 
   private String id;
   private String name;
-  @JsonIgnore
+  @Expose(serialize = false)
   private String passwordHash;
-  private boolean enabled = true;
+  private boolean enabled;
 
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> authorities;

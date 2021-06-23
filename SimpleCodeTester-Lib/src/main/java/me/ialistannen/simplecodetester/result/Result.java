@@ -1,7 +1,5 @@
 package me.ialistannen.simplecodetester.result;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,8 +13,6 @@ import org.immutables.value.Value;
  * The result of testing a submission.
  */
 @Serial.Structural
-@JsonSerialize(as = ImmutableResult.class)
-@JsonDeserialize(as = ImmutableResult.class)
 @Gson.TypeAdapters
 @Value.Immutable
 public abstract class Result {
@@ -29,8 +25,6 @@ public abstract class Result {
 
   @Serial.Structural
   @Value.Immutable
-  @JsonSerialize(as = ImmutableTimeoutData.class)
-  @JsonDeserialize(as = ImmutableTimeoutData.class)
   @Gson.TypeAdapters
   public static abstract class TimeoutData {
 

@@ -1,11 +1,11 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -131,17 +131,16 @@ public class UserManageEndpoint {
    * @param user the user to modify
    */
   @PostMapping("/admin/update-user")
-  public ResponseEntity<Object> updateUser(@RequestBody ObjectNode user) {
-    String id = user.get("id").asText();
-    boolean enabled = user.get("enabled").asBoolean();
-    String name = user.get("displayName").asText();
+  public ResponseEntity<Object> updateUser(@RequestBody JsonObject user) {
+    String id = user.get("id").getAsString();
+    boolean enabled = user.get("enabled").getAsBoolean();
+    String name = user.get("displayName").getAsString();
     List<String> roles = new ArrayList<>();
 
     if (user.has("roles")) {
-      Iterator<JsonNode> nodes = user.get("roles").elements();
-      while (nodes.hasNext()) {
-        JsonNode next = nodes.next();
-        roles.add(next.asText());
+      JsonArray nodes = user.get("roles").getAsJsonArray();
+      for (JsonElement node : nodes) {
+        roles.add(node.getAsString());
       }
     }
 
@@ -154,8 +153,8 @@ public class UserManageEndpoint {
       editable.setName(name);
       editable.setAuthorities(roles);
 
-      if (user.has("password") && !user.get("password").asText().isBlank()) {
-        editable.setPasswordHash(passwordEncoder.encode(user.get("password").asText()));
+      if (user.has("password") && !user.get("password").getAsString().isBlank()) {
+        editable.setPasswordHash(passwordEncoder.encode(user.get("password").getAsString()));
       }
     });
 

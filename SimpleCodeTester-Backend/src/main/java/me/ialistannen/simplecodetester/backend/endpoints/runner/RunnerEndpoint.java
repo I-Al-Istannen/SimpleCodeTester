@@ -1,14 +1,12 @@
 package me.ialistannen.simplecodetester.backend.endpoints.runner;
 
-import com.google.gson.Gson;
-import javax.validation.constraints.NotEmpty;
+import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.services.checkrunning.TaskQueue;
 import me.ialistannen.simplecodetester.backend.services.config.RunnerConfig;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.submission.CompleteTask;
-import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,25 +33,24 @@ public class RunnerEndpoint {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    System.out.println("Dishing out work");
-    return ResponseEntity.of(taskQueue.pollTask());
+    Optional<CompleteTask> taskOptional = taskQueue.pollTask();
+
+    taskOptional.ifPresent(task -> log.info("Sending task for ({}) to runner", task.userId()));
+
+    return ResponseEntity.of(taskOptional);
   }
 
   @PostMapping("/report-work")
-  public ResponseEntity<CompleteTask> requestWork(
+  public ResponseEntity<CompleteTask> reportWork(
       @RequestHeader("Authorization") String password,
-      @RequestBody @NotNull @NotEmpty String resultString
+      @RequestBody @NotNull AttributedResult result
   ) {
     if (!this.runnerConfig.getPassword().equals(password)) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+    log.info("Received results for ({})", result.getUserId());
 
-    Gson gson = ConfiguredGson.createGson();
-    AttributedResult result = gson.fromJson(resultString, AttributedResult.class);
-
-    System.out.println("Go results!");
     taskQueue.complete(result.getResult(), result.getUserId());
-
     return ResponseEntity.ok().build();
   }
 

@@ -1,6 +1,5 @@
 package me.ialistannen.simplecodetester.checks;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.Getter;
@@ -76,13 +75,13 @@ public interface Check {
   }
 
   @ToString
-  @Getter(onMethod_ = {@JsonProperty})
+  @Getter
   class CheckFile {
 
-    private String name;
-    private String content;
+    private final String name;
+    private final String content;
 
-    public CheckFile(@JsonProperty("name") String name, @JsonProperty("content") String content) {
+    public CheckFile(String name, String content) {
       this.name = name;
       this.content = content;
     }

@@ -1,9 +1,9 @@
 package me.ialistannen.simplecodetester.backend.db.entities;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
@@ -23,7 +23,7 @@ public class CodeCheck {
 
   private Integer id;
   private String text;
-  @JsonSerialize(using = UserSerializer.class)
+  @JsonAdapter(SerializeNameOnly.class)
   private User creator;
   private CheckCategory category;
   private Instant creationTime;
@@ -78,12 +78,16 @@ public class CodeCheck {
     return Objects.hash(id);
   }
 
-  private static class UserSerializer extends JsonSerializer<User> {
+  private static class SerializeNameOnly extends TypeAdapter<User> {
 
     @Override
-    public void serialize(User value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException {
-      gen.writeString(value.getName());
+    public void write(JsonWriter out, User user) throws IOException {
+      out.value(user.getName());
+    }
+
+    @Override
+    public User read(JsonReader in) {
+      throw new IllegalStateException("You can not deserialize this field");
     }
   }
 }

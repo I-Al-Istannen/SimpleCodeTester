@@ -1,7 +1,9 @@
 package me.ialistannen.simplecodetester.backend;
 
+import com.google.gson.Gson;
 import me.ialistannen.simplecodetester.backend.db.storage.DatabaseStorage;
 import me.ialistannen.simplecodetester.backend.services.config.ConfigurationService;
+import me.ialistannen.simplecodetester.util.ConfiguredGson;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
@@ -23,5 +25,10 @@ public class Main {
   @Bean
   public DatabaseStorage provideDatabaseStorage(ConfigurationService config) {
     return new DatabaseStorage(config.getDatabaseConfig().getUrl());
+  }
+
+  @Bean
+  public Gson provideGson() {
+    return ConfiguredGson.createGson();
   }
 }

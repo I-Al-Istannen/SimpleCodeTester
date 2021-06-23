@@ -2,12 +2,8 @@ package me.ialistannen.simplecodetester.backend.endpoints.checks;
 
 import static java.util.stream.Collectors.toList;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
@@ -86,25 +82,25 @@ public class CheckManageEndpoint {
   }
 
   @GetMapping("/checks/get-all")
-  public List<JsonNode> getAll(ObjectMapper objectMapper) {
+  public List<JsonElement> getAll() {
     return checkService.getAll().stream()
         .map(codeCheck -> {
-          ObjectNode object = objectMapper.createObjectNode()
-              .put("id", codeCheck.getId())
-              .put("name", codeCheck.getName())
-              .put("creator", codeCheck.getCreator().getName())
-              .put("checkType", codeCheck.getCheckType().name())
-              .put("approved", codeCheck.isApproved())
-              .put("creationTime", codeCheck.getCreationTime().toEpochMilli());
+          JsonObject object = new JsonObject();
+          object.addProperty("id", codeCheck.getId());
+          object.addProperty("name", codeCheck.getName());
+          object.addProperty("creator", codeCheck.getCreator().getName());
+          object.addProperty("checkType", codeCheck.getCheckType().name());
+          object.addProperty("approved", codeCheck.isApproved());
+          object.addProperty("creationTime", codeCheck.getCreationTime().toEpochMilli());
 
           codeCheck.getUpdateTime()
-              .ifPresent(it -> object.put("updateTime", it.toEpochMilli()));
+              .ifPresent(it -> object.addProperty("updateTime", it.toEpochMilli()));
 
-          ObjectNode categoryNode = objectMapper.createObjectNode();
-          categoryNode.put("id", codeCheck.getCategory().getId());
-          categoryNode.put("name", codeCheck.getCategory().getName());
+          JsonObject categoryObject = new JsonObject();
+          categoryObject.addProperty("id", codeCheck.getCategory().getId());
+          categoryObject.addProperty("name", codeCheck.getCategory().getName());
 
-          object.set("category", categoryNode);
+          object.add("category", categoryObject);
           return object;
         })
         .collect(toList());
@@ -331,17 +327,15 @@ public class CheckManageEndpoint {
   }
 
   @ToString
-  @Getter(onMethod_ = {@JsonProperty})
+  @Getter
   private static class AddOrUpdateCheckRequest {
 
     @NotEmpty
-    private String payload;
+    private final String payload;
     @NotNull
-    private List<CheckFile> files;
+    private final List<CheckFile> files;
 
-    @JsonCreator
-    public AddOrUpdateCheckRequest(@JsonProperty("payload") String payload,
-        @JsonProperty("files") List<CheckFile> files) {
+    public AddOrUpdateCheckRequest(String payload, List<CheckFile> files) {
       this.payload = payload;
       this.files = files;
     }

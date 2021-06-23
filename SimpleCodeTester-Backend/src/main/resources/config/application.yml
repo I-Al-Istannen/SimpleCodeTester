@@ -32,5 +32,10 @@ cors:
 database:
   url: "jdbc:sqlite:./codetester.db"
 
+spring:
+  mvc:
+    converters:
+      preferred-json-mapper: "gson"
+
 server:
   port: 8081

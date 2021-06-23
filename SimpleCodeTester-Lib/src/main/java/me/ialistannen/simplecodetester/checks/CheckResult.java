@@ -1,7 +1,5 @@
 package me.ialistannen.simplecodetester.checks;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import java.util.Optional;
 import me.ialistannen.simplecodetester.checks.Check.CheckFile;
@@ -15,8 +13,6 @@ import org.immutables.value.Value.Default;
  */
 @Value.Immutable
 @Gson.TypeAdapters
-@JsonSerialize(as = ImmutableCheckResult.class)
-@JsonDeserialize(as = ImmutableCheckResult.class)
 public abstract class CheckResult {
 
   /**

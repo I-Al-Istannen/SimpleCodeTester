@@ -25,7 +25,6 @@
     <lombok.version>1.18.16</lombok.version>
     <hamcrest.version>2.2</hamcrest.version>
     <jsr305.version>3.0.2</jsr305.version>
-    <jackson.version>2.12.0</jackson.version>
 
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>

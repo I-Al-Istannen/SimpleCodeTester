@@ -110,8 +110,6 @@ public class TestRunEndpoint {
     try {
       Result checkResult = checkRunnerService.check(id, submission, checks);
 
-      System.out.println(checkResult);
-
       if (checkResult.compilationOutput().isPresent()) {
         CompilationOutput output = checkResult.compilationOutput().get();
         if (!output.successful()) {

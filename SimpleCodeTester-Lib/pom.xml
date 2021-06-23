@@ -28,14 +28,6 @@
       <artifactId>joor</artifactId>
       <version>${joor.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
   </dependencies>
 
 </project>
