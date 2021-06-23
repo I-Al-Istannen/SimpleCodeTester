@@ -52,7 +52,9 @@ public class CheckRunner {
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
       for (Check check : checks) {
-        checkStartingConsumer.accept("'" + check.name() + "' on '" + file.qualifiedName() + "'");
+        checkStartingConsumer.accept(
+            "'" + check.name() + "' on class '" + file.qualifiedName() + "'"
+        );
 
         long startTime = System.currentTimeMillis();
         CheckResult checkResult = tryCheck(check, file);
