@@ -10,7 +10,7 @@ import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
-import me.ialistannen.simplecodetester.util.ReflectionHelper;
+import me.ialistannen.simplecodetester.util.MainClassDetectionUtil;
 import org.joor.Reflect;
 
 /**
@@ -22,7 +22,7 @@ import org.joor.Reflect;
 public class StaticInputOutputCheck implements Check {
 
   private static final String REGEX_MARKER = "?r";
-  private static final Predicate<CompiledFile> mainClassPredicate = ReflectionHelper
+  private static final Predicate<CompiledFile> mainClassPredicate = MainClassDetectionUtil
       .hasMain(CompiledFile::asClass);
 
   private List<String> input;

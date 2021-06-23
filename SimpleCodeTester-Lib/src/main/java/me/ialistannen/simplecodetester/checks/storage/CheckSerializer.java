@@ -11,7 +11,7 @@ import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
  */
 public class CheckSerializer {
 
-  private Gson gson;
+  private final Gson gson;
 
   /**
    * Creates a new check serializer.

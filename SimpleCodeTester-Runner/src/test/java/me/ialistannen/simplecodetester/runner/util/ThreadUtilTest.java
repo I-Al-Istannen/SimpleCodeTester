@@ -1,15 +1,15 @@
-package me.ialistannen.simplecodetester.util;
+package me.ialistannen.simplecodetester.runner.util;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ThreadFactory;
 import org.junit.jupiter.api.Test;
 
-class ThreadHelperTest {
+class ThreadUtilTest {
 
   @Test
   void daemonCreatesIsDaemons() {
-    ThreadFactory threadFactory = ThreadHelper.daemonThreadFactory(Thread::new);
+    ThreadFactory threadFactory = ThreadUtil.daemonThreadFactory(Thread::new);
 
     Thread thread = threadFactory.newThread(() -> {
     });

@@ -13,9 +13,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.function.Supplier;
-import me.ialistannen.simplecodetester.runner.util.DaemonThreadFactory;
 import me.ialistannen.simplecodetester.runner.util.ProgramResult;
 import me.ialistannen.simplecodetester.util.StringOutputStream;
+import me.ialistannen.simplecodetester.runner.util.ThreadUtil;
 
 /**
  * A small utility for executing programs.
@@ -30,7 +30,7 @@ public class ProgramExecutor {
   // the result, the threads will die as well, otherwise they will be kept alive and things work
   // as expected.
   private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool(
-      new DaemonThreadFactory()
+      ThreadUtil.daemonThreadFactory(Thread::new)
   );
 
   /**

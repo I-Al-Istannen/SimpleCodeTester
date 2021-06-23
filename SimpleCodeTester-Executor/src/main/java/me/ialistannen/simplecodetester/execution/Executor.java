@@ -11,6 +11,7 @@ import me.ialistannen.simplecodetester.checks.Check;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
+import me.ialistannen.simplecodetester.exceptions.CompilationException;
 import me.ialistannen.simplecodetester.execution.compilation.Compiler;
 import me.ialistannen.simplecodetester.execution.compilation.memory.Java11InMemoryCompiler;
 import me.ialistannen.simplecodetester.execution.running.CheckRunner;
@@ -40,9 +41,17 @@ public class Executor {
    * @param task the task to run
    */
   public void runTests(CompleteTask task) {
-    CompiledSubmission submission = compile(task.submission());
-    List<Check> checks = extractChecks(task);
-    test(checks, submission);
+    try {
+      CompiledSubmission submission = compile(task.submission());
+      List<Check> checks = extractChecks(task);
+      test(checks, submission);
+    } catch (CompilationException e) {
+      out.println(gson.toJson(
+          ImmutableCompilationOutput.builder()
+              .from(e.getOutput())
+              .files(List.of())
+      ));
+    }
   }
 
   private CompiledSubmission compile(Submission submission) {

@@ -7,10 +7,10 @@ import java.util.function.Predicate;
 import lombok.experimental.UtilityClass;
 
 /**
- * A small helper class for dealing with reflection.
+ * A small util class for finding main methods.
  */
 @UtilityClass
-public class ReflectionHelper {
+public class MainClassDetectionUtil {
 
   /**
    * Returns a predicate matching whether a class has a main class.

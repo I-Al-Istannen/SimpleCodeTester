@@ -7,7 +7,7 @@ import me.ialistannen.simplecodetester.checks.defaults.io.LineResult;
 
 public class CheckFailedException extends RuntimeException {
 
-  private List<LineResult> outputLines;
+  private final List<LineResult> outputLines;
 
   public CheckFailedException(String message) {
     super(message);

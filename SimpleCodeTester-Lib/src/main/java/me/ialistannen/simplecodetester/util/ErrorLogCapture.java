@@ -7,7 +7,7 @@ import java.io.PrintStream;
  */
 public class ErrorLogCapture {
 
-  private StringOutputStream outputStream = new StringOutputStream();
+  private final StringOutputStream outputStream = new StringOutputStream();
   private PrintStream originalError;
 
   /**

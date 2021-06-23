@@ -17,7 +17,7 @@ import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoM
 import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.util.ExceptionUtil;
-import me.ialistannen.simplecodetester.util.ReflectionHelper;
+import me.ialistannen.simplecodetester.util.MainClassDetectionUtil;
 import org.joor.Reflect;
 import org.joor.ReflectException;
 
@@ -26,7 +26,7 @@ import org.joor.ReflectException;
  */
 public class InterleavedStaticIOCheck implements Check {
 
-  private static final Predicate<CompiledFile> isMain = ReflectionHelper
+  private static final Predicate<CompiledFile> isMain = MainClassDetectionUtil
       .hasMain(CompiledFile::asClass);
 
   private List<String> input;

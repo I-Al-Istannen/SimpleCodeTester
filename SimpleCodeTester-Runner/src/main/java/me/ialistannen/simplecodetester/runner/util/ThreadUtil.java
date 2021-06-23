@@ -1,11 +1,11 @@
-package me.ialistannen.simplecodetester.util;
+package me.ialistannen.simplecodetester.runner.util;
 
 import java.util.concurrent.ThreadFactory;
 
 /**
  * Helps with creating and handling threads.
  */
-public final class ThreadHelper {
+public final class ThreadUtil {
 
 
   /**
