@@ -1,17 +1,21 @@
 package me.ialistannen.simplecodetester.util;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.Expose;
 import com.google.gson.internal.bind.TreeTypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -48,6 +52,22 @@ public class ConfiguredGson {
     }
 
     return gsonBuilder
+        // Respect "Expose" annotations
+        .addSerializationExclusionStrategy(new ExclusionStrategy() {
+          @Override
+          public boolean shouldSkipField(FieldAttributes f) {
+            Expose annotation = f.getAnnotation(Expose.class);
+            if (annotation == null) {
+              return false;
+            }
+            return !annotation.serialize();
+          }
+
+          @Override
+          public boolean shouldSkipClass(Class<?> clazz) {
+            return false;
+          }
+        })
         .registerTypeAdapter(Path.class, new PathTypeAdapter())
         .registerTypeAdapter(StaticInputOutputCheck.class, new StaticInputOutputCheckAdapter())
         .registerTypeAdapterFactory(new GsonAdaptersCompleteTask())
