@@ -44,16 +44,15 @@ public class TaskQueue {
   public synchronized CompletableFuture<Result> addTask(CompleteTask task) {
     log.info("Queuing task for ({})", task.userId());
 
-    boolean removedTaskInQueue = tasks.removeIf(it -> it.userId().equals(task.userId()));
     boolean hasPendingTask = pendingElements.containsKey(task.userId());
 
-    // Was already removed from the task queue but is still pending => Is dispatched on a runner
-    if (hasPendingTask && !removedTaskInQueue) {
-      log.info("User ({}) submitted a new task while the old was running", task.userId());
-      return pendingElements.get(task.userId());
-    }
-    if (removedTaskInQueue) {
-      log.info("Replaced task for ({})", task.userId());
+    if (hasPendingTask) {
+      log.info("User ({}) submitted a new task while the old one was still pending", task.userId());
+      completeWithError(
+          pendingElements.get(task.userId()),
+          "You made a new request. "
+              + "This one will be discarded and you were placed at the end of the queue."
+      );
     }
 
     CompletableFuture<Result> future = new CompletableFuture<>();
@@ -76,20 +75,24 @@ public class TaskQueue {
     CompletableFuture<Result> future = pendingElements.remove(userId);
 
     if (future != null) {
-      future.complete(ImmutableResult.builder()
-          .fileResults(Map.of(
-              "Errors", List.of(
-                  ImmutableCheckResult.builder()
-                      .result(ResultType.FAILED)
-                      .check("Cancellation")
-                      .message("The check was cancelled")
-                      .errorOutput("")
-                      .build()
-              )
-          ))
-          .build()
-      );
+      completeWithError(future, "The check was cancelled");
     }
+  }
+
+  private void completeWithError(CompletableFuture<Result> future, String message) {
+    future.complete(ImmutableResult.builder()
+        .fileResults(Map.of(
+            "Errors", List.of(
+                ImmutableCheckResult.builder()
+                    .result(ResultType.FAILED)
+                    .check("Cancellation")
+                    .message(message)
+                    .errorOutput("")
+                    .build()
+            )
+        ))
+        .build()
+    );
   }
 
   /**
