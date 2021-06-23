@@ -66,8 +66,6 @@ public class BackendCommunicator {
 
     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 
-    System.out.println(request.headers());
-
     if (response.statusCode() != 200) {
       LOGGER.warn(
           "Sending results failed with code {} and body {}",

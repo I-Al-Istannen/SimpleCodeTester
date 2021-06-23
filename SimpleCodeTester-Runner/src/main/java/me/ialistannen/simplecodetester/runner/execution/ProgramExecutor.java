@@ -22,7 +22,7 @@ import me.ialistannen.simplecodetester.util.StringOutputStream;
  */
 public class ProgramExecutor {
 
-  // If multiple ProgramExecutors are used, could block the common fork join pool completely.
+  // If multiple ProgramExecutors are used, they could block the common fork join pool completely.
   // We occupy 2 threads per execution (draining stderr and stdio)
   // Using a cached thread pool allows the executor to scale, while also trimming down unused
   // tasks after some delay specified in the JDK method (currently 60 seconds).

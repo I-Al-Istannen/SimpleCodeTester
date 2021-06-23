@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -58,16 +57,15 @@ public class Tester {
    * @return the result
    */
   public synchronized Result test(CompleteTask completeTask) {
-    UUID currentUuid = UUID.randomUUID();
-    StreamsProcessOutput<ProgramResult> task = start(currentUuid, completeTask);
+    StreamsProcessOutput<ProgramResult> task = start(completeTask);
 
     boolean killed = false;
     try {
       task.get(maxRuntime.getSeconds(), TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
+      LOGGER.warn("Testing failed", e);
     } catch (TimeoutException e) {
-      forceKill(currentUuid);
+      forceKill(completeTask.userId());
       killed = true;
     }
 
@@ -142,20 +140,20 @@ public class Tester {
     }
   }
 
-  private StreamsProcessOutput<ProgramResult> start(UUID currentUuid,
-      CompleteTask taskToSend) {
-    List<String> command = generateFullCommand(startCommand, currentUuid);
+  private StreamsProcessOutput<ProgramResult> start(CompleteTask taskToSend) {
+    List<String> command = generateFullCommand(startCommand, taskToSend.userId());
     String stdin = gson.toJson(taskToSend);
     return programExecutor.execute(command, stdin);
   }
 
-  private void forceKill(UUID currentUuid) {
-    programExecutor.execute(generateFullCommand(killCommand, currentUuid));
+  private void forceKill(String userId) {
+    LOGGER.info("Force killing process ({})", userId);
+    programExecutor.execute(generateFullCommand(killCommand, userId));
   }
 
-  private List<String> generateFullCommand(List<String> base, UUID currentUuid) {
+  private List<String> generateFullCommand(List<String> base, String userId) {
     List<String> commands = new ArrayList<>(base);
-    commands.add(currentUuid.toString());
+    commands.add(userId);
 
     return commands;
   }

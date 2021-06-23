@@ -25,7 +25,7 @@ class WaitingFutureTask<T> implements Future<T>, StreamsProcessOutput<T> {
     this.underlying = task;
     this.stdOut = stdOut;
     this.stdErr = stdErr;
-    this.worker = new Thread(underlying, "MyFutureTask worker");
+    this.worker = new Thread(underlying, "WaitingFutureTask worker");
     this.worker.start();
   }
 

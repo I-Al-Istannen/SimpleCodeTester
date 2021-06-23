@@ -23,7 +23,7 @@ public class Main {
 
   public static void main(String[] args) throws InterruptedException {
     if (args.length < 1) {
-      System.err.println("Parameter: <config file location>");
+      System.err.println("Usage: Runner <config file location>");
       System.exit(1);
     }
 
@@ -61,8 +61,8 @@ public class Main {
     if (taskOpt.isEmpty()) {
       return;
     }
-    System.out.println("Got work!");
     CompleteTask task = taskOpt.get();
+    LOGGER.info("Got work for '{}'", task.userId());
     Result result = tester.test(task);
     backendCommunicator.sendResults(result, task.userId());
   }
