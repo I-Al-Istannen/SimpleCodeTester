@@ -31,6 +31,26 @@ function parseCheckResponse(json: any): CheckResult {
     entries.push(new Pair(fileName, checkResults));
   })
 
+  if(json.timeoutData) {
+    const lastTest = json.timeoutData.lastTest;
+    entries.push(
+      new Pair(
+        "A Timeout was exceeded",
+        [
+          new FileCheckResult(
+            "Runtime",
+            CheckResultType.FAILED,
+            "A timeout was encountered. Maybe your code never terminates?\n"
+            + "The last test I (likely) tried to run was " + lastTest,
+            "", 
+            [],
+            []
+          )
+        ]
+      )
+    );
+  }
+
   return new CheckResult(entries)
 }
 

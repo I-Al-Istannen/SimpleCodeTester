@@ -59,7 +59,7 @@ export class Pair<K, V> {
 }
 
 export class CheckResult {
-  results: Array<Pair<string, Array<FileCheckResult>>>;
+  readonly results: Array<Pair<string, Array<FileCheckResult>>>;
 
   constructor(results: Array<Pair<string, Array<FileCheckResult>>>) {
     this.results = results;

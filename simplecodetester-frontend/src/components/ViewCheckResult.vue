@@ -193,7 +193,12 @@ export default class Test extends Vue {
   }
 
   private get shouldHideTimesBecausePeopleAreNaughtyAndCompareThem(): boolean {
-    return this.items.map(it => it.totalDuration).reduce((a, b) => a + b) < 15 * 1000;
+    if (this.items.length === 0) {
+      return true;
+    }
+    return (
+      this.items.map(it => it.totalDuration).reduce((a, b) => a + b) < 15 * 1000
+    );
   }
 
   private onShowTimes() {
