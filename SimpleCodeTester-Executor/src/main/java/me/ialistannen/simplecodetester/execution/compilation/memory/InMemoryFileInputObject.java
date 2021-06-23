@@ -6,7 +6,7 @@ import javax.tools.SimpleJavaFileObject;
 class InMemoryFileInputObject extends SimpleJavaFileObject {
 
   private final String name;
-  private String content;
+  private final String content;
 
   /**
    * Construct a SimpleJavaFileObject providing input from a string.

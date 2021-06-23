@@ -3,7 +3,7 @@ package me.ialistannen.simplecodetester.execution;
 import com.google.gson.Gson;
 import java.io.InputStreamReader;
 import java.security.Policy;
-import me.ialistannen.simplecodetester.execution.security.SlavePolicy;
+import me.ialistannen.simplecodetester.execution.security.ExecutorSandboxPolicy;
 import me.ialistannen.simplecodetester.submission.CompleteTask;
 import me.ialistannen.simplecodetester.util.ConfiguredGson;
 
@@ -17,7 +17,7 @@ public final class UntrustedMain {
   }
 
   public static void main(String[] args) {
-    Policy.setPolicy(new SlavePolicy());
+    Policy.setPolicy(new ExecutorSandboxPolicy());
     System.setSecurityManager(new SecurityManager());
 
     Gson gson = ConfiguredGson.createGson();

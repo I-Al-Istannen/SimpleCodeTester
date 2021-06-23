@@ -8,7 +8,7 @@ import java.security.Policy;
 import java.security.ProtectionDomain;
 import me.ialistannen.simplecodetester.execution.running.SubmissionClassLoader;
 
-public class SlavePolicy extends Policy {
+public class ExecutorSandboxPolicy extends Policy {
 
   private static final PermissionCollection ELEVATED_PERMISSIONS = getElevatedPermissions();
 

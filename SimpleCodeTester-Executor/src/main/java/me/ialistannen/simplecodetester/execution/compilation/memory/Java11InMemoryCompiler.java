@@ -108,7 +108,7 @@ public class Java11InMemoryCompiler implements Compiler {
         .files(compiledFiles)
         .build();
 
-    HashMap<String, InMemoryOutputObject> auxiliaryClasses = new HashMap<>(manager.getAll());
+    Map<String, InMemoryOutputObject> auxiliaryClasses = new HashMap<>(manager.getAll());
     for (InMemoryFileInputObject unit : compilationUnits) {
       auxiliaryClasses.remove(manager.sanitizeToClassName(unit.getName()));
     }

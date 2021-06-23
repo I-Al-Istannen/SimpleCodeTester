@@ -13,7 +13,7 @@ import javax.tools.StandardJavaFileManager;
  */
 class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
-  private Map<String, InMemoryOutputObject> compiledClasses;
+  private final Map<String, InMemoryOutputObject> outputFileMap;
 
   /**
    * Creates a new instance of ForwardingJavaFileManager.
@@ -23,7 +23,7 @@ class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager
   ClassFileManager(StandardJavaFileManager fileManager) {
     super(fileManager);
 
-    this.compiledClasses = new HashMap<>();
+    this.outputFileMap = new HashMap<>();
   }
 
   @Override
@@ -31,13 +31,13 @@ class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager
       FileObject sibling) {
     InMemoryOutputObject outputObject = new InMemoryOutputObject(className);
 
-    compiledClasses.put(className, outputObject);
+    outputFileMap.put(className, outputObject);
 
     return outputObject;
   }
 
   InMemoryOutputObject getForClassPath(String path) {
-    return compiledClasses.get(sanitizeToClassName(path));
+    return outputFileMap.get(sanitizeToClassName(path));
   }
 
   String sanitizeToClassName(String path) {
@@ -52,6 +52,6 @@ class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager
    * @return all written output objects
    */
   Map<String, InMemoryOutputObject> getAll() {
-    return compiledClasses;
+    return outputFileMap;
   }
 }
