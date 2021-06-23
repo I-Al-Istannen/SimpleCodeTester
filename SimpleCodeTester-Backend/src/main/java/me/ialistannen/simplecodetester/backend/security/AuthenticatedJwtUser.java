@@ -16,10 +16,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ToString
 public class AuthenticatedJwtUser implements UserDetails {
 
-  private JwtClaims claims;
-  private String principal;
-  private List<GrantedAuthority> authorities;
-  private boolean enabled;
+  private final JwtClaims claims;
+  private final String principal;
+  private final List<GrantedAuthority> authorities;
+  private final boolean enabled;
 
   /**
    * Creates a new AuthenticatedJwtUser from the given {@link JwtClaims}.

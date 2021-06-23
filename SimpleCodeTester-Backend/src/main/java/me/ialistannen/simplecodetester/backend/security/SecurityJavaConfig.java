@@ -102,6 +102,6 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
   @lombok.Value
   public static class AllowedOrigins {
 
-    private List<String> allowedOrigins;
+    List<String> allowedOrigins;
   }
 }

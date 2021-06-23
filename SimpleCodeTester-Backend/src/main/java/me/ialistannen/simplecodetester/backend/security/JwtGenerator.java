@@ -10,7 +10,7 @@ import org.jose4j.jwt.JwtClaims;
  */
 public class JwtGenerator {
 
-  private Key key;
+  private final Key key;
 
   /**
    * Creates a new JwtGenerator and initializes it with a {@link Key} to use.

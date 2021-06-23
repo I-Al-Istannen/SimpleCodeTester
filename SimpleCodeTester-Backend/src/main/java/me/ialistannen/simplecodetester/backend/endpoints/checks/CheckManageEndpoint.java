@@ -23,7 +23,6 @@ import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.endpoints.checks.parsers.CheckParsers;
 import me.ialistannen.simplecodetester.backend.exception.CheckParseException;
-import me.ialistannen.simplecodetester.backend.exception.InvalidCheckException;
 import me.ialistannen.simplecodetester.backend.exception.WebStatusCodeException;
 import me.ialistannen.simplecodetester.backend.security.AuthenticatedJwtUser;
 import me.ialistannen.simplecodetester.backend.services.checks.CheckCategoryService;
@@ -193,16 +192,6 @@ public class CheckManageEndpoint {
       return responseEntity;
     } catch (CheckParseException e) {
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
-    } catch (InvalidCheckException e) {
-      Map<String, Object> data = new HashMap<>();
-
-      data.put("error", e.getMessage());
-
-      if (e.getOutput() != null) {
-        data.put("output", e.getOutput());
-      }
-
-      return ResponseEntity.badRequest().body(data);
     }
   }
 

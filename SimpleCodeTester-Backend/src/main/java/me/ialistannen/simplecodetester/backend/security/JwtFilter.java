@@ -22,7 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtFilter extends OncePerRequestFilter {
 
   private static final String PREFIX = "Bearer ";
-  private JwtConsumer jwtConsumer;
+  private final JwtConsumer jwtConsumer;
 
   /**
    * Creates a new JwtFilter with the given {@link JwtConsumer}.

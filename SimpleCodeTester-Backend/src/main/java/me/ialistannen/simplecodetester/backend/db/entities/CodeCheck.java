@@ -35,9 +35,6 @@ public class CodeCheck {
   private CheckType checkType = CheckType.INTERLEAVED_IO;
   private String name;
 
-  protected CodeCheck() {
-  }
-
   /**
    * Creates a new CodeCheck.
    *

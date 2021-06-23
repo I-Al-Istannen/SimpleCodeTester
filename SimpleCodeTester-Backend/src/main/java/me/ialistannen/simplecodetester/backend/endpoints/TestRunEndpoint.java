@@ -88,11 +88,15 @@ public class TestRunEndpoint {
     String id = user.getName();
 
     if (ClassParsingUtil.getClassName(source).isEmpty()) {
-      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No class declaration found!");
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "No class declaration found.");
     }
 
-    log.info("{} initiated a single file test.", id);
-    return test(id, fileToSubmission(source), categoryId);
+    String className = ClassParsingUtil.getClassName(source).orElseThrow();
+    Submission submission = ImmutableSubmission.builder()
+        .putFiles(className + ".java", source)
+        .build();
+
+    return test(id, submission, categoryId);
   }
 
   private ResponseEntity<Object> test(String id, Submission submission, long categoryId) {
@@ -131,6 +135,7 @@ public class TestRunEndpoint {
 
         skippedChecksRemoved.put(entry.getKey(), withoutSkipped);
       }
+
       testsRunCounter.increment(
           checkResult.fileResults().values().stream()
               .flatMap(Collection::stream)
@@ -142,6 +147,7 @@ public class TestRunEndpoint {
           .filter(it -> it.result() == ResultType.FAILED)
           .count();
       failedTestsCounter.increment(failedTestCount);
+
       return ResponseEntity.ok(
           ImmutableResult.builder()
               .from(checkResult)
@@ -220,13 +226,12 @@ public class TestRunEndpoint {
         files.put(packageName + fileName, source);
       }
 
-      log.info("Testing a zip file for {}", user.getName());
       return testMultipleFiles(files, user.getName(), categoryId);
     } catch (MalformedInputException | IllegalArgumentException e) {
       log.info("Error extracting file for user '{}'", user.getName(), e);
       return ResponseUtil.error(
           HttpStatus.BAD_REQUEST,
-          "Malformed input? Make sure your file names are in UTF-8! Message is" + e.getMessage()
+          "Malformed input? Make sure your file names are in UTF-8! Message is " + e.getMessage()
       );
     } catch (IOException e) {
       log.info("Error extracting file for user '{}'", user.getName(), e);
@@ -264,11 +269,10 @@ public class TestRunEndpoint {
         }
       }
 
-      log.info("Testing multiple uploaded files for {}", user.getName());
       return testMultipleFiles(files, user.getName(), categoryId);
     } catch (IOException e) {
-      log.warn("Error fetching files", e);
-      return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching files.");
+      log.warn("Error fetching files for " + user.getName(), e);
+      return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error fetching files");
     }
   }
 
@@ -293,11 +297,4 @@ public class TestRunEndpoint {
     return test(userId, submission, categoryId);
   }
 
-  private Submission fileToSubmission(String source) {
-    String className = ClassParsingUtil.getClassName(source).orElseThrow();
-
-    return ImmutableSubmission.builder()
-        .putFiles(className + ".java", source)
-        .build();
-  }
 }
