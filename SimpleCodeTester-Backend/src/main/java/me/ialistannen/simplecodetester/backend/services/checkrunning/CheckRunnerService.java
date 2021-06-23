@@ -6,9 +6,12 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
@@ -56,11 +59,22 @@ public class CheckRunnerService {
             .build()
     );
 
+    Instant start = Instant.now();
     try {
-      System.out.println("Waiting for my tiiimmee");
-      return result.get();
+      return result.get(5, TimeUnit.MINUTES);
     } catch (InterruptedException | ExecutionException e) {
-      throw new CheckRunningFailedException(userId, e);
+      log.warn("Check running failed (" + userId + ")", e);
+      throw new CheckRunningFailedException(
+          "Running your check failed :/ Feel free to report this."
+      );
+    } catch (TimeoutException e) {
+      log.warn("Dropped task for ({}) due to a timeout", userId);
+      queue.removeTaskForUser(userId);
+      throw new CheckRunningFailedException(
+          "Your task was dropped due to an internal timeout. Please try again in a few seconds..."
+      );
+    } finally {
+      submissionDurationTimer.record(Duration.between(start, Instant.now()));
     }
   }
 }
