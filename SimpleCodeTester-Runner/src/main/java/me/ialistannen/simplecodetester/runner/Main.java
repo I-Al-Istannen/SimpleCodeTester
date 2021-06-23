@@ -7,6 +7,7 @@ import java.net.ConnectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.runner.communication.BackendCommunicator;
@@ -63,7 +64,18 @@ public class Main {
     }
     CompleteTask task = taskOpt.get();
     LOGGER.info("Got work for '{}'", task.userId());
+    Instant start = Instant.now();
+
     Result result = tester.test(task);
+
+    Duration duration = Duration.between(start, Instant.now());
+    LOGGER.info(
+        "Sending results for '{}'. Tests took {}s {}ms",
+        task.userId(),
+        duration.toSeconds(),
+        duration.toMillisPart()
+    );
+
     backendCommunicator.sendResults(result, task.userId());
   }
 
