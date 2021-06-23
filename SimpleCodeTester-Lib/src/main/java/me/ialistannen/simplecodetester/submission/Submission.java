@@ -12,9 +12,8 @@ import org.immutables.value.Value;
 public abstract class Submission {
 
   /**
-   * All files in this submission. A mapping from FQN -> Content
-   *
-   * @return a map of fqn to content for all files
+   * All files in this submission. A mapping from FQN (in java file syntax,
+   * so "de/ialistannen/Foo.java" -> Content.
    */
   public abstract Map<String, String> files();
 }

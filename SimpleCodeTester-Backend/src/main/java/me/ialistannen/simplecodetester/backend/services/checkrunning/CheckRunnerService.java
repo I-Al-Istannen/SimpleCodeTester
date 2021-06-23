@@ -7,7 +7,9 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -15,8 +17,10 @@ import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
+import me.ialistannen.simplecodetester.backend.services.diana.SystemInMangler;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.submission.ImmutableCompleteTask;
+import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +55,12 @@ public class CheckRunnerService {
    */
   public Result check(String userId, Submission submission,
       List<CodeCheck> checks) {
+    Map<String, String> fileMap = new HashMap<>(submission.files());
+    new SystemInMangler().replace(fileMap);
+    submission = ImmutableSubmission
+        .copyOf(submission)
+        .withFiles(fileMap);
+
     CompletableFuture<Result> result = queue.addTask(
         ImmutableCompleteTask.builder()
             .userId(userId)

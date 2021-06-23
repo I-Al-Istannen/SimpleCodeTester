@@ -113,9 +113,9 @@ public class CheckRunner {
       @Override
       public int read() {
         throw new UnsupportedIoException(
-            "You can not read from System.in directly. Artemis I/O is too restricted to allow proper"
-                + " error messages so I had to get creative."
-                + " Please use a Scanner or BufferedReader to read from System.in."
+            "You can not read from System.in directly. Artemis I/O is too restrictive to allow proper"
+                + " error messages so we had to get creative."
+                + " Please use a Scanner or BufferedReader to read from System.in or files."
         );
       }
     });

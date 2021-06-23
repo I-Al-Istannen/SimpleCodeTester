@@ -235,6 +235,12 @@
       <artifactId>jakarta.validation-api</artifactId>
       <version>${jakarta.validation-api.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>fr.inria.gforge.spoon</groupId>
+      <artifactId>spoon-core</artifactId>
+      <version>9.1.0-beta-14</version>
+    </dependency>
   </dependencies>
 
 </project>

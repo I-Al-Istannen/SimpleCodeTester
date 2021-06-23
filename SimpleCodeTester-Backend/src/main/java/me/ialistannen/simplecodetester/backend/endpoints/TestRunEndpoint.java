@@ -219,6 +219,7 @@ public class TestRunEndpoint {
 
         String source = stringOutputStream.toString();
         String packageName = ClassParsingUtil.getPackage(source)
+            .map(s -> s.replace(".", "/"))
             .map(s -> s + "/")
             .orElse("");
 

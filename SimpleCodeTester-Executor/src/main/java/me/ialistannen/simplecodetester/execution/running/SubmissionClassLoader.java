@@ -11,6 +11,7 @@ import java.security.Permissions;
 import java.security.ProtectionDomain;
 import java.security.SecureClassLoader;
 import java.security.cert.Certificate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,8 +77,6 @@ public class SubmissionClassLoader extends SecureClassLoader {
   }
 
   /**
-   * Returns if this class loader loaded a <em>submission</em> class with a static field.
-   *
    * @return true if this loader loaded a <em>submission</em> class with a static field
    */
   public boolean hasClassWithStaticField() {
