@@ -42,6 +42,8 @@ public class TaskQueue {
    * @return a future that will be completed with the result of executing the task
    */
   public synchronized CompletableFuture<Result> addTask(CompleteTask task) {
+    log.info("Queuing task for ({})", task.userId());
+
     boolean removedTaskInQueue = tasks.removeIf(it -> it.userId().equals(task.userId()));
     boolean hasPendingTask = pendingElements.containsKey(task.userId());
 
