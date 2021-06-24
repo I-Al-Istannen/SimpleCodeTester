@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.InputStream;
 import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 
-public class TerminalScanner {
+public class TerminalScanner implements AutoCloseable {
 
   private final String[] fileContent;
   private int fileContentOffset;
@@ -18,6 +18,13 @@ public class TerminalScanner {
     fileContent = null;
   }
 
+  public boolean hasNext() {
+    if (fileContent == null) {
+      return true;
+    }
+    return fileContentOffset < fileContent.length;
+  }
+
   public String nextLine() {
     if (fileContent == null) {
       return Terminal.readLine();
@@ -28,4 +35,7 @@ public class TerminalScanner {
 
     return fileContent[fileContentOffset++];
   }
+
+  @Override
+  public void close() {}
 }

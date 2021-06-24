@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import me.ialistannen.simplecodetester.exceptions.ReadMoreLinesThanProvidedException;
 
-public class TerminalBufferedReader {
+public class TerminalBufferedReader implements AutoCloseable {
 
   private final String[] fileContent;
   private int fileContentOffset;
@@ -23,9 +23,12 @@ public class TerminalBufferedReader {
       return Terminal.readLine();
     }
     if (fileContentOffset >= fileContent.length) {
-      throw new ReadMoreLinesThanProvidedException();
+      return null;
     }
 
     return fileContent[fileContentOffset++];
   }
+
+  @Override
+  public void close() {}
 }
