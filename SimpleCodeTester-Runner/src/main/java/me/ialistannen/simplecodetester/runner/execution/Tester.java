@@ -148,13 +148,64 @@ public class Tester {
 
   private void forceKill(String userId) {
     LOGGER.info("Force killing process ({})", userId);
-    programExecutor.execute(generateFullCommand(killCommand, userId));
+    StreamsProcessOutput<ProgramResult> execute = programExecutor.execute(
+        generateFullCommand(killCommand, userId)
+    );
+    try {
+      execute.get(30, TimeUnit.SECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      LOGGER.error(
+          "Couldn't kill container for user "
+              + "(" + userId + ")."
+              + " Stdout: " + execute.getCurrentStdOut() + "\n"
+              + " Stderr: " + execute.getCurrentStdErr(),
+          e
+      );
+    }
   }
 
   private List<String> generateFullCommand(List<String> base, String userId) {
     List<String> commands = new ArrayList<>(base);
-    commands.add(userId);
+    commands.add(normalizeUserId(userId));
 
     return commands;
+  }
+
+  private String normalizeUserId(String id) {
+    StringBuilder result = new StringBuilder();
+
+    if (!isAlphaNumeric(id.codePointAt(0))) {
+      result.append(encodeCodepoint(id.charAt(0)));
+    } else {
+      result.appendCodePoint(id.codePointAt(0));
+    }
+
+    id.codePoints().skip(1).forEach(codepoint -> {
+      if (isAlphaNumeric(codepoint)) {
+        result.appendCodePoint(codepoint);
+        return;
+      }
+      if (codepoint == '.' || codepoint == '-' || codepoint == '_') {
+        result.appendCodePoint(codepoint);
+        return;
+      }
+      result.append(encodeCodepoint(codepoint));
+    });
+
+    return result.toString();
+  }
+
+  private String encodeCodepoint(int codepoint) {
+    return Integer.toHexString(codepoint);
+  }
+
+  private boolean isAlphaNumeric(int codepoint) {
+    if (codepoint >= 'a' && codepoint <= 'z') {
+      return true;
+    }
+    if (codepoint >= 'A' && codepoint <= 'Z') {
+      return true;
+    }
+    return codepoint >= '0' && codepoint <= '9';
   }
 }
