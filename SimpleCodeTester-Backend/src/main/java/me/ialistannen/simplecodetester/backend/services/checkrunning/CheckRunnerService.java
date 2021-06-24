@@ -17,7 +17,6 @@ import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;
 import me.ialistannen.simplecodetester.backend.exception.CheckRunningFailedException;
-import me.ialistannen.simplecodetester.backend.services.diana.SystemInMangler;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.submission.ImmutableCompleteTask;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
@@ -56,7 +55,6 @@ public class CheckRunnerService {
   public Result check(String userId, Submission submission,
       List<CodeCheck> checks) {
     Map<String, String> fileMap = new HashMap<>(submission.files());
-    new SystemInMangler().replace(fileMap);
     submission = ImmutableSubmission
         .copyOf(submission)
         .withFiles(fileMap);

@@ -11,13 +11,13 @@ import java.security.Permissions;
 import java.security.ProtectionDomain;
 import java.security.SecureClassLoader;
 import java.security.cert.Certificate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import me.ialistannen.simplecodetester.execution.diana.Rewriter;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
@@ -56,7 +56,7 @@ public class SubmissionClassLoader extends SecureClassLoader {
   @Override
   protected Class<?> findClass(String name) throws ClassNotFoundException {
     if (compiledClasses.containsKey(name)) {
-      byte[] bytes = compiledClasses.get(name);
+      byte[] bytes = new Rewriter().remap(compiledClasses.get(name), this);
       Class<?> defineClass = defineClass(name, bytes, 0, bytes.length, getProtectionDomain());
       loadedSubmissionClasses.add(defineClass);
       return defineClass;
