@@ -1,12 +1,11 @@
 {
   "container_start_command": [
-    "java",
-    "-cp",
-    "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Executor/target/SimpleCodeTester-Executor.jar",
-    "me.ialistannen.simplecodetester.execution.UntrustedMain"
+    "sudo",
+    "start-container.sh"
   ],
   "container_kill_command": [
-    "there"
+    "sudo",
+    "kill-container.sh"
   ],
   "max_runtime_seconds": 30,
   "backend_url": "http://localhost:8081",
