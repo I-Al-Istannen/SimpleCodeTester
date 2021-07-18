@@ -19,7 +19,6 @@ import me.ialistannen.simplecodetester.exceptions.CheckFailedException;
 import me.ialistannen.simplecodetester.exceptions.UnsupportedIoException;
 import me.ialistannen.simplecodetester.submission.CompiledFile;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
-import me.ialistannen.simplecodetester.util.ErrorLogCapture;
 import me.ialistannen.simplecodetester.util.ExceptionUtil;
 import me.ialistannen.simplecodetester.util.StringOutputStream;
 
@@ -73,9 +72,7 @@ public class CheckRunner {
   }
 
   private CheckResult tryCheck(Check check, CompiledFile file) {
-    ErrorLogCapture capture = new ErrorLogCapture();
     try {
-      capture.startCapture();
       Terminal.reset();
       return check.check(file);
     } catch (CheckFailedException e) {
@@ -84,7 +81,7 @@ public class CheckRunner {
           .check(check.name())
           .files(check.getFiles())
           .result(ResultType.FAILED)
-          .errorOutput(capture.getCaptured())
+          .errorOutput("")
           .output(e.getOutputLines())
           .build();
     } catch (Throwable e) { // user checks should not crash everything
@@ -94,10 +91,8 @@ public class CheckRunner {
           .check(check.name())
           .files(check.getFiles())
           .result(ResultType.FAILED)
-          .errorOutput(capture.getCaptured())
+          .errorOutput("")
           .build();
-    } finally {
-      capture.stopCapture();
     }
   }
 
@@ -120,6 +115,19 @@ public class CheckRunner {
       }
     });
     System.setOut(new PrintStream(new OutputStream() {
+      private StringOutputStream outputStream = new StringOutputStream();
+
+      @Override
+      public void write(int b) {
+        if (b == '\n') {
+          Terminal.printLine(outputStream.getString());
+          outputStream = new StringOutputStream();
+        } else {
+          outputStream.write(b);
+        }
+      }
+    }));
+    System.setErr(new PrintStream(new OutputStream() {
       private StringOutputStream outputStream = new StringOutputStream();
 
       @Override
