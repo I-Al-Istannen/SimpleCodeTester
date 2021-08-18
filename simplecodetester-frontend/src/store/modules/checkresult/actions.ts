@@ -31,7 +31,7 @@ function parseCheckResponse(json: any): CheckResult {
     entries.push(new Pair(fileName, checkResults));
   })
 
-  if(json.timeoutData) {
+  if (json.timeoutData) {
     const lastTest = json.timeoutData.lastTest;
     entries.push(
       new Pair(
@@ -43,6 +43,27 @@ function parseCheckResponse(json: any): CheckResult {
             "A timeout was encountered. Maybe your code never terminates?\n"
             + "The last test I (likely) tried to run was " + lastTest,
             "", 
+            [],
+            []
+          )
+        ]
+      )
+    );
+  }
+  if (json.crashData) {
+    const lastTest = json.crashData.lastTest;
+    const context = json.crashData.additionalContext;
+    entries.push(
+      new Pair(
+        "Assigned Runner Crashed",
+        [
+          new FileCheckResult(
+            "Crash information",
+            CheckResultType.FAILED,
+            "The runner executing your code crashed. Maybe you allocated too much RAM?\n"
+            + "The last test I (likely) tried to run was " + lastTest + "\n"
+            + "The last words of the runner were: '" + context + "'",
+            "",
             [],
             []
           )

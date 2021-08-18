@@ -17,7 +17,9 @@ import java.util.stream.Collectors;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
+import me.ialistannen.simplecodetester.result.ImmutableCrashData;
 import me.ialistannen.simplecodetester.result.ImmutableResult;
+import me.ialistannen.simplecodetester.result.ImmutableResult.Builder;
 import me.ialistannen.simplecodetester.result.ImmutableTimeoutData;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.runner.util.ProgramResult;
@@ -60,14 +62,16 @@ public class Tester {
     StreamsProcessOutput<ProgramResult> task = start(completeTask);
 
     boolean killed = false;
+    ProgramResult result = null;
     try {
-      task.get(maxRuntime.getSeconds(), TimeUnit.SECONDS);
+      result = task.get(maxRuntime.getSeconds(), TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.warn("Testing failed", e);
     } catch (TimeoutException e) {
       forceKill(completeTask.userId());
       killed = true;
     }
+    boolean failed = result == null || result.getExitCode() != 0;
 
     String lastCheck = "Unknown";
     Map<String, List<CheckResult>> results = new HashMap<>();
@@ -86,12 +90,30 @@ public class Tester {
       LOGGER.warn("Received STDERR for ({}): {}", completeTask.userId(), task.getCurrentStdErr());
     }
 
-    return ImmutableResult.builder()
+    Builder resultBuilder = ImmutableResult.builder()
         .timeoutData(
             killed
                 ? Optional.of(ImmutableTimeoutData.builder().lastTest(lastCheck).build())
                 : Optional.empty()
-        )
+        );
+
+    if (failed && !killed) {
+      String context = "Exit code: ";
+      if (result != null) {
+        context += result.getExitCode();
+      } else {
+        context += "N/A";
+      }
+      resultBuilder
+          .crashData(Optional.of(
+              ImmutableCrashData.builder()
+                  .lastTest(lastCheck)
+                  .additionalContext(context)
+                  .build()
+          ));
+    }
+
+    return resultBuilder
         .putAllFileResults(results)
         .compilationOutput(parseCompilationOutput(stdOut, completeTask.userId()))
         .build();

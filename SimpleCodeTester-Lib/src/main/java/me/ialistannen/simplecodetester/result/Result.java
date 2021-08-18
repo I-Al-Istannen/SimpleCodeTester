@@ -23,11 +23,23 @@ public abstract class Result {
 
   public abstract Optional<TimeoutData> timeoutData();
 
+  public abstract Optional<CrashData> crashData();
+
   @Serial.Structural
   @Value.Immutable
   @Gson.TypeAdapters
   public static abstract class TimeoutData {
 
     public abstract String lastTest();
+  }
+
+  @Serial.Structural
+  @Value.Immutable
+  @Gson.TypeAdapters
+  public static abstract class CrashData {
+
+    public abstract String lastTest();
+
+    public abstract String additionalContext();
   }
 }
