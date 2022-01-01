@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+env:
+  JAVA_VERSION: 11
+
+jobs:
+  build-and-test-backend:
+    name: "Build and test backend"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: actions/checkout@v2
+      - name: Run maven build and tests
+        run: mvn clean package
+
+  build-frontend:
+    name: "Build frontend"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+      - uses: actions/checkout@v2
+      - name: Run frontend build
+        run: cd simplecodetester-frontend && yarn install && yarn build
