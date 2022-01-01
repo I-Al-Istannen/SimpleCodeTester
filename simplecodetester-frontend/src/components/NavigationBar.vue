@@ -14,6 +14,16 @@
         >
           <img :src="require('@/assets/Github_Mark.png')" width="32" height="32" />
         </a>
+        <a
+          v-if="!actionsHidden"
+          href="https://kitmatheinfo.de"
+          class="pl-4 py-0"
+          style="line-height: 0px;"
+          target="_blank"
+          rel="noopener"
+        >
+          <v-icon large>{{ discordIcon }}</v-icon>
+        </a>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -86,7 +96,8 @@ import {
   mdiLock,
   mdiPlusCircleOutline,
   mdiShape,
-  mdiStarHalfFull
+  mdiStarHalfFull,
+  mdiDiscord
 } from "@mdi/js";
 
 @Component({})
@@ -104,6 +115,7 @@ export default class NavigationBar extends Vue {
   private usersIcon = mdiAccountMultiple;
   private changePasswordIcon = mdiLock;
   private logoutIcon = mdiExitToApp;
+  private discordIcon = mdiDiscord;
   // ===========================================
 
   navigationItems = [
@@ -178,7 +190,7 @@ export default class NavigationBar extends Vue {
   get applicableItems(): Array<any> {
     return this.navigationItems.filter(it => {
       // only for admins and you are none
-      if (it.admin && (it.admin && !this.isAdmin)) {
+      if (it.admin && it.admin && !this.isAdmin) {
         return false;
       }
       // does not have further restrictions
@@ -218,7 +230,6 @@ export default class NavigationBar extends Vue {
   font-size: 20px;
   font-weight: 500;
 }
-
 </style>
 
 <style>
