@@ -23,6 +23,10 @@ Axios.interceptors.request.use(
       await store.dispatch("user/fetchAccessToken");
     }
 
+    if (!request.headers) {
+      request.headers = {}
+    }
+
     // eslint-disable-next-line require-atomic-updates
     request.headers['Authorization'] = 'Bearer ' + store.state.user.token;
     return Promise.resolve(request)

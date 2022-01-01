@@ -14,6 +14,7 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <asm.version>9.2</asm.version>
   </properties>
 
   <build>
@@ -45,12 +46,12 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>9.1</version>
+      <version>${asm.version}</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-commons</artifactId>
-      <version>9.1</version>
+      <version>${asm.version}</version>
     </dependency>
   </dependencies>
 

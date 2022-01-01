@@ -145,7 +145,9 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from) => {
   if (to && to.meta && to.meta.title) {
     Vue.nextTick(() => {
-      document.title = to.meta.title(to)
+      if (to.meta) {
+        document.title = to.meta.title(to)
+      }
     })
   }
 })

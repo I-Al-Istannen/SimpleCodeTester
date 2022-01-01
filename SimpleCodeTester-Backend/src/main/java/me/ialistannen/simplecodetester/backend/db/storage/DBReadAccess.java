@@ -47,7 +47,6 @@ public class DBReadAccess implements Closeable {
 
 	@Override
 	public void close() {
-		this.ctx.close();
 	}
 
 	public DSLContext dsl() {
