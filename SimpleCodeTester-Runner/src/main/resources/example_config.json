@@ -1,10 +1,5 @@
 {
   "container_start_command": [
-    "java",
-    "-Xmx30M",
-    "-cp",
-    "/home/i_al_istannen/Programming/Uni/SimpleCodeTester/SimpleCodeTester-Executor/target/SimpleCodeTester-Executor.jar",
-    "me.ialistannen.simplecodetester.execution.UntrustedMain",
     "sudo",
     "start-container.sh"
   ],

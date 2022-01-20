@@ -48,7 +48,6 @@ public class CheckRunner {
    */
   public void checkSubmission(CompiledSubmission compiledSubmission,
       BiConsumer<String, CheckResult> resultConsumer, Consumer<String> checkStartingConsumer) {
-    modifySystemInAndOut();
 
     for (CompiledFile file : compiledSubmission.compiledFiles()) {
       for (Check check : checks) {
@@ -73,6 +72,7 @@ public class CheckRunner {
 
   private CheckResult tryCheck(Check check, CompiledFile file) {
     try {
+      modifySystemInAndOut();
       Terminal.reset();
       return check.check(file);
     } catch (CheckFailedException e) {
@@ -114,31 +114,27 @@ public class CheckRunner {
         );
       }
     });
-    System.setOut(new PrintStream(new OutputStream() {
-      private StringOutputStream outputStream = new StringOutputStream();
+    System.setOut(new PrintStream(new TerminalForwardingOutputStream()));
+    System.setErr(new PrintStream(new TerminalForwardingOutputStream()));
+  }
 
-      @Override
-      public void write(int b) {
-        if (b == '\n') {
-          Terminal.printLine(outputStream.getString());
-          outputStream = new StringOutputStream();
-        } else {
-          outputStream.write(b);
-        }
-      }
-    }));
-    System.setErr(new PrintStream(new OutputStream() {
-      private StringOutputStream outputStream = new StringOutputStream();
+  private static class TerminalForwardingOutputStream extends OutputStream {
 
-      @Override
-      public void write(int b) {
-        if (b == '\n') {
-          Terminal.printLine(outputStream.getString());
-          outputStream = new StringOutputStream();
-        } else {
-          outputStream.write(b);
-        }
+    private StringOutputStream outputStream = new StringOutputStream();
+
+    @Override
+    public void write(int b) {
+      if (b == '\n') {
+        Terminal.printLine(outputStream.getString());
+        outputStream = new StringOutputStream();
+      } else {
+        outputStream.write(b);
       }
-    }));
+    }
+
+    @Override
+    public void close() {
+      // Ignore close requests, this stream can live forever
+    }
   }
 }
