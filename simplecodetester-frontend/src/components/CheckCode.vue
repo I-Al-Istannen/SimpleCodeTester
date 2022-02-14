@@ -27,6 +27,9 @@
           </v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
+        <v-alert type="error" class="category-info" :value="is2021WsFinal1">
+          <span v-html="text2021WsFinal1Text"></span>
+        </v-alert>
         <v-alert type="error" :value="error.length > 0">{{ error }}</v-alert>
       </v-card>
     </v-flex>
@@ -46,8 +49,8 @@ import { mdiCloudUpload } from "@mdi/js";
 @Component({
   components: {
     "multi-file-select": MultiFileSelect,
-    "check-category-selection": CheckCategorySelection
-  }
+    "check-category-selection": CheckCategorySelection,
+  },
 })
 export default class CheckCode extends Vue {
   private code: string = "";
@@ -93,7 +96,7 @@ export default class CheckCode extends Vue {
   private handleUploadResult(promise: AxiosPromise<any>) {
     promise
       .then(() => this.$router.push("/view-check-result"))
-      .catch(error => {
+      .catch((error) => {
         this.error = extractErrorMessage(error);
       })
       .finally(() => (this.uploading = false));
@@ -102,7 +105,7 @@ export default class CheckCode extends Vue {
   uploadFile() {
     this.uploading = true;
 
-    const zipFile = this.files.find(elem => {
+    const zipFile = this.files.find((elem) => {
       return elem.name.endsWith(".zip");
     });
 
@@ -127,6 +130,23 @@ export default class CheckCode extends Vue {
     this.files = files;
   }
 
+  private get is2021WsFinal1(): boolean {
+    if (!this.checkCategory) {
+      return false;
+    }
+    return this.checkCategory.name === "2021 WS Final 1";
+  }
+
+  private get text2021WsFinal1Text() {
+    return (
+      "See you for assignment 2 :)\n\n" +
+      "Whoops, but the CodeTester is not made for Junit tests, as the barrier of entry for those is quite high.\n" +
+      "The assignment is easier than previous years though and possible to test exhaustively manually.\n" +
+      "You might want to coordinate if and how you want to organize tests in the "
+      + '<a class="mathe-info-link" target="_blank" href="https://kitmatheinfo.de">KIT Mathe/Info Discord</a>.'
+    );
+  }
+
   // ICONS
   private uploadIcon = mdiCloudUpload;
 }
@@ -136,5 +156,15 @@ export default class CheckCode extends Vue {
 .sticky-bottom {
   position: sticky;
   bottom: 0px;
+}
+.category-info {
+  white-space: pre-line;
+  font-weight: bolder;
+}
+</style>
+
+<style>
+.mathe-info-link {
+  color: unset !important;
 }
 </style>

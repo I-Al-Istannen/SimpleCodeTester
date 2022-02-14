@@ -32,6 +32,7 @@ export default new Vuetify({
         muted: "#848484"
       },
       dark: {
+        error: "#c84a4b",
         primary: "#4CAF50",
         secondary: "#c51162",
         accent: "#f8f32b",
