@@ -9,7 +9,7 @@ public class Rewriter extends Remapper {
 
   public byte[] remap(byte[] classBytes, ClassLoader classLoader) {
     ClassReader reader = new ClassReader(classBytes);
-    ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
+    ClassWriter writer = new ClassWriter(0) {
       @Override
       protected ClassLoader getClassLoader() {
         return classLoader;
@@ -17,7 +17,7 @@ public class Rewriter extends Remapper {
     };
     reader.accept(
         new ClassRemapper(writer, new Mapper()),
-        ClassReader.EXPAND_FRAMES | ClassReader.SKIP_FRAMES
+        0
     );
 
     return writer.toByteArray();
