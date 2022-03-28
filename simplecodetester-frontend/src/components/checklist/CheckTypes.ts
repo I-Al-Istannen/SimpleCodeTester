@@ -18,6 +18,7 @@ export class CheckBase {
   checkType: string | null;
   creationTime: string;
   updateTime: string | null;
+  updateTimeMS: number;
 
   constructor(
     id: number,
@@ -27,7 +28,8 @@ export class CheckBase {
     category: CheckCategory,
     checkType: string | null,
     creationTime: string,
-    updateTime: string | null
+    updateTime: string | null,
+    updateTimeMS: number
   ) {
     this.id = id;
     this.creator = creator;
@@ -37,6 +39,7 @@ export class CheckBase {
     this.checkType = checkType;
     this.creationTime = creationTime;
     this.updateTime = updateTime;
+    this.updateTimeMS = updateTimeMS;
   }
 
   static fromJson(json: any): CheckBase {
@@ -44,6 +47,11 @@ export class CheckBase {
     const updateTime = json.updateTime === undefined
       ? null
       : dateFormat.format(new Date(json.updateTime));
+    const updateTimeMS = json.updateTime !== undefined
+      ? json.updateTime
+      : json.creationTime !== undefined
+      ? json.creationTime
+      : 0; // default: unix epoch -> old checks without the fields won't be found
 
     return new CheckBase(
       json.id,
@@ -53,7 +61,8 @@ export class CheckBase {
       new CheckCategory(json.category.name, json.category.id),
       json.checkType,
       creationTime,
-      updateTime
+      updateTime,
+      updateTimeMS
     );
   }
 }

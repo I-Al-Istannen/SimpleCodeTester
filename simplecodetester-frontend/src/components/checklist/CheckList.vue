@@ -27,7 +27,7 @@
             class="mx-5 mb-2"
             v-model="search"
             :append-icon="searchIcon"
-            label="Search for category, id, check name or author..."
+            label="Search for category, id, check name, author or update time ('after <ISO8601>')..."
             single-line
           ></v-text-field>
 
@@ -213,6 +213,12 @@ export default class CheckList extends Vue {
     }
     if (check.id.toString().indexOf(search) !== -1) {
       return true;
+    }
+    if (search.startsWith("after ")) {
+      const givenTimeMS = Date.parse(search.replace("after ", "").trim());
+      if (!isNaN(givenTimeMS) && check.updateTimeMS >= givenTimeMS) {
+        return true;
+      }
     }
     return false;
   }
