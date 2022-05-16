@@ -22,7 +22,7 @@
     <jose4j.version>0.7.9</jose4j.version>
     <micrometer.version>1.8.1</micrometer.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring-boot.version>2.6.2</spring-boot.version>
+    <spring-boot.version>2.6.6</spring-boot.version>
     <sqlite.version>3.36.0.3</sqlite.version>
 
     <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
