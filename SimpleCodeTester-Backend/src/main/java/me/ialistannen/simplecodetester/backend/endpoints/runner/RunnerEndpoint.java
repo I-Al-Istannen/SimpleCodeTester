@@ -1,7 +1,7 @@
 package me.ialistannen.simplecodetester.backend.endpoints.runner;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.services.checkrunning.TaskQueue;
 import me.ialistannen.simplecodetester.backend.services.config.RunnerConfig;

@@ -13,7 +13,7 @@ import me.ialistannen.simplecodetester.checks.storage.CheckSerializer;
 import me.ialistannen.simplecodetester.compilation.ImmutableCompilationOutput;
 import me.ialistannen.simplecodetester.exceptions.CompilationException;
 import me.ialistannen.simplecodetester.execution.compilation.Compiler;
-import me.ialistannen.simplecodetester.execution.compilation.memory.Java11InMemoryCompiler;
+import me.ialistannen.simplecodetester.execution.compilation.memory.Java17InMemoryCompiler;
 import me.ialistannen.simplecodetester.execution.running.CheckRunner;
 import me.ialistannen.simplecodetester.submission.CompiledSubmission;
 import me.ialistannen.simplecodetester.submission.CompleteTask;
@@ -55,7 +55,7 @@ public class Executor {
   }
 
   private CompiledSubmission compile(Submission submission) {
-    Compiler compiler = new Java11InMemoryCompiler();
+    Compiler compiler = new Java17InMemoryCompiler();
     return compiler.compileSubmission(submission);
   }
 

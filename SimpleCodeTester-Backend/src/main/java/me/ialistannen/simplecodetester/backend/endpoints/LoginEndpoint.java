@@ -1,9 +1,9 @@
 package me.ialistannen.simplecodetester.backend.endpoints;
 
+import jakarta.validation.constraints.NotEmpty;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import javax.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.db.entities.User;
 import me.ialistannen.simplecodetester.backend.security.JwtGenerator;

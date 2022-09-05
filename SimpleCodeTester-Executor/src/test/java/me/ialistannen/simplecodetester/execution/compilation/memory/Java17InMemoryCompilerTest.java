@@ -11,13 +11,13 @@ import me.ialistannen.simplecodetester.submission.Submission;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class Java11InMemoryCompilerTest {
+class Java17InMemoryCompilerTest {
 
-  private Java11InMemoryCompiler inMemoryCompiler;
+  private Java17InMemoryCompiler inMemoryCompiler;
 
   @BeforeEach
   void setupCompiler() {
-    inMemoryCompiler = new Java11InMemoryCompiler();
+    inMemoryCompiler = new Java17InMemoryCompiler();
   }
 
   @Test

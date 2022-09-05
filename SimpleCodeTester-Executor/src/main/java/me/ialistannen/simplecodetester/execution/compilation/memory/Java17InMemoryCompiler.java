@@ -30,7 +30,7 @@ import me.ialistannen.simplecodetester.submission.Submission;
 /**
  * A java 8 compiler that works in-memory.
  */
-public class Java11InMemoryCompiler implements Compiler {
+public class Java17InMemoryCompiler implements Compiler {
 
   @Override
   public CompiledSubmission compileSubmission(Submission submission) {
@@ -65,7 +65,7 @@ public class Java11InMemoryCompiler implements Compiler {
 
           diagnostics.put(diagnostic.getSource().getName(), diagnosticMessages);
         },
-        Arrays.asList("-Xlint:all", "-Xlint:-processing", "-Xlint:-serial", "--release=11"),
+        Arrays.asList("-Xlint:all", "-Xlint:-processing", "-Xlint:-serial", "--release=17"),
         null,
         compilationUnits
     )
