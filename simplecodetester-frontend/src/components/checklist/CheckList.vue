@@ -55,7 +55,12 @@
                     <v-expansion-panel-header
                       class="monospaced subtitle-1 d-flex check-header py-0"
                     >
-                      <span>Check '{{ item.name }}' by '{{ item.creator }}' (ID: {{ item.id }})</span>
+                      <span v-if="item.creator != null">
+                        Check '{{ item.name }}' by '{{ item.creator }}' (ID: {{ item.id }})
+                      </span>
+                      <span v-else>
+                        Check '{{ item.name }}' (ID: {{ item.id }})
+                      </span>
                       <modify-actions
                         :checks="checks"
                         :userState="userState"
@@ -205,7 +210,7 @@ export default class CheckList extends Vue {
     if (this.containsWordsInAnyOrder(search, check.name.toLowerCase())) {
       return true;
     }
-    if (this.containsWordsInAnyOrder(search, check.creator.toLowerCase())) {
+    if (check.creator && this.containsWordsInAnyOrder(search, check.creator.toLowerCase())) {
       return true;
     }
     if (this.filterCategory(search, check.category.name.toLowerCase())) {

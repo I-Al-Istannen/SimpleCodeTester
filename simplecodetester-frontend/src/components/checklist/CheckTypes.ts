@@ -11,7 +11,7 @@ const dateFormat = new Intl.DateTimeFormat(
  */
 export class CheckBase {
   id: number;
-  creator: string;
+  creator: string | null;
   name: string;
   approved: boolean;
   category: CheckCategory;
@@ -21,7 +21,7 @@ export class CheckBase {
 
   constructor(
     id: number,
-    creator: string,
+    creator: string | null,
     name: string,
     approved: boolean,
     category: CheckCategory,

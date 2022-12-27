@@ -1,11 +1,8 @@
 package me.ialistannen.simplecodetester.backend.services.checks;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
 import me.ialistannen.simplecodetester.backend.db.entities.CheckCategory;
 import me.ialistannen.simplecodetester.backend.db.entities.CodeCheck;

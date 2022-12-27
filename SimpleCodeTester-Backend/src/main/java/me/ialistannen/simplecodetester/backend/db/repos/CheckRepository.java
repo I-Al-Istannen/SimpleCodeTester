@@ -131,17 +131,13 @@ public class CheckRepository {
 
   private CodeCheck updateCheck(CodeCheck check, DBWriteAccess db) {
     db.update(CODE_CHECK)
-        .set(new CodeCheckRecord(
-            check.getId(),
-            check.isApproved(),
-            check.getCheckType().name(),
-            check.getCreationTime(),
-            check.getName(),
-            check.getText(),
-            check.getUpdateTime().orElse(null),
-            check.getCategory().getId(),
-            check.getCreator().getId()
-        ))
+        .set(CODE_CHECK.APPROVED, check.isApproved())
+        .set(CODE_CHECK.CHECK_TYPE, check.getCheckType().name())
+        .set(CODE_CHECK.CREATION_TIME, check.getCreationTime())
+        .set(CODE_CHECK.NAME, check.getName())
+        .set(CODE_CHECK.TEXT, check.getText())
+        .set(CODE_CHECK.UPDATE_TIME, check.getUpdateTime().orElse(null))
+        .set(CODE_CHECK.CATEGORY_ID, check.getCategory().getId())
         .where(CODE_CHECK.ID.eq(check.getId()))
         .returning()
         .fetchOne();

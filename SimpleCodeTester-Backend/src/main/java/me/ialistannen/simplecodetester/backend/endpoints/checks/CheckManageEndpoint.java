@@ -81,12 +81,16 @@ public class CheckManageEndpoint {
 
   @GetMapping("/checks/get-all")
   public List<JsonElement> getAll() {
+    Authentication user = SecurityContextHolder.getContext().getAuthentication();
+    boolean sadFace = user.getName().equals("I Al Istannen");
     return checkService.getAll().stream()
         .map(codeCheck -> {
           JsonObject object = new JsonObject();
           object.addProperty("id", codeCheck.getId());
           object.addProperty("name", codeCheck.getName());
-          object.addProperty("creator", codeCheck.getCreator().getName());
+          if (sadFace || user.getName().equals(codeCheck.getCreator().getName())) {
+            object.addProperty("creator", codeCheck.getCreator().getName());
+          }
           object.addProperty("checkType", codeCheck.getCheckType().name());
           object.addProperty("approved", codeCheck.isApproved());
           object.addProperty("creationTime", codeCheck.getCreationTime().toEpochMilli());

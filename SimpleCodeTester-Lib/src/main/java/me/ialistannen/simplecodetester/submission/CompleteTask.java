@@ -1,6 +1,7 @@
 package me.ialistannen.simplecodetester.submission;
 
 import java.util.List;
+import java.util.UUID;
 import org.immutables.gson.Gson;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -17,5 +18,5 @@ public abstract class CompleteTask {
 
   public abstract Submission submission();
 
-  public abstract String userId();
+  public abstract UUID userIdentifier();
 }

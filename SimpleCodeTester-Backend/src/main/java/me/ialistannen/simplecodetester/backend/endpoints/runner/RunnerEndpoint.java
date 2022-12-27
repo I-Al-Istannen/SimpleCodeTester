@@ -2,6 +2,7 @@ package me.ialistannen.simplecodetester.backend.endpoints.runner;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.backend.services.checkrunning.TaskQueue;
 import me.ialistannen.simplecodetester.backend.services.config.RunnerConfig;
@@ -35,7 +36,9 @@ public class RunnerEndpoint {
 
     Optional<CompleteTask> taskOptional = taskQueue.pollTask();
 
-    taskOptional.ifPresent(task -> log.info("Sending task for ({}) to runner", task.userId()));
+    taskOptional.ifPresent(
+        task -> log.info("Sending task for ({}) to runner", task.userIdentifier())
+    );
 
     return ResponseEntity.of(taskOptional);
   }
@@ -64,8 +67,8 @@ public class RunnerEndpoint {
       this.result = result;
     }
 
-    public String getUserId() {
-      return userId;
+    public UUID getUserId() {
+      return UUID.fromString(userId);
     }
 
     public Result getResult() {

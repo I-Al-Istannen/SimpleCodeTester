@@ -9,6 +9,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Optional;
+import java.util.UUID;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.submission.CompleteTask;
 import org.slf4j.Logger;
@@ -57,9 +58,9 @@ public class BackendCommunicator {
     return Optional.empty();
   }
 
-  public void sendResults(Result result, String userId) throws IOException, InterruptedException {
+  public void sendResults(Result result, UUID userId) throws IOException, InterruptedException {
     HttpRequest request = HttpRequest.newBuilder(reportWorkUri)
-        .POST(BodyPublishers.ofString(gson.toJson(new AttributedResult(userId, result))))
+        .POST(BodyPublishers.ofString(gson.toJson(new AttributedResult(userId.toString(), result))))
         .header("Authorization", password)
         .header("Content-Type", "application/json")
         .build();

@@ -3,9 +3,12 @@ package me.ialistannen.simplecodetester.backend.services.checkrunning;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
@@ -23,10 +26,17 @@ public class TaskQueue {
 
   private final Deque<CompleteTask> tasks;
   private final Map<String, CompletableFuture<Result>> pendingElements;
+  private final Map<UUID, String> userIdMap;
 
   public TaskQueue() {
     this.tasks = new ArrayDeque<>();
     this.pendingElements = new HashMap<>();
+    this.userIdMap = new LinkedHashMap<>() {
+      @Override
+      protected boolean removeEldestEntry(Entry<UUID, String> eldest) {
+        return size() > 10_000;
+      }
+    };
   }
 
   /**
@@ -41,23 +51,24 @@ public class TaskQueue {
    * @param task the task to add
    * @return a future that will be completed with the result of executing the task
    */
-  public synchronized CompletableFuture<Result> addTask(CompleteTask task) {
-    log.info("Queuing task for ({})", task.userId());
+  public synchronized CompletableFuture<Result> addTask(String userId, CompleteTask task) {
+    log.info("Queuing task for ({})", userId);
 
-    boolean hasPendingTask = pendingElements.containsKey(task.userId());
+    boolean hasPendingTask = pendingElements.containsKey(userId);
 
     if (hasPendingTask) {
-      log.info("User ({}) submitted a new task while the old one was still pending", task.userId());
+      log.info("User ({}) submitted a new task while the old one was still pending", userId);
       completeWithError(
-          pendingElements.get(task.userId()),
+          pendingElements.get(userId),
           "You made a new request. "
-              + "This one will be discarded and you were placed at the end of the queue."
+          + "This one will be discarded and you were placed at the end of the queue."
       );
     }
 
+    userIdMap.put(task.userIdentifier(), userId);
     CompletableFuture<Result> future = new CompletableFuture<>();
     tasks.addFirst(task);
-    pendingElements.put(task.userId(), future);
+    pendingElements.put(userId, future);
 
     return future;
   }
@@ -71,7 +82,13 @@ public class TaskQueue {
    * @param userId the id of the user to remove the task for
    */
   public synchronized void removeTaskForUser(String userId) {
-    tasks.removeIf(task -> task.userId().equals(userId));
+    tasks.removeIf(task -> {
+      String id = userIdMap.get(task.userIdentifier());
+      if (id == null) {
+        return true;
+      }
+      return id.equals(userId);
+    });
     CompletableFuture<Result> future = pendingElements.remove(userId);
 
     if (future != null) {
@@ -108,9 +125,10 @@ public class TaskQueue {
    * Completes a pending future with the check result.
    *
    * @param result the check result
-   * @param userId the user the result belongs to
+   * @param userIdentifier the user the result belongs to
    */
-  public synchronized void complete(Result result, String userId) {
+  public synchronized void complete(Result result, UUID userIdentifier) {
+    String userId = userIdMap.get(userIdentifier);
     CompletableFuture<Result> future = pendingElements.remove(userId);
     if (future != null) {
       future.complete(result);

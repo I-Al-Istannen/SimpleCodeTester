@@ -63,7 +63,7 @@ public class Main {
       return;
     }
     CompleteTask task = taskOpt.get();
-    LOGGER.info("Got work for '{}'", task.userId());
+    LOGGER.info("Got work for '{}'", task.userIdentifier());
     Instant start = Instant.now();
 
     Result result = tester.test(task);
@@ -71,12 +71,12 @@ public class Main {
     Duration duration = Duration.between(start, Instant.now());
     LOGGER.info(
         "Sending results for '{}'. Tests took {}s {}ms",
-        task.userId(),
+        task.userIdentifier(),
         duration.toSeconds(),
         duration.toMillisPart()
     );
 
-    backendCommunicator.sendResults(result, task.userId());
+    backendCommunicator.sendResults(result, task.userIdentifier());
   }
 
   private static RunnerConfiguration loadConfig(String arg) {

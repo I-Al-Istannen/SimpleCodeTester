@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -60,8 +61,9 @@ public class CheckRunnerService {
         .withFiles(fileMap);
 
     CompletableFuture<Result> result = queue.addTask(
+        userId,
         ImmutableCompleteTask.builder()
-            .userId(userId)
+            .userIdentifier(UUID.randomUUID())
             .submission(submission)
             .addAllChecks(checks.stream().map(CodeCheck::getText).collect(toList()))
             .build()

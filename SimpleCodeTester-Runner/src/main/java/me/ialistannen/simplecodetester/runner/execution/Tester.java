@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -68,7 +69,7 @@ public class Tester {
     } catch (InterruptedException | ExecutionException e) {
       LOGGER.warn("Testing failed", e);
     } catch (TimeoutException e) {
-      forceKill(completeTask.userId());
+      forceKill(completeTask.userIdentifier());
       killed = true;
     }
     boolean failed = result == null || result.getExitCode() != 0;
@@ -82,12 +83,12 @@ public class Tester {
       try {
         lastCheck = parseResultLine(line, results);
       } catch (Exception e) {
-        LOGGER.warn("Received invalid JSON (" + completeTask.userId() + ")", e);
+        LOGGER.warn("Received invalid JSON (" + completeTask.userIdentifier() + ")", e);
       }
     }
 
     if (!task.getCurrentStdErr().isBlank()) {
-      LOGGER.warn("Received STDERR for ({}): {}", completeTask.userId(), task.getCurrentStdErr());
+      LOGGER.warn("Received STDERR for ({}): {}", completeTask.userIdentifier(), task.getCurrentStdErr());
     }
 
     Builder resultBuilder = ImmutableResult.builder()
@@ -115,11 +116,11 @@ public class Tester {
 
     return resultBuilder
         .putAllFileResults(results)
-        .compilationOutput(parseCompilationOutput(stdOut, completeTask.userId()))
+        .compilationOutput(parseCompilationOutput(stdOut, completeTask.userIdentifier()))
         .build();
   }
 
-  private CompilationOutput parseCompilationOutput(List<String> lines, String userId) {
+  private CompilationOutput parseCompilationOutput(List<String> lines, UUID userId) {
     if (lines.isEmpty()) {
       LOGGER.warn("Received no compilation output ({})", userId);
       return ImmutableCompilationOutput.builder()
@@ -163,12 +164,12 @@ public class Tester {
   }
 
   private StreamsProcessOutput<ProgramResult> start(CompleteTask taskToSend) {
-    List<String> command = generateFullCommand(startCommand, taskToSend.userId());
+    List<String> command = generateFullCommand(startCommand, taskToSend.userIdentifier());
     String stdin = gson.toJson(taskToSend);
     return programExecutor.execute(command, stdin);
   }
 
-  private void forceKill(String userId) {
+  private void forceKill(UUID userId) {
     LOGGER.info("Force killing process ({})", userId);
     StreamsProcessOutput<ProgramResult> execute = programExecutor.execute(
         generateFullCommand(killCommand, userId)
@@ -186,14 +187,15 @@ public class Tester {
     }
   }
 
-  private List<String> generateFullCommand(List<String> base, String userId) {
+  private List<String> generateFullCommand(List<String> base, UUID userId) {
     List<String> commands = new ArrayList<>(base);
     commands.add(normalizeUserId(userId));
 
     return commands;
   }
 
-  private String normalizeUserId(String id) {
+  private String normalizeUserId(UUID uuid) {
+    String id = uuid.toString();
     StringBuilder result = new StringBuilder();
 
     if (!isAlphaNumeric(id.codePointAt(0))) {

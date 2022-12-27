@@ -15,26 +15,21 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import lombok.experimental.UtilityClass;
-import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.GsonAdaptersCheckResult;
 import me.ialistannen.simplecodetester.checks.defaults.StaticInputOutputCheck;
 import me.ialistannen.simplecodetester.checks.defaults.io.matcher.InterleavedIoMatcher;
-import me.ialistannen.simplecodetester.submission.CompleteTask;
-import me.ialistannen.simplecodetester.submission.GsonAdaptersCompiledFile;
 import me.ialistannen.simplecodetester.submission.GsonAdaptersCompleteTask;
 import me.ialistannen.simplecodetester.submission.GsonAdaptersSubmission;
-import me.ialistannen.simplecodetester.submission.ImmutableCompleteTask;
-import me.ialistannen.simplecodetester.submission.Submission;
 
 /**
  * A helper to create a configured {@link Gson} instance.
@@ -72,6 +67,7 @@ public class ConfiguredGson {
           }
         })
         .registerTypeAdapter(Path.class, new PathTypeAdapter())
+        .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
         .registerTypeAdapter(StaticInputOutputCheck.class, new StaticInputOutputCheckAdapter())
         .registerTypeAdapterFactory(new GsonAdaptersCompleteTask())
         .registerTypeAdapterFactory(new GsonAdaptersCheckResult())
@@ -91,6 +87,27 @@ public class ConfiguredGson {
     @Override
     public Path read(JsonReader in) throws IOException {
       return Paths.get(in.nextString());
+    }
+  }
+
+  private static class InstantTypeAdapter extends TypeAdapter<Instant> {
+
+    @Override
+    public void write(JsonWriter out, Instant value) throws IOException {
+      if (value == null) {
+        out.nullValue();
+      } else {
+        out.value(value.toEpochMilli());
+      }
+    }
+
+    @Override
+    public Instant read(JsonReader in) throws IOException {
+      if (in.peek() == JsonToken.NULL) {
+        in.nextNull();
+        return null;
+      }
+      return Instant.ofEpochMilli(in.nextLong());
     }
   }
 
@@ -203,7 +220,7 @@ public class ConfiguredGson {
 
     @Override
     public void write(JsonWriter out, Optional<E> value) throws IOException {
-      if(value.isPresent()){
+      if (value.isPresent()) {
         adapter.write(out, value.get());
       } else {
         out.nullValue();
@@ -213,7 +230,7 @@ public class ConfiguredGson {
     @Override
     public Optional<E> read(JsonReader in) throws IOException {
       final JsonToken peek = in.peek();
-      if(peek != JsonToken.NULL){
+      if (peek != JsonToken.NULL) {
         return Optional.ofNullable(adapter.read(in));
       }
 
