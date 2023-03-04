@@ -43,6 +43,8 @@ public class SubmissionClassLoader extends SecureClassLoader {
   public SubmissionClassLoader(CompiledSubmission submission) {
     // Allow class requests to bubble up
     super(SubmissionClassLoader.class.getClassLoader());
+    // Let's be nice to people trying to use assertions. Though this should probably be a warning...
+    setDefaultAssertionStatus(true);
 
     this.compiledClasses = submission.compiledFiles().stream()
         .collect(toMap(
