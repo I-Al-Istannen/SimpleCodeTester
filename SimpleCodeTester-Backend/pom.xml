@@ -14,16 +14,16 @@
   <properties>
     <db.url>jdbc:sqlite:${project.build.directory}/data.db</db.url>
 
-    <commons-text.version>1.9</commons-text.version>
+    <commons-text.version>1.10.0</commons-text.version>
     <flyway.version>8.3.0</flyway.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-    <jooq.version>3.17.3</jooq.version>
-    <jose4j.version>0.7.12</jose4j.version>
-    <micrometer.version>1.9.3</micrometer.version>
+    <jooq.version>3.17.8</jooq.version>
+    <jose4j.version>0.9.3</jose4j.version>
+    <micrometer.version>1.10.4</micrometer.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring-boot.version>2.7.3</spring-boot.version>
-    <sqlite.version>3.39.2.1</sqlite.version>
+    <spring-boot.version>2.7.9</spring-boot.version>
+    <sqlite.version>3.41.0.0</sqlite.version>
 
     <maven-antrun-plugin.version>3.0.0</maven-antrun-plugin.version>
   </properties>
