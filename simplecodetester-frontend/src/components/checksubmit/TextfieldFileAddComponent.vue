@@ -4,6 +4,7 @@
     item-key="name"
     hide-default-footer
     no-data-text
+    :items-per-page="25"
     :class="[plainOutline ? 'plain' : '']"
   >
     <template v-slot:default="{ items }">
@@ -34,7 +35,7 @@
       <v-container>
         <v-row justify="center">
           <v-col cols="auto">
-            <v-btn @click="addNew()">
+            <v-btn @click="addNew()" :disabled="value.length >= 25">
               <v-icon left>{{ addIcon }}</v-icon>
               {{ fileUploadPrompt }}
             </v-btn>

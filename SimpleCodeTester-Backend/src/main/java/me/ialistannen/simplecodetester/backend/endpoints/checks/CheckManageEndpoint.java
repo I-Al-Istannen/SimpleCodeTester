@@ -182,6 +182,9 @@ public class CheckManageEndpoint {
       return ResponseUtil
           .error(HttpStatus.BAD_REQUEST, "Mehrere Dateien haben den gleichen Namen!");
     }
+    if (addRequest.files.size() > 25) {
+      return ResponseUtil.error(HttpStatus.BAD_REQUEST, "Zu viele Dateien");
+    }
 
     try {
       Check check = parseCheckFromJsonBlob(addRequest.getPayload());
