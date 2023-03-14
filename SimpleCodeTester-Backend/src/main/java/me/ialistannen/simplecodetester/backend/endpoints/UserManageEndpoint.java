@@ -50,7 +50,7 @@ public class UserManageEndpoint {
   @GetMapping("/admin/get-users")
   public List<User> getAllUsers() {
     return StreamSupport.stream(userService.getAllUsers().spliterator(), false)
-        .sorted(Comparator.comparing(User::getName))
+        .sorted(Comparator.comparing(User::getId))
         .collect(Collectors.toList());
   }
 

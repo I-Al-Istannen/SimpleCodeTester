@@ -151,7 +151,7 @@ export default class ModifyActions extends Vue {
     if (this.userState.isEditor()) {
       return true;
     }
-    return this.userState.displayName == creator;
+    return this.userState.userName == creator;
   }
 
   canDeleteCheck(creator: string): boolean {
@@ -161,7 +161,7 @@ export default class ModifyActions extends Vue {
     if (this.userState.isEditor()) {
       return true;
     }
-    return this.userState.displayName == creator;
+    return this.userState.userName == creator;
   }
 
   canApprove(check: CheckBase) {

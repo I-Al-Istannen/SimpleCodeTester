@@ -1,6 +1,8 @@
 *.iml
-.idea/
+.idea/*
 target/
 *.db
 *.db-wal
 *.db-shm
+
+!/.idea/codeStyles

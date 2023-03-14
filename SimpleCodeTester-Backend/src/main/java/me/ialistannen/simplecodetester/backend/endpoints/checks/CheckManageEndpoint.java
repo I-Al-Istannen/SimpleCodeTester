@@ -88,8 +88,8 @@ public class CheckManageEndpoint {
           JsonObject object = new JsonObject();
           object.addProperty("id", codeCheck.getId());
           object.addProperty("name", codeCheck.getName());
-          if (sadFace || user.getName().equals(codeCheck.getCreator().getName())) {
-            object.addProperty("creator", codeCheck.getCreator().getName());
+          if (sadFace || user.getName().equals(codeCheck.getCreator().getId())) {
+            object.addProperty("creator", codeCheck.getCreator().getId());
           }
           object.addProperty("checkType", codeCheck.getCheckType().name());
           object.addProperty("approved", codeCheck.isApproved());
