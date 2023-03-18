@@ -27,8 +27,10 @@ import me.ialistannen.simplecodetester.backend.services.checks.CodeCheckService;
 import me.ialistannen.simplecodetester.backend.util.ResponseUtil;
 import me.ialistannen.simplecodetester.checks.CheckResult;
 import me.ialistannen.simplecodetester.checks.CheckResult.ResultType;
+import me.ialistannen.simplecodetester.checks.ImmutableCheckResult;
 import me.ialistannen.simplecodetester.compilation.CompilationOutput;
 import me.ialistannen.simplecodetester.result.ImmutableResult;
+import me.ialistannen.simplecodetester.result.ImmutableResult.Builder;
 import me.ialistannen.simplecodetester.result.Result;
 import me.ialistannen.simplecodetester.submission.ImmutableSubmission;
 import me.ialistannen.simplecodetester.submission.Submission;
@@ -83,8 +85,9 @@ public class TestRunEndpoint {
 
   @PostMapping("/test/single/{categoryId}")
   public ResponseEntity<Object> testSingleFile(@PathVariable long categoryId,
-      @RequestBody @NotEmpty String source, @NotNull
-      Principal user) {
+      @RequestBody @NotEmpty String source,
+      @NotNull Principal user
+  ) {
     String id = user.getName();
 
     if (ClassParsingUtil.getClassName(source).isEmpty()) {
@@ -107,6 +110,33 @@ public class TestRunEndpoint {
 
     if (checks.isEmpty()) {
       return ResponseUtil.error(HttpStatus.NOT_FOUND, "No checks I am allowed to run found.");
+    }
+
+    // Ensure people use the correct package for the SimulationFileLoader
+    if (categoryId == 951) {
+      List<String> fileLoaderOutsideOfCorrectPackage = submission.files().keySet().stream()
+          .filter(it -> !it.equals("edu/kit/kastel/trafficsimulation/io/SimulationFileLoader.java"))
+          .filter(it -> it.equals("SimulationFileLoader.java")
+                        || it.endsWith("/SimulationFileLoader.java")
+          )
+          .toList();
+      if (!fileLoaderOutsideOfCorrectPackage.isEmpty()) {
+        ImmutableCheckResult checkResults = ImmutableCheckResult.builder()
+            .result(ResultType.FAILED)
+            .check("Simulation loader package")
+            .message(
+                "The SimulationLoader needs to be in the "
+                + "'edu.kit.kastel.trafficsimulation.io' package."
+            )
+            .errorOutput("")
+            .build();
+        Builder builder = ImmutableResult.builder();
+        for (String incorrectFile : fileLoaderOutsideOfCorrectPackage) {
+          builder.putFileResults(incorrectFile, List.of(checkResults));
+        }
+        log.info("Told a person to please use the correct SimulationFileLoader package");
+        return ResponseEntity.ok(builder.build());
+      }
     }
 
     submissionsTestedCounter.increment();
