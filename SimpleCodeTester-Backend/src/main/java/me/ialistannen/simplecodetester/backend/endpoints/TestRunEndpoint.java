@@ -248,13 +248,10 @@ public class TestRunEndpoint {
         }
 
         String source = stringOutputStream.toString();
-        String packageName = ClassParsingUtil.getPackage(source)
-            .map(s -> s.replace(".", "/"))
-            .map(s -> s + "/")
-            .orElse("");
-
-        String fileName = Paths.get(entry.getName()).getFileName().toString();
-        files.put(packageName + fileName, source);
+        String fileName = getSubmissionFileNameFromSource(
+            source, Paths.get(entry.getName()).getFileName().toString()
+        );
+        files.put(fileName, source);
       }
 
       return testMultipleFiles(files, user.getName(), categoryId);
@@ -268,6 +265,13 @@ public class TestRunEndpoint {
       log.info("Error extracting file for user '{}'", user.getName(), e);
       return ResponseUtil.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
+  }
+
+  private static String getSubmissionFileNameFromSource(String source, String fileName) {
+    return ClassParsingUtil.getPackage(source)
+        .map(s -> s.replace(".", "/"))
+        .map(s -> s + "/")
+        .orElse("") + fileName;
   }
 
   @PostMapping("/test/multiple/{categoryId}")
@@ -292,11 +296,9 @@ public class TestRunEndpoint {
       for (Entry<String, List<MultipartFile>> entry : fileMap.entrySet()) {
         for (MultipartFile file : entry.getValue()) {
           String source = new String(file.getBytes());
-          String packageName = ClassParsingUtil.getPackage(source)
-              .map(s -> s + "/")
-              .orElse("");
+          String fileName = getSubmissionFileNameFromSource(source, file.getName());
 
-          files.put(packageName + file.getName(), source);
+          files.put(fileName, source);
         }
       }
 
