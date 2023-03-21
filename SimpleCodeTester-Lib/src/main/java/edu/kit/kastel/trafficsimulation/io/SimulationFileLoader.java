@@ -1,27 +1,28 @@
 package edu.kit.kastel.trafficsimulation.io;
 
 import edu.kit.informatik.Terminal;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
 public class SimulationFileLoader {
 
-  private final String prefix;
+  private final Path prefix;
 
   public SimulationFileLoader(String prefix) {
-    this.prefix = !prefix.isEmpty() && !prefix.endsWith("/") ? prefix + "/" : prefix;
+    this.prefix = Path.of(prefix).normalize();
   }
 
   public List<String> loadStreets() {
-    return Arrays.asList(Terminal.readFile(prefix + "streets.sim"));
+    return Arrays.asList(Terminal.readFile(prefix.resolve("streets.sim").toString()));
   }
 
   public List<String> loadCrossings() {
-    return Arrays.asList(Terminal.readFile(prefix + "crossings.sim"));
+    return Arrays.asList(Terminal.readFile(prefix.resolve("crossings.sim").toString()));
   }
 
   public List<String> loadCars() {
-    return Arrays.asList(Terminal.readFile(prefix + "cars.sim"));
+    return Arrays.asList(Terminal.readFile(prefix.resolve("cars.sim").toString()));
   }
 
 }
