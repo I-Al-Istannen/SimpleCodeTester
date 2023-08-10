@@ -25,6 +25,10 @@ public class TerminalScanner implements AutoCloseable {
     return fileContentOffset < fileContent.length;
   }
 
+  public boolean hasNextLine() {
+    return hasNext();
+  }
+
   public String nextLine() {
     if (fileContent == null) {
       return Terminal.readLine();
