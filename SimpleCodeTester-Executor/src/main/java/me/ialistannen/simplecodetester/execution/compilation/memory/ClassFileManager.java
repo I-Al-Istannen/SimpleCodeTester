@@ -42,8 +42,8 @@ class ClassFileManager extends ForwardingJavaFileManager<StandardJavaFileManager
 
   String sanitizeToClassName(String path) {
     return path
-        .replace("/", ".")
-        .replace(".java", "");
+        .replace(".java", "")
+        .replace("/", ".");
   }
 
   /**
