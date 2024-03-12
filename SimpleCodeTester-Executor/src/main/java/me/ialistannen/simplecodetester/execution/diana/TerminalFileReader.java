@@ -12,6 +12,10 @@ public class TerminalFileReader extends Reader {
     this.file = file;
   }
 
+  public TerminalFileReader(String file) {
+    this(new File(file));
+  }
+
   public File getFile() {
     return file;
   }
