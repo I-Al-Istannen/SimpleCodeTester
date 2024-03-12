@@ -97,6 +97,10 @@ public final class Terminal {
     throw new IllegalArgumentException("File '" + path + "' not found! I know: " + files.keySet());
   }
 
+  public static boolean hasFile(String path) {
+    return files.containsKey(path);
+  }
+
   /**
    * Sets the input the terminal class should use.
    *

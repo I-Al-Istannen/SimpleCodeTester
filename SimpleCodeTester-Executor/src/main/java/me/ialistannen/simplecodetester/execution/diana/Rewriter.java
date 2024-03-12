@@ -36,6 +36,9 @@ public class Rewriter extends Remapper {
       if (internalName.equals("java/io/FileReader")) {
         return "me/ialistannen/simplecodetester/execution/diana/TerminalFileReader";
       }
+      if (internalName.equals("java/nio/file/Files")) {
+        return "me/ialistannen/simplecodetester/execution/diana/TerminalFiles";
+      }
       return super.map(internalName);
     }
   }
